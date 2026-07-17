@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>龍山寺屋面傳統裝飾普查系統 (Firebase版)</title>
+    <!-- 平板 App 全螢幕與優化設定 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f5f5f7; color: #1d1d1f; margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 24px; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+        h1 { font-size: 22px; text-align: center; margin-bottom: 5px; color: #1a365d; }
+        
+        /* 頂部即時編碼預覽區 */
+        .code-preview-box { background-color: #ebf8ff; border: 2px dashed #3182ce; padding: 18px; border-radius: 10px; margin-bottom: 20px; text-align: center; position: relative; }
+        .code-preview-box label { font-size: 13px; color: #2b6cb0; font-weight: bold; display: block; margin-bottom: 8px; }
+        .generated-code { font-family: "Courier New", Courier, monospace; font-size: 24px; font-weight: bold; color: #2b6cb0; word-break: break-all; }
+        
+        /* Firebase 雲端網路狀態指示燈 */
+        .sync-status-badge { position: absolute; top: 12px; right: 15px; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 20px; background: #feebc8; color: #c05621; }
+        .sync-status-badge.online { background: #c6f6d5; color: #22543d; }
+        .sync-status-badge.online .dot { background: #38a169; }
+        .sync-status-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: #dd6b20; display: inline-block; }
+        
+        /* 表單排版 */
+        .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .form-group { flex: 1; min-width: 0; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; color: #4a5568; }
+        input[type="text"], select, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 8px; box-sizing: border-box; font-size: 16px; background-color: #fff; -webkit-appearance: none; }
+        input:focus, select:focus { border-color: #3182ce; outline: none; box-shadow: 0 0 0 3px rgba(66,153,225,0.4); }
+        
+        /* 按鈕與卡片 */
+        .btn-group { display: flex; gap: 12px; margin-top: 20px; }
+        button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; user-select: none; }
+        .btn-submit { background-color: #2b6cb0; color: white; }
+        .btn-export { background-color: #38a169; color: white; }
+        .preview-container { margin-top: 10px; display: none; text-align: center; }
+        .preview-container img { max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #cbd5e0; }
+        
+        .history { margin-top: 35px; border-top: 2px solid #e2e8f0; padding-top: 20px; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .history h2 { font-size: 18px; margin: 0; color: #4a5568; }
+        .data-card { background: #f7fafc; padding: 15px; border-radius: 10px; margin-bottom: 12px; border-left: 6px solid #2b6cb0; font-size: 14px; }
+        .data-card img { max-width: 150px; display: block; margin-top: 10px; border-radius: 6px; }
+    </style>
+    <!-- 載入 Google Firebase SDK 模組（網頁開起來自動下載，不需安裝） -->
+    <script type="module">
+        import { initializeApp } from "https://gstatic.com";
+        import { getFirestore, collection, addDoc, onSnapshot, enableIndexedDbPersistence } from "https://gstatic.com";
+
+        // ⚠️ 請填入你專屬的 Firebase 雲端配置金鑰
+        const firebaseConfig = {
+            apiKey: "AIzaSyCcQwZq42FnlL5_V0HCQ1mjNZaulQrRh1w",
+            authDomain: "qqbase-39057.firebaseapp.com",
+            projectId: "qqbase-39057",
+            storageBucket: "qqbase-39057.firebasestorage.app",
+            messagingSenderId: "173614464944",
+            appId: "1:173614464944:web:aeb38060c576cf495aa075",
+            measurementId: "G-KF50RT64YM"
+        };
+
+        // 初始化 Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 🔥 核心：啟動 Firebase 本地持久化快取
+        enableIndexedDbPersistence(db).catch((err) => {
+            if (err.code == 'failed-precondition') {
+                console.warn("多個分頁同時開啟，本地離線快取僅能在單一分頁運作。");
+            } else if (err.code == 'unimplemented') {
+                console.warn("當前瀏覽器不支援離線快取技術。");
+            }
+        });
+
+        window.db = db;
+        window.firestoreCollection = collection(db, "survey_records");
+        window.firebaseInitialized = true;
+        
+        // 觸發自訂事件，通知網頁主體資料庫已就緒
+        document.dispatchEvent(new Event('firebase-ready'));
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏛️ 艋舺龍山寺屋面傳統裝飾普查系統</h1>
+    <div style="text-align: center; color: #718096; font-size: 14px; margin-bottom: 25px;">Firebase 雲端雙向離線自動同步版</div>
+    
+    <div class="code-preview-box">
+        <!-- 狀態指示燈：會自動根據 Firebase 雲端連線狀態變色 -->
+        <div id="networkStatus" class="sync-status-badge">
+            <span class="dot"></span> <span id="statusText">離線暫存</span>
+        </div>
+        <label>當前選擇的完整編號 (Full Code Format)</label>
+        <div class="generated-code" id="codePreview">LS-SH-W-MR-11-001-O01</div>
+    </div>
+
+    <form id="recordForm">
+        <!-- 第一排：寺廟代號、建築區域、屋面朝向 -->
+        <div class="form-row">
+            <div class="form-group" style="flex: 0 0 80px;">
+                <label>寺廟代號</label>
+                <input type="text" id="prefix" value="LS" disabled style="background-color: #edf2f7; text-align: center; font-weight: bold;">
+            </div>
+            <div class="form-group">
+                <label>建築區域 [殿區]</label>
+                <select id="area" onchange="updateCodePreview()">
+                    <option value="SH" selected>三川殿 (SH)</option>
+                    <option value="FL">前殿龍門 (FL)</option>
+                    <option value="FR">前殿虎門 (FR)</option>
+                    <option value="RL">後殿龍門 (RL)</option>
+                    <option value="RR">後殿虎門 (RR)</option>
+                    <option value="TH">天上聖母殿 (TH)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>屋面朝向 [方位]</label>
+                <select id="direction" onchange="updateCodePreview()">
+                    <option value="W" selected>西 West (W)</option>
+                    <option value="E">東 East (E)</option>
+                    <option value="S">南 South (S)</option>
+                    <option value="N">北 North (N)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 第二排：屋面部位、構件細部 -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>屋面部位</label>
+                <select id="roofPos" onchange="updateCodePreview()">
+                    <option value="MR" selected>正脊 (MR)</option>
+                    <option value="DR">垂脊 (DR)</option>
+                    <option value="HR">戧脊 (HR)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>構件細部分類</label>
+                <select id="compCode" onchange="updateCodePreview()">
+                    <option value="11" selected>脊堵/脊肚 (11)</option>
+                    <option value="16">排頭 (16)</option>
+                    <option value="08">西施脊 (08)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 第三排：作品流水號、照片序號 -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>作品流水號 (三位數)</label>
+                <input type="text" id="serial" value="001" oninput="updateCodePreview()" required style="font-family: monospace;">
+            </div>
+            <div class="form-group">
+                <label>照片型別+序號</label>
+                <input type="text" id="photoType" value="O01" oninput="updateCodePreview()" required style="font-family: monospace;">
+            </div>
+        </div>
+
+        <!-- 第四排：工藝形式 -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>工藝形式 (附加資料欄位)</label>
+                <select id="craft">
+                    <option value="CP" selected>剪黏工藝 (CP)</option>
+                    <option value="JP">交趾陶工藝 (JP)</option>
+                    <option value="CS">泥塑工藝 (CS)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 照片與備註 -->
+        <div class="form-group">
+            <label>📷 調查影像上傳 / 平板相機現場拍攝 (選填)</label>
+            <input type="file" id="photo" accept="image/*">
+            <div class="preview-container" id="previewContainer">
+                <img id="imagePreview" src="" alt="照片預覽">
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <label>📝 題材內容 / 保存狀況備註說明</label>
+            <textarea id="note" rows="2" placeholder="請輸入作品細部觀察描述..."></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" class="btn-submit">💾 儲存文資數據 (自動同步雲端)</button>
+        </div>
+    </form>
+
+    <!-- 歷史紀錄 -->
+    <div class="history">
+        <div class="history-header">
+            <h2>📋 雲端實時同步數據庫 (含本機離線快取)</h2>
+            <button id="exportBtn" class="btn-export" style="flex: none; width: auto; padding: 8px 15px; font-size: 14px;">🍏 匯出 Excel表格 (CSV)</button>
+        </div>
+        <div id="dataList"></div>
+    </div>
+</div>
+<script>
+    const inputs = ['area', 'direction', 'roofPos', 'compCode', 'serial', 'photoType'];
+    let base64Image = "";
+    let allRecords = [];
+
+    // --- 1. 選單變換極速對齊編碼 ---
+    function updateCodePreview() {
+        try {
+            const area = document.getElementById('area').value;
+            const direction = document.getElementById('direction').value;
+            const roofPos = document.getElementById('roofPos').value;
+            const compCode = document.getElementById('compCode').value;
+            const serial = document.getElementById('serial').value.trim() || '？';
+            const photoType = document.getElementById('photoType').value.trim() || '？';
+            document.getElementById('codePreview').innerText = `LS-${area}-${direction}-${roofPos}-${compCode}-${serial}-${photoType}`;
+        } catch(e) {}
+    }
+
+    // --- 2. 監聽實時網路與狀態燈變色 ---
+    function setupNetworkIndicator() {
+        const badge = document.getElementById('networkStatus');
+        const text = document.getElementById('statusText');
+        if (!badge || !text) return;
+        
+        if (navigator.onLine) {
+            badge.className = "sync-status-badge online";
+            text.innerText = "雲端連線中";
+        } else {
+            badge.className = "sync-status-badge";
+            text.innerText = "離線暫存中";
+        }
+    }
+    window.addEventListener('online', setupNetworkIndicator);
+    window.addEventListener('offline', setupNetworkIndicator);
+
+    // --- 3. 初始化控制與事件綁定 ---
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCodePreview();
+        setupNetworkIndicator();
+
+        inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('change', updateCodePreview);
+                el.addEventListener('input', updateCodePreview);
+            }
+        });
+
+        // 平板相機拍照處理
+        const photoInput = document.getElementById('photo');
+        if (photoInput) {
+            photoInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        base64Image = event.target.result;
+                        document.getElementById('imagePreview').src = base64Image;
+                        document.getElementById('previewContainer').style.display = 'block';
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+        }
+
+        // 送出儲存（不論有沒有網路都會立刻存進快取並在有網時自動背景補傳）
+        document.getElementById('recordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!window.firebaseInitialized) {
+                alert("Firebase 雲端引擎尚未就緒，請檢查金鑰配置！");
+                return;
+            }
+
+            const record = {
+                fullCode: document.getElementById('codePreview').innerText,
+                area: document.getElementById('area').value,
+                direction: document.getElementById('direction').value,
+                roofPos: document.getElementById('roofPos').value,
+                compCode: document.getElementById('compCode').value,
+                serial: document.getElementById('serial').value,
+                photoType: document.getElementById('photoType').value,
+                craft: document.getElementById('craft').value,
+                note: document.getElementById('note').value,
+                photo: base64Image,
+                timestamp: new Date().toLocaleString()
+            };
+
+            try {
+                const { addDoc } = await import("https://gstatic.com");
+                await addDoc(window.firestoreCollection, record);
+                
+                alert("數據登錄成功！\n已安全排入本機與雲端同步佇列。\n識別碼：" + record.fullCode);
+                
+                document.getElementById('note').value = "";
+                document.getElementById('photo').value = "";
+                document.getElementById('previewContainer').style.display = 'none';
+                base64Image = "";
+                updateCodePreview();
+            } catch (err) {
+                alert("儲存失敗: " + err.message);
+            }
+        });
+    });
+
+    // --- 4. 監聽 Firebase 實時資料串流（雲端有變動會自動通知平板下載更新） ---
+    document.addEventListener('firebase-ready', function() {
+        if (!window.firestoreCollection) return;
+        const { onSnapshot } = import("https://gstatic.com");
+
+        onSnapshot(window.firestoreCollection, (snapshot) => {
+            const dataList = document.getElementById('dataList');
+            if (!dataList) return;
+            
+            dataList.innerHTML = "";
+            allRecords = [];
+            let docs = [];
+
+            snapshot.forEach(doc => {
+                let data = doc.data();
+                data.id = doc.id;
+                docs.push(data);
+            });
+            
+            // 按時間由新到舊排序
+            docs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            docs.forEach(val => {
+                allRecords.push(val);
+                const card = document.createElement('div');
+                card.className = 'data-card';
+                card.innerHTML = `
+                    <strong style="color:#2b6cb0; font-size:15px;">🔍 編碼：${val.fullCode}</strong><br>
+                    <span style="color:#718096; font-size:12px;">🕒 登記時間：${val.timestamp} | 🎨 工藝：${val.craft}</span><br>
+                    ${val.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 備註：${val.note}</div>` : ''}
+                    ${val.photo ? `<img src="${val.photo}" alt="影像">` : ''}
+                `;
+                dataList.appendChild(card);
+            });
+
+            if (allRecords.length === 0) {
+                dataList.innerHTML = "<p style='color:#a0aec0; text-align:center;'>雲端資料庫目前尚無數據</p>";
+            }
+        });
+    });
+
+    // --- 5. 匯出 Excel (CSV) 報表 ---
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        if (allRecords.length === 0) {
+            alert("目前資料庫沒有數據可供匯出！");
+            return;
+        }
+        let csvContent = "\uFEFF"; 
+        csvContent += "完整登錄編碼,建築區域,方位,屋面部位,細部分類,流水號,照片序號,工藝,備註說明,登記時間\n";
+        allRecords.forEach(r => {
+            const row = [
+                r.fullCode, r.area, r.direction, r.roofPos, r.compCode, r.serial, r.photoType, r.craft, r.note || '', r.timestamp
+            ].map(text => `"${text.replace(/"/g, '""')}"`).join(",");
+            csvContent += row + "\n";
+        });
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `龍山寺文資普查雲端即時表_${new Date().toLocaleDateString()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+</script>
+</body>
+</html>
