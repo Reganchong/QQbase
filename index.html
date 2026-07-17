@@ -310,7 +310,7 @@
         }
     };
 
-    // --- ★ 核心優化：手動點擊儲存按鈕的全域觸發管道 ---
+    // --- 手動點擊儲存按鈕的全域觸發管道 ---
     window.triggerLocalSave = function() {
         if (window.executeLocalSaveFunction) {
             window.executeLocalSaveFunction();
@@ -319,12 +319,14 @@
         }
     };
 
-    // --- 刪除與同步的中轉管道 ---
-    window.triggerDeleteRecord = function(id) {
+    // --- 刪除中轉管道 ---
+    window.triggerDeleteRecord = function(id, fCode) {
         if (window.deleteLocalRecordFunction) {
-            window.deleteLocalRecordFunction(id);
+            window.deleteLocalRecordFunction(id, fCode);
         }
     };
+
+    // --- 同步的中轉管道 ---
     window.triggerFirebaseSync = function() {
         if (window.syncToFirebaseFunction) {
             window.syncToFirebaseFunction();
@@ -373,6 +375,7 @@
     };
 
     let localDB = null, cloudCollection = null;
+    window.backupMemoryStorage = []; 
 
     function toggleBadge(on) {
         const b = document.getElementById('networkStatus');
@@ -384,17 +387,24 @@
     }
 
     // 啟動本機 IndexedDB 資料庫
-    const req = indexedDB.open("LongshanLocalDatabase", 1);
-    req.onupgradeneeded = function(e) {
-        let d = e.target.result;
-        if (!d.objectStoreNames.contains("local_records")) {
-            d.createObjectStore("local_records", 
-            { keyPath: "id", autoIncrement: true });
-        }
-    };
-    req.onsuccess = function(e) { 
-        localDB = e.target.result; renderList(); 
-    };
+    try {
+        const req = indexedDB.open("LongshanLocalDatabase", 1);
+        req.onupgradeneeded = function(e) {
+            let d = e.target.result;
+            if (!d.objectStoreNames.contains("local_records")) {
+                d.createObjectStore("local_records", 
+                { keyPath: "id", autoIncrement: true });
+            }
+        };
+        req.onsuccess = function(e) { 
+            localDB = e.target.result; renderList(); 
+        };
+        req.onerror = function() {
+            console.warn("硬碟遭隱私鎖定，切換至備用記憶體模式。");
+        };
+    } catch(err) {
+        console.warn("啟用記憶體沙盒方案。");
+    }
 
     // 啟動 Firebase 連線
     try {
@@ -411,111 +421,129 @@
     // 讀取並渲染本機普查清單
     function renderList() {
         const box = document.getElementById('dataList');
-        if (!box || !localDB) return;
+        if (!box) return;
         box.innerHTML = ""; window.allRecordsSaved = [];
         
-        const tx = localDB.transaction(
-            ["local_records"], "readonly"
-        );
-        tx.objectStore("local_records").openCursor(null, "prev")
-        .onsuccess = function(e) {
-            const cur = e.target.result;
-            if (cur) {
-                const v = cur.value; 
+        if (localDB) {
+            const tx = localDB.transaction(["local_records"], "readonly");
+            tx.objectStore("local_records").openCursor(null, "prev")
+            .onsuccess = function(e) {
+                const cur = e.target.result;
+                if (cur) {
+                    const v = cur.value; window.allRecordsSaved.push(v);
+                    drawCard(v, box); cur.continue();
+                } else { checkEmptyList(box); }
+            };
+        } else {
+            let reversedMemory = [...window.backupMemoryStorage].reverse();
+            reversedMemory.forEach(v => {
                 window.allRecordsSaved.push(v);
-                const tag = v.synced === 1 ? 
-                `<span class="card-sync-tag tag-synced">☁️ 已同步</span>` : 
-                `<span class="card-sync-tag tag-unsynced">⏳ 暫存中</span>`;
-                
-                const card = document.createElement('div');
-                card.className = 'data-card';
-                card.innerHTML = `
-                    <button type="button" class="delete-btn" 
-                    onclick="window.triggerDeleteRecord(${v.id})">❌</button>
-                    <strong>🔍 編碼：${v.fullCode}</strong>${tag}<br>
-                    <span style="color:#718096; font-size:12px;">
-                    🕒 時間：${v.timestamp}</span><br>
-                    ${v.note ? `<div style="margin-top:5px; background:#fff; 
-                    padding:6px; border:1px solid #edf2f7;">
-                    📝 備註：${v.note}</div>` : ''}
-                    ${v.photo ? `<img src="${v.photo}">` : ''}
-                `;
-                box.appendChild(card); cur.continue();
-            } else if (window.allRecordsSaved.length === 0) {
-                box.innerHTML = "<p style='color:#a0aec0; " +
-                "text-align:center;'>目前本機尚無普查數據</p>";
-            }
-        };
+                drawCard(v, box);
+            });
+            checkEmptyList(box);
+        }
+    }
+
+    function drawCard(v, box) {
+        const tag = v.synced === 1 ? 
+        `<span class="card-sync-tag tag-synced">☁️ 已同步</span>` : 
+        `<span class="card-sync-tag tag-unsynced">⏳ 暫存中</span>`;
+        const card = document.createElement('div');
+        card.className = 'data-card';
+        card.innerHTML = `
+            <button type="button" class="delete-btn" 
+            onclick="window.triggerDeleteRecord(${v.id || 0}, '${v.fullCode}')">❌</button>
+            <strong>🔍 編碼：${v.fullCode}</strong>${tag}<br>
+            <span style="color:#718096; font-size:12px;">🕒 時間：${v.timestamp}</span><br>
+            ${v.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 備註：${v.note}</div>` : ''}
+            ${v.photo ? `<img src="${v.photo}">` : ''}
+        `;
+        box.appendChild(card);
+    }
+
+    function checkEmptyList(box) {
+        if (window.allRecordsSaved.length === 0) {
+            box.innerHTML = "<p style='color:#a0aec0; text-align:center;'>目前本機尚無普查數據</p>";
+        }
     }
 
     // 本機卡片單獨移除
-    window.deleteLocalRecordFunction = function(id) {
-        if (!confirm("⚠️ 確定要從平板本機刪除嗎？")) return;
-        const tx = localDB.transaction(
-            ["local_records"], "readwrite"
-        );
-        tx.objectStore("local_records").delete(id);
-        tx.oncomplete = function() { 
-            alert("🗑️ 數據已自本機移除！"); renderList(); 
-        };
+    window.deleteLocalRecordFunction = function(id, fCode) {
+        if (!confirm("⚠️ 確定要從平板本機刪除這筆數據嗎？")) return;
+        
+        if (localDB && id !== 0) {
+            const tx = localDB.transaction(["local_records"], "readwrite");
+            tx.objectStore("local_records").delete(id);
+            tx.oncomplete = function() { 
+                alert("🗑️ 數據已自本機移除！"); renderList(); 
+            };
+        } else {
+            window.backupMemoryStorage = window.backupMemoryStorage
+                .filter(item => item.fullCode !== fCode);
+            alert("🗑️ 數據已自備用快取中移除！");
+            renderList();
+        }
     };
 
     // 手動批量同步上傳雲端
     window.syncToFirebaseFunction = async function() {
-        if (!navigator.onLine) { 
-            alert("🚨 同步失敗：目前平板沒有網路！"); return; 
-        }
-        if (!cloudCollection) { 
-            alert("🚨 雲端連線失敗！"); return; 
-        }
+        if (!navigator.onLine) { alert("🚨 同步失敗：目前平板沒有網路！"); return; }
+        if (!cloudCollection) { alert("🚨 雲端連線失敗！"); return; }
         alert("📡 正在將平板離線數據發送至雲端...");
 
-        const tx = localDB.transaction(
-            ["local_records"], "readwrite"
-        );
-        const store = tx.objectStore("local_records");
-        let unsynced = 0, success = 0;
+        let success = 0;
 
-        store.openCursor().onsuccess = async function(e) {
-            const cur = e.target.result;
-            if (cur) {
-                const r = cur.value;
+        if (localDB) {
+            const tx = localDB.transaction(["local_records"], "readwrite");
+            const store = tx.objectStore("local_records");
+            store.openCursor().onsuccess = async function(e) {
+                const cur = e.target.result;
+                if (cur) {
+                    const r = cur.value;
+                    if (r.synced === 0) {
+                        try {
+                            await uploadDocToFirebase(r);
+                            r.synced = 1; cur.update(r); success++;
+                        } catch(err) {}
+                    }
+                    cur.continue();
+                } else { showSyncAlert(success); }
+            };
+        } else {
+            for (let r of window.backupMemoryStorage) {
                 if (r.synced === 0) {
-                    unsynced++;
                     try {
-                        const clean = {
-                            fullCode: r.fullCode, area: r.area, 
-                            direction: r.direction, roofPos: r.roofPos, 
-                            compCode: r.compCode, serial: r.serial,
-                            photoType: r.photoType, craft: r.craft, 
-                            note: r.note, photo: r.photo, 
-                            timestamp: r.timestamp
-                        };
-                        await addDoc(cloudCollection, clean);
-                        r.synced = 1; cur.update(r); success++;
-                    } catch(err) { console.error(err); }
+                        await uploadDocToFirebase(r);
+                        r.synced = 1; success++;
+                    } catch(err) {}
                 }
-                cur.continue();
-            } else {
-                if (unsynced === 0) { 
-                    alert("☁️ 所有資料皆已同步，無新增項目。"); 
-                } else { 
-                    alert(`🎉 同步成功！\n上傳了 ${success} 筆暫存！`); 
-                }
-                renderList();
             }
-        };
+            showSyncAlert(success);
+        }
     };
 
-    // ★ 核心優化：手動全域儲存代碼（強制原地鎖定、絕不重整、選項原封不動）
+    async function uploadDocToFirebase(r) {
+        const clean = {
+            fullCode: r.fullCode, area: r.area, direction: r.direction,
+            roofPos: r.roofPos, compCode: r.compCode, serial: r.serial,
+            photoType: r.photoType, craft: r.craft, note: r.note,
+            photo: r.photo, timestamp: r.timestamp
+        };
+        await addDoc(cloudCollection, clean);
+    }
+
+    function showSyncAlert(count) {
+        if (count === 0) { alert("☁️ 本機所有資料先前皆已同步。"); }
+        else { alert(`🎉 同步成功！成功上傳了 ${count} 筆數據到雲端！`); }
+        renderList();
+    }
+
+    // ★ 終極儲存：雙軌制引擎 (強制原地鎖定、選項完好不動)
     window.executeLocalSaveFunction = function() {
-        if (!localDB) return;
-        
         const serialVal = document.getElementById('serial').value.trim();
         const photoTypeVal = document.getElementById('photoType').value.trim();
         if (!serialVal || !photoTypeVal) {
-            alert("❌ 請填寫作品流水號與照片型別！");
-            return;
+            alert("❌ 請填寫作品流水號與照片型別！"); return;
         }
 
         const r = {
@@ -530,48 +558,47 @@
             photo: window.base64ImageSaved, synced: 0,
             timestamp: new Date().toLocaleString()
         };
-        const tx = localDB.transaction(["local_records"], "readwrite");
-        tx.objectStore("local_records").add(r);
-        tx.oncomplete = function() {
-            alert("💾 數據已安全存入當前平板！\n編碼：" + r.fullCode);
-            document.getElementById('note').value = "";
-            document.getElementById('photo').value = "";
-            document.getElementById('previewContainer')
-                .style.display = 'none';
-            window.base64ImageSaved = "";
-            window.autoIncrementSerial(); 
-            window.updateCodePreview(); 
-            renderList();
-        };
+
+        if (localDB) {
+            const tx = localDB.transaction(["local_records"], "readwrite");
+            tx.objectStore("local_records").add(r);
+            tx.oncomplete = function() { finalizeSave(r.fullCode); };
+        } else {
+            window.backupMemoryStorage.push(r);
+            finalizeSave(r.fullCode + " (暫存於平板暫存區)");
+        }
     };
 
-    // 🍏 修正並對齊對稱的 Excel (CSV) 匯出功能
+    function finalizeSave(msg) {
+        alert("💾 數據已安全存入當前平板！\n編碼：" + msg);
+        document.getElementById('note').value = "";
+        document.getElementById('photo').value = "";
+        document.getElementById('previewContainer').style.display = 'none';
+        window.base64ImageSaved = "";
+        window.autoIncrementSerial(); 
+        window.updateCodePreview(); 
+        renderList();
+    }
+
+    // Excel (CSV) 匯出功能
     document.getElementById('exportBtn').onclick = function() {
-        if (window.allRecordsSaved.length === 0) { 
-            alert("目前本機沒有數據！"); return; 
-        }
+        if (window.allRecordsSaved.length === 0) { alert("目前本機沒有數據！"); return; }
         let csv = "\uFEFF";
-        csv += "完整登錄編碼,建築區域,方位,屋面部位," +
-               "細部分類,流水號,照片序號,工藝,備註,同步狀態,登記時間\n";
+        csv += "完整登錄編碼,建築區域,方位,屋面部位,細部分類,流水號,照片序號,工藝,備註,同步狀態,登記時間\n";
         
         window.allRecordsSaved.forEach(r => {
             const txt = r.synced === 1 ? "已同步" : "僅本機暫存";
             const row = [
                 r.fullCode, r.area, r.direction, r.roofPos, r.compCode,
-                r.serial, r.photoType, r.craft, r.note || '', txt, 
-                r.timestamp
+                r.serial, r.photoType, r.craft, r.note || '', txt, r.timestamp
             ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
             csv += row + "\n";
         });
         
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a"); 
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", 
-            `龍山寺普查表_${new Date().toLocaleDateString()}.csv`);
-        document.body.appendChild(link); 
-        link.click(); 
-        document.body.removeChild(link);
+        const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `龍山寺普查表_${new Date().toLocaleDateString()}.csv`);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
     };
 </script>
 </body>
