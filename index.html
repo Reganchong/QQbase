@@ -16,13 +16,13 @@
         .code-preview-box label { font-size: 13px; color: #2b6cb0; font-weight: bold; display: block; margin-bottom: 8px; }
         .generated-code { font-family: "Courier New", Courier, monospace; font-size: 24px; font-weight: bold; color: #2b6cb0; word-break: break-all; }
         
-        /* Firebase 雲端網路狀態指示燈 */
+        /* 網路連線指示燈 */
         .sync-status-badge { position: absolute; top: 12px; right: 15px; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 20px; background: #feebc8; color: #c05621; }
         .sync-status-badge.online { background: #c6f6d5; color: #22543d; }
         .sync-status-badge.online .dot { background: #38a169; }
         .sync-status-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: #dd6b20; display: inline-block; }
         
-        /* 📄 頁面控制核心（包含三大主頁） */
+        /* 📄 頁面控制核心 */
         .main-section { display: none; }
         .main-section.active { display: block; }
         .page { display: none; }
@@ -38,7 +38,7 @@
         .menu-item.sync-card { background: #fffaf0; border-color: #feebc8; }
         .menu-item.sync-card h3 { color: #dd6b20; }
         
-        /* 表單與大按鈕 */
+        /* 表單排版 */
         .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
         .form-row .form-group { flex: 1; min-width: 0; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; color: #4a5568; }
@@ -52,7 +52,7 @@
         .btn-export { background-color: #38a169; color: white; }
         .btn-home { background-color: #1a365d; color: white; margin-top: 20px; width: 100%; display: block; }
         
-        /* 歷史紀錄快取卡片 */
+        /* 歷史紀錄與快取卡片樣式 */
         .preview-container { margin-top: 10px; display: none; text-align: center; }
         .preview-container img { max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #cbd5e0; }
         .history { margin-top: 20px; }
@@ -61,18 +61,23 @@
         .data-card { background: #f7fafc; padding: 15px; border-radius: 10px; margin-bottom: 12px; border-left: 6px solid #2b6cb0; font-size: 14px; position: relative; }
         .data-card img { max-width: 150px; display: block; margin-top: 10px; border-radius: 6px; }
         .delete-btn { position: absolute; top: 15px; right: 15px; color: #e53e3e; cursor: pointer; font-weight: bold; border: none; background: none; font-size: 15px; padding: 5px; }
+        
+        /* 同步狀態小標籤 */
+        .card-sync-tag { display: inline-block; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 8px; }
+        .tag-unsynced { background: #feebc8; color: #c05621; }
+        .tag-synced { background: #c6f6d5; color: #22543d; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>🏛️ 艋舺龍山寺屋面傳統裝飾普查系統</h1>
-    <div style="text-align: center; color: #718096; font-size: 14px; margin-bottom: 15px;">學術普查 PWA 離線同步平台</div>
+    <div style="text-align: center; color: #718096; font-size: 14px; margin-bottom: 15px;">學術普查 PWA 本機優先離線同步版</div>
     
     <!-- 預覽編碼框常駐頂部 -->
     <div class="code-preview-box">
         <div id="networkStatus" class="sync-status-badge">
-            <span class="dot"></span> <span id="statusText">等待連線...</span>
+            <span class="dot"></span> <span id="statusText">正在檢測連線...</span>
         </div>
         <label>當前選擇的完整編號 (Full Code Format)</label>
         <div class="generated-code" id="codePreview">LS-SH-W-MR-11-001-O01</div>
@@ -83,15 +88,16 @@
         <div class="menu-grid">
             <div class="menu-item" onclick="window.switchSection('log')">
                 <h3>➕ 數據登錄工具</h3>
-                <p>進入分頁普查表單，支援平板現場相機拍照與自動流水號。</p>
+                <p>在本機平板儲存裝飾普查資料，選項原封不動，流水號自動+1。</p>
             </div>
             <div class="menu-item" onclick="window.switchSection('query')">
                 <h3>🔍 查詢歷史數據</h3>
-                <p>瀏覽本機與雲端已儲存的全部普查卡片，可即時進行修正抹除。</p>
+                <p>翻看當前平板儲存的所有卡片，可即時查看同步狀態或進行刪除。</p>
             </div>
-            <div class="menu-item sync-card full-width" onclick="window.switchSection('query')">
-                <h3>🔄 雲端同步與下載</h3>
-                <p>點選可直接匯出標準學術 Excel (CSV) 表格檔案到平板中。</p>
+            <!-- 🔄 核心更新：首頁手動觸發同步按鈕 -->
+            <div class="menu-item sync-card full-width" onclick="window.triggerFirebaseSync()">
+                <h3>🔄 點擊同步至雲端資料庫</h3>
+                <p>回到有網路的地方時點選此處，將平板儲存的所有普查卡片一次性批量推送到雲端。</p>
             </div>
         </div>
         <div style="text-align: center; color: #a0aec0; font-size: 12px; margin-top: 40px;">平板專用系統 · 離線作業優先設計</div>
@@ -136,7 +142,7 @@
                 </div>
             </div>
 
-            <!-- 📄 登錄第二頁：細部紀錄與現場拍照（修正：儲存時會絕對停留在這頁） -->
+            <!-- 📄 登錄第二頁：細部紀錄與現場拍照（點儲存時原地留守，選項不變，流水號+1） -->
             <div id="page2" class="page">
                 <h3 style="color:#2b6cb0; margin-bottom:15px; border-left:4px solid #2b6cb0; padding-left:8px;">第二步：詳細普查數據與影像紀錄</h3>
                 <div class="form-row">
@@ -183,7 +189,7 @@
                     <input type="file" id="photo" accept="image/*">
                     <div class="preview-container" id="previewContainer">
                         <img id="imagePreview" src="" alt="照片預覽">
-                </div>
+                    </div>
                 </div>
                 <div class="form-group" style="margin-top: 15px;">
                     <label>📝 題材內容 / 保存狀況備註說明</label>
@@ -191,18 +197,18 @@
                 </div>
                 <div class="btn-group">
                     <button type="button" class="btn-nav" onclick="window.switchPage(1)">⬅️ 返回第一步</button>
-                    <button type="submit" class="btn-submit">💾 儲存此筆文資數據</button>
+                    <button type="submit" class="btn-submit">💾 儲存至當前平板本機</button>
                 </div>
                 <button type="button" class="btn-home" onclick="window.switchSection('menu')" style="background-color:#4a5568;">🏠 結束登錄，回目錄首頁</button>
             </div>
         </form>
     </div>
 
-    <!-- 🌐 【功能三：獨立數據查詢與下載頁面】 -->
+    <!-- 🌐 【功能三：獨立數據查詢與下載頁面】（可查看本機所有快取資料） -->
     <div id="section-query" class="main-section">
         <div class="history">
             <div class="history-header">
-                <h2>📋 已儲存核心普查數據快取清單</h2>
+                <h2>📋 平板本機已快取數據總覽</h2>
                 <button type="button" id="exportBtn" class="btn-export" style="flex: none; width: auto; padding: 8px 15px; font-size: 14px;">🍏 匯出 Excel (CSV)</button>
             </div>
             <div id="dataList"></div>
@@ -211,7 +217,7 @@
     </div>
 </div>
     <script>
-        // 跨功能大目錄切換導覽函數
+        // 跨功能主目錄導覽函數
         window.switchSection = function(sectionId) {
             try {
                 document.getElementById('section-menu').classList.remove('active');
@@ -220,7 +226,6 @@
                 
                 document.getElementById('section-' + sectionId).classList.add('active');
                 
-                // 只有主動從首頁點進「數據登錄工具」時，才幫他切回第一步，其餘時間不干涉
                 if (sectionId === 'log') {
                     window.switchPage(1);
                 }
@@ -262,12 +267,21 @@
             } catch(err) {}
         };
 
-        // 中轉點選的刪除指令
-        window.triggerDeleteRecord = function(docId) {
-            if (window.deleteFirebaseDocFunction) {
-                window.deleteFirebaseDocFunction(docId);
+        // 中轉點選的本機刪除指令
+        window.triggerDeleteRecord = function(localId) {
+            if (window.deleteLocalRecordFunction) {
+                window.deleteLocalRecordFunction(localId);
             } else {
-                alert("Firebase 雲端連線同步中，請稍後再試！");
+                alert("資料庫載入中，請稍後再試！");
+            }
+        };
+
+        // 🚀 核心更新：首頁按鈕手動調用 Firebase 同步的管道
+        window.triggerFirebaseSync = function() {
+            if (window.syncToFirebaseFunction) {
+                window.syncToFirebaseFunction();
+            } else {
+                alert("Firebase 雲端尚未啟動，請檢查網路或在網頁上方確認狀態！");
             }
         };
 
@@ -290,13 +304,14 @@
         };
         
         window.base64ImageSaved = "";
-        window.allRecordsSaved = [];
-        window.deleteFirebaseDocFunction = null;
+        window.allRecordsSaved = []; // 供查詢和 Excel 導出使用的暫存器
+        window.deleteLocalRecordFunction = null; 
+        window.syncToFirebaseFunction = null; // 由第四段綁定
     </script>
-    <!-- 負責處理 Firebase 初始化、即時資料庫監聽、刪除文件與 Excel 匯出 -->
+    <!-- 負責處理平板 IndexedDB 本地儲存、手動與 Firebase 雲端批量同步的引擎 -->
     <script type="module">
         import { initializeApp } from "https://gstatic.com";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, enableIndexedDbPersistence } from "https://gstatic.com";
+        import { getFirestore, collection, addDoc } from "https://gstatic.com";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCcQwZq42FnlL5_V0HCQ1mjNZaulQrRh1w",
@@ -308,7 +323,8 @@
             measurementId: "G-KF50RT64YM"
         };
 
-        let db, firestoreCollection;
+        let localDB = null;
+        let firestoreCollection = null;
 
         function updateStatusBadge(isOnline) {
             const badge = document.getElementById('networkStatus');
@@ -316,83 +332,162 @@
             if (!badge || !text) return;
             if (isOnline) {
                 badge.className = "sync-status-badge online";
-                text.innerText = "雲端已連線";
+                text.innerText = "網路已連線";
             } else {
                 badge.className = "sync-status-badge";
-                text.innerText = "離線暫存模式";
+                text.innerText = "網路已斷線 (離線優先)";
             }
         }
 
+        // --- A. 初始化平板大容量本機資料庫 IndexedDB ---
+        const dbRequest = indexedDB.open("LongshanLocalDatabase", 1);
+        dbRequest.onupgradeneeded = function(e) {
+            let d = e.target.result;
+            if (!d.objectStoreNames.contains("local_records")) {
+                d.createObjectStore("local_records", { keyPath: "id", autoIncrement: true });
+            }
+        };
+        dbRequest.onsuccess = function(e) {
+            localDB = e.target.result;
+            loadLocalRecords(); // 初始化時讀取本機已存資料
+        };
+
+        // --- B. 初始化 Google Firebase 雲端連接 ---
         try {
             const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            
-            enableIndexedDbPersistence(db).catch((err) => {
-                console.warn("快取提示:", err.code);
-            });
-
-            firestoreCollection = collection(db, "survey_records");
+            const firestore = getFirestore(app);
+            firestoreCollection = collection(firestore, "survey_records");
             updateStatusBadge(navigator.onLine);
-
-            // 綁定全域刪除
-            window.deleteFirebaseDocFunction = async function(docId) {
-                if (!confirm("⚠️ 確定要從雲端永久刪除這筆文資數據卡片嗎？")) return;
-                try {
-                    const docRef = doc(db, "survey_records", docId);
-                    await deleteDoc(docRef);
-                    alert("🗑️ 數據已成功自雲端移除！");
-                } catch (err) {
-                    alert("刪除失敗: " + err.message);
-                }
-            };
-
-            // 監聽異動並渲染到查詢分頁中
-            onSnapshot(firestoreCollection, (snapshot) => {
-                const dataList = document.getElementById('dataList');
-                if (!dataList) return;
-                
-                dataList.innerHTML = "";
-                window.allRecordsSaved = [];
-                let docs = [];
-
-                snapshot.forEach(doc => {
-                    let data = doc.data();
-                    data.id = doc.id;
-                    docs.push(data);
-                });
-                
-                docs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-                docs.forEach(val => {
-                    window.allRecordsSaved.push(val);
-                    const card = document.createElement('div');
-                    card.className = 'data-card';
-                    card.innerHTML = `
-                        <button type="button" class="delete-btn" onclick="window.triggerDeleteRecord('${val.id}')">❌ 刪除</button>
-                        <strong style="color:#2b6cb0; font-size:15px;">🔍 編碼：${val.fullCode}</strong><br>
-                        <span style="color:#718096; font-size:12px;">🕒 登記時間：${val.timestamp} | 🎨 工藝：${val.craft}</span><br>
-                        ${val.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 備註：${val.note}</div>` : ''}
-                        ${val.photo ? `<img src="${val.photo}" alt="影像">` : ''}
-                    `;
-                    dataList.appendChild(card);
-                });
-
-                if (window.allRecordsSaved.length === 0) {
-                    dataList.innerHTML = "<p style='color:#a0aec0; text-align:center;'>目前資料庫尚無任何數據</p>";
-                }
-            });
-
         } catch(err) {
-            console.error(err);
+            console.error("Firebase 初始化異常", err);
         }
 
         window.addEventListener('online', () => updateStatusBadge(true));
         window.addEventListener('offline', () => updateStatusBadge(false));
 
-        // 表單提交儲存
-        document.getElementById('recordForm').addEventListener('submit', async function(e) {
+        // --- C. 渲染平板當前數據快取清單 ---
+        function loadLocalRecords() {
+            const dataList = document.getElementById('dataList');
+            if (!dataList || !localDB) return;
+            
+            dataList.innerHTML = "";
+            window.allRecordsSaved = [];
+            
+            const transaction = localDB.transaction(["local_records"], "readonly");
+            const store = transaction.objectStore("local_records");
+            const cursorRequest = store.openCursor(null, "prev"); // 最新建立的排在最上面
+
+            cursorRequest.onsuccess = function(e) {
+                const cursor = e.target.result;
+                if (cursor) {
+                    const val = cursor.value;
+                    window.allRecordsSaved.push(val);
+                    
+                    // 依據有沒有上傳，亮起不同的狀態標籤
+                    const syncTag = val.synced === 1 
+                        ? `<span class="card-sync-tag tag-synced">☁️ 已同步雲端</span>`
+                        : `<span class="card-sync-tag tag-unsynced">⏳ 離線暫存中</span>`;
+
+                    const card = document.createElement('div');
+                    card.className = 'data-card';
+                    card.innerHTML = `
+                        <button type="button" class="delete-btn" onclick="window.triggerDeleteRecord(${val.id})">❌ 刪除</button>
+                        <strong style="color:#2b6cb0; font-size:15px;">🔍 編碼：${val.fullCode}</strong>${syncTag}<br>
+                        <span style="color:#718096; font-size:12px;">🕒 登記時間：${val.timestamp} | 🎨 工藝：${val.craft}</span><br>
+                        ${val.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 備註：${val.note}</div>` : ''}
+                        ${val.photo ? `<img src="${val.photo}" alt="影像">` : ''}
+                    `;
+                    dataList.appendChild(card);
+                    cursor.continue();
+                } else if (window.allRecordsSaved.length === 0) {
+                    dataList.innerHTML = "<p style='color:#a0aec0; text-align:center;'>平板本機資料庫目前尚無數據</p>";
+                }
+            };
+        }
+
+        // --- D. 本機獨立刪除按鈕功能 ---
+        window.deleteLocalRecordFunction = function(localId) {
+            if (!confirm("⚠️ 確定要將這筆數據從「平板本機中」永久刪除嗎？")) return;
+            if (!localDB) return;
+
+            const transaction = localDB.transaction(["local_records"], "readwrite");
+            const store = transaction.objectStore("local_records");
+            store.delete(localId);
+
+            transaction.oncomplete = function() {
+                alert("🗑️ 本機數據已成功刪除！");
+                loadLocalRecords();
+            };
+        };
+
+        // --- E. 核心功能：首頁按鈕手動批量上傳雲端同步引擎 ---
+        window.syncToFirebaseFunction = async function() {
+            if (!navigator.onLine) {
+                alert("🚨 同步失敗：目前平板沒有網路，請連上廟宇 Wi-Fi 或熱點後再進行同步！");
+                return;
+            }
+            if (!firestoreCollection) {
+                alert("🚨 雲端連線失敗，請檢查金鑰配置是否正確！");
+                return;
+            }
+            if (!localDB) return;
+
+            alert("📡 正在掃描平板，準備將離線暫存數據打包推送到 Google 雲端...");
+
+            const transaction = localDB.transaction(["local_records"], "readwrite");
+            const store = transaction.objectStore("local_records");
+            const cursorRequest = store.openCursor();
+            let unsyncedCount = 0;
+            let successCount = 0;
+
+            cursorRequest.onsuccess = async function(e) {
+                const cursor = e.target.result;
+                if (cursor) {
+                    const record = cursor.value;
+                    
+                    // 只把 synced 為 0 (尚未上傳) 的普查卡片推上雲端
+                    if (record.synced === 0) {
+                        unsyncedCount++;
+                        try {
+                            // 打包成乾淨的格式發送給 Firebase (不需要上傳本機的自增 id)
+                            const cloudData = {
+                                fullCode: record.fullCode, area: record.area, direction: record.direction,
+                                roofPos: record.roofPos, compCode: record.compCode, serial: record.serial,
+                                photoType: record.photoType, craft: record.craft, note: record.note,
+                                photo: record.photo, timestamp: record.timestamp
+                            };
+                            
+                            await addDoc(firestoreCollection, cloudData);
+                            
+                            // 上傳雲端成功後，將本機這筆資料的狀態標記改為 1 (已同步)
+                            let updatedRecord = record;
+                            updatedData.synced = 1;
+                            cursor.update(updatedRecord);
+                            successCount++;
+                        } catch(err) {
+                            console.error(`編碼 ${record.fullCode} 同步失敗:`, err);
+                        }
+                    }
+                    cursor.continue();
+                } else {
+                    // 全部文件掃描結束
+                    if (unsyncedCount === 0) {
+                        alert("☁️ 雲端同步完成！平板本機內所有的普查卡片先前皆已同步完畢，沒有新增項目。");
+                    } else {
+                        alert(`🎉 雲端批量同步大成功！\n共偵測到 ${unsyncedCount} 筆離線暫存數據，已成功打包上傳 ${successCount} 筆！`);
+                    }
+                    loadLocalRecords(); // 刷新查詢頁面狀態
+                }
+            };
+        };
+
+        // --- F. 表單無條件儲存至當前平板本機 ---
+        document.getElementById('recordForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            if (!firestoreCollection) return;
+            if (!localDB) {
+                alert("平板本機資料庫未就緒！");
+                return;
+            }
 
             const record = {
                 fullCode: document.getElementById('codePreview').innerText,
@@ -405,53 +500,50 @@
                 craft: document.getElementById('craft').value,
                 note: document.getElementById('note').value,
                 photo: window.base64ImageSaved,
+                synced: 0, // 🚀 0 代表高效率存入平板本機快取，完全不用等待網路，晚點才手動同步
                 timestamp: new Date().toLocaleString()
             };
 
-            try {
-                await addDoc(firestoreCollection, record);
-                alert("🎉 數據登錄成功！\n識別碼：" + record.fullCode);
+            const transaction = localDB.transaction(["local_records"], "readwrite");
+            const store = transaction.objectStore("local_records");
+            store.add(record);
+
+            transaction.oncomplete = function() {
+                alert("💾 數據已成功存入平板本機！\n完整編碼：" + record.fullCode);
                 
-                // 🚀 關鍵優化 1：只清理文字備註與照片檔案欄位
+                // 留在第二頁原地，只清空備註與影像
                 document.getElementById('note').value = "";
                 document.getElementById('photo').value = "";
                 document.getElementById('previewContainer').style.display = 'none';
                 window.base64ImageSaved = "";
                 
-                // 🚀 關鍵優化 2：流水號自動安全 +1 (其餘下拉選單數值完全原封不動鎖在原地)
+                // 流水號高效率遞增
                 window.autoIncrementSerial();
-                window.updateCodePreview(); // 刷新藍框
+                window.updateCodePreview();
                 
-                // 🚀 關鍵優化 3：徹底移除了回到第一頁的 switchPage(1) 指令，強制留在同一頁！
-                
-            } catch (err) {
-                alert("儲存失敗: " + err.message);
-            }
+                loadLocalRecords(); // 更新查詢列表的背景快取
+            };
         });
 
         // 下載 CSV 表格
         document.getElementById('exportBtn').addEventListener('click', function() {
             if (window.allRecordsSaved.length === 0) {
-                alert("目前沒有數據可供匯出！");
+                alert("目前本機沒有數據可供匯出！");
                 return;
             }
-            let csvContent = "\uFEFF"; 
-            csvContent += "完整登錄編碼,建築區域,方位,屋面部位,細部分類,流水號,照片序號,工藝,備註說明,登記時間\n";
+            let csvContent = "\uFEFF";
+            csvContent += "完整登錄編碼,建築區域,方位,屋面部位,細部分類,流水號,照片序號,工藝,備註說明,同步狀態,登記時間\n";
             window.allRecordsSaved.forEach(r => {
-                const row = [
-                    r.fullCode, r.area, r.direction, r.roofPos, r.compCode, r.serial, r.photoType, r.craft, r.note || '', r.timestamp
-                ].map(text => `"${text.replace(/"/g, '""')}"`).join(",");
-                csvContent += row + "\n";
-            });
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", `龍山寺文資普查目錄版_${new Date().toLocaleDateString()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+                const syncStatusText = r.synced === 1 ? "已同步雲端" : "僅本機離線暫存";
+                const row = [r.fullCode, r.area, r.direction, r.roofPos, r.compCode, r.serial, r.photoType, r.craft, r.note || '', syncStatusText, r.timestamp].map(text => "${text.replace(/"/g, '""')}").join(",");
+            csvContent += row + "\n";
         });
-    });
-</script>
-</body>
-</html>
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", 龍山寺本機文資普查表_${new Date().toLocaleDateString()}.csv);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        });
+        });
