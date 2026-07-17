@@ -97,7 +97,6 @@
         .tag-synced { background: #c6f6d5; color: #22543d; }
     </style>
 </head>
-
 <body>
 <div class="container">
     <h1>🏛️ 艋舺龍山寺屋面傳統裝飾普查系統</h1>
@@ -112,7 +111,7 @@
         <div class="generated-code" id="codePreview"></div>
     </div>
 
-    <!-- 🌐 【頁面一：目錄導覽首頁】 -->
+    <!-- 🌐 【功能一：目錄導覽首頁】 (預設顯示) -->
     <div id="section-menu" class="main-section active">
         <div class="menu-grid">
             <div class="menu-item" onclick="window.switchSection('log')">
@@ -131,125 +130,124 @@
         </div>
     </div>
 
-    <!-- 🌐 【頁面二：數據登錄頁面】 -->
+    <!-- 🌐 【功能二：數據登錄頁面】 (已轉為原地鎖定容器) -->
     <div id="section-log" class="main-section">
-        <form id="recordForm">
-            <!-- 📄 登錄第一頁：宏觀部位 -->
-            <div id="page1" class="page active">
-                <h3 style="color:#2b6cb0; margin-bottom:15px; 
-                border-left:4px solid #2b6cb0; padding-left:8px;">
-                第一步：選擇主要建築部位</h3>
-                <div class="form-row">
-                    <div class="form-group" style="flex: 0 0 80px;">
-                        <label>寺廟代號</label>
-                        <input type="text" id="prefix" value="LS" 
-                        disabled style="background-color: #edf2f7; 
-                        text-align: center; font-weight: bold;">
-                    </div>
-                    <div class="form-group">
-                        <label>建築區域 [殿區]</label>
-                        <select id="area" onchange="window.updateCodePreview()">
-                            <option value="SH" selected>三川殿 (SH)</option>
-                            <option value="FL">前殿龍門 (FL)</option>
-                            <option value="FR">前殿虎門 (FR)</option>
-                            <option value="RL">後殿龍門 (RL)</option>
-                            <option value="RR">後殿虎門 (RR)</option>
-                            <option value="TH">天上聖母殿 (TH)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>屋面部位</label>
-                        <select id="roofPos" onchange="window.updateCodePreview()">
-                            <option value="MR" selected>正脊 (MR)</option>
-                            <option value="DR">垂脊 (DR)</option>
-                            <option value="HR">戧脊 (HR)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="btn-group">
-                    <button type="button" class="btn-nav" 
-                    onclick="window.switchSection('menu')">🏠 回目錄</button>
-                    <button type="button" class="btn-submit" 
-                    onclick="window.switchPage(2)">下一步 ➡️</button>
-                </div>
-            </div>
-
-            <!-- 📄 登錄第二頁：細部紀錄與現場拍照（原地留守，選項鎖定） -->
-            <div id="page2" class="page">
-                <h3 style="color:#2b6cb0; margin-bottom:15px; 
-                border-left:4px solid #2b6cb0; padding-left:8px;">
-                第二步：詳細數據與影像紀錄</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>構件細部分類</label>
-                        <select id="compCode" onchange="window.updateCodePreview()">
-                            <option value="11" selected>脊堵/脊肚 (11)</option>
-                            <option value="16">排頭 (16)</option>
-                            <option value="08">西施脊 (08)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>屋面朝向 [方位]</label>
-                        <select id="direction" onchange="window.updateCodePreview()">
-                            <option value="W" selected>西 West (W)</option>
-                            <option value="E">東 East (E)</option>
-                            <option value="S">南 South (S)</option>
-                            <option value="N">北 North (N)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>作品流水號</label>
-                        <input type="text" id="serial" value="001" 
-                        oninput="window.updateCodePreview()" required 
-                        style="font-family: monospace;">
-                    </div>
-                    <div class="form-group">
-                        <label>照片型別+序號</label>
-                        <input type="text" id="photoType" value="O01" 
-                        oninput="window.updateCodePreview()" required 
-                        style="font-family: monospace;">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>工藝形式</label>
-                        <select id="craft">
-                            <option value="CP" selected>剪黏工藝 (CP)</option>
-                            <option value="JP">交趾陶工藝 (JP)</option>
-                            <option value="CS">泥塑工藝 (CS)</option>
-                        </select>
-                    </div>
+        <!-- 📄 登錄第一頁：宏觀部位 -->
+        <div id="page1" class="page active">
+            <h3 style="color:#2b6cb0; margin-bottom:15px; 
+            border-left:4px solid #2b6cb0; padding-left:8px;">
+            第一步：選擇主要建築部位</h3>
+            <div class="form-row">
+                <div class="form-group" style="flex: 0 0 80px;">
+                    <label>寺廟代號</label>
+                    <input type="text" id="prefix" value="LS" 
+                    disabled style="background-color: #edf2f7; 
+                    text-align: center; font-weight: bold;">
                 </div>
                 <div class="form-group">
-                    <label>📷 調查影像 (選填)</label>
-                    <input type="file" id="photo" accept="image/*">
-                    <div class="preview-container" id="previewContainer">
-                        <img id="imagePreview" src="" alt="預覽">
-                    </div>
+                    <label>建築區域 [殿區]</label>
+                    <select id="area" onchange="window.updateCodePreview()">
+                        <option value="SH" selected>三川殿 (SH)</option>
+                        <option value="FL">前殿龍門 (FL)</option>
+                        <option value="FR">前殿虎門 (FR)</option>
+                        <option value="RL">後殿龍門 (RL)</option>
+                        <option value="RR">後殿虎門 (RR)</option>
+                        <option value="TH">天上聖母殿 (TH)</option>
+                    </select>
                 </div>
-                <div class="form-group" style="margin-top: 15px;">
-                    <label>📝 題材內容 / 保存狀況備註</label>
-                    <textarea id="note" rows="2" 
-                    placeholder="請輸入細部觀察描述..."></textarea>
-                </div>
-                <div class="btn-group">
-                    <button type="button" class="btn-nav" 
-                    onclick="window.switchPage(1)">⬅️ 返回第一步</button>
-                    <button type="submit" class="btn-submit">
-                    💾 儲存至當前平板本機</button>
-                </div>
-                <button type="button" class="btn-home" 
-                onclick="window.switchSection('menu')" 
-                style="background-color:#4a5568;">🏠 結束登錄</button>
             </div>
-        </form>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>屋面部位</label>
+                    <select id="roofPos" onchange="window.updateCodePreview()">
+                        <option value="MR" selected>正脊 (MR)</option>
+                        <option value="DR">垂脊 (DR)</option>
+                        <option value="HR">戧脊 (HR)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn-nav" 
+                onclick="window.switchSection('menu')">🏠 回目錄</button>
+                <button type="button" class="btn-submit" 
+                onclick="window.switchPage(2)">下一步 ➡️</button>
+            </div>
+        </div>
+
+        <!-- 📄 登錄第二頁：細部紀錄與現場拍照（原地留守，選項鎖定，流水號+1） -->
+        <div id="page2" class="page">
+            <h3 style="color:#2b6cb0; margin-bottom:15px; 
+            border-left:4px solid #2b6cb0; padding-left:8px;">
+            第二步：詳細數據與影像紀錄</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>構件細部分類</label>
+                    <select id="compCode" onchange="window.updateCodePreview()">
+                        <option value="11" selected>脊堵/脊肚 (11)</option>
+                        <option value="16">排頭 (16)</option>
+                        <option value="08">西施脊 (08)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>屋面朝向 [方位]</label>
+                    <select id="direction" onchange="window.updateCodePreview()">
+                        <option value="W" selected>西 West (W)</option>
+                        <option value="E">東 East (E)</option>
+                        <option value="S">南 South (S)</option>
+                        <option value="N">北 North (N)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>作品流水號</label>
+                    <input type="text" id="serial" value="001" 
+                    oninput="window.updateCodePreview()" required 
+                    style="font-family: monospace;">
+                </div>
+                <div class="form-group">
+                    <label>照片型別+序號</label>
+                    <input type="text" id="photoType" value="O01" 
+                    oninput="window.updateCodePreview()" required 
+                    style="font-family: monospace;">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>工藝形式</label>
+                    <select id="craft">
+                        <option value="CP" selected>剪黏工藝 (CP)</option>
+                        <option value="JP">交趾陶工藝 (JP)</option>
+                        <option value="CS">泥塑工藝 (CS)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>📷 調查影像 (選填)</label>
+                <input type="file" id="photo" accept="image/*">
+                <div class="preview-container" id="previewContainer">
+                    <img id="imagePreview" src="" alt="預覽">
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 15px;">
+                <label>📝 題材內容 / 保存狀況備註</label>
+                <textarea id="note" rows="2" 
+                placeholder="請輸入細部觀察描述..."></textarea>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn-nav" 
+                onclick="window.switchPage(1)">⬅️ 返回第一步</button>
+                <!-- 🚀 核心優化：手動按鈕儲存，100% 穩穩留在第二頁 -->
+                <button type="button" class="btn-submit" 
+                onclick="window.triggerLocalSave()">💾 儲存此筆文資數據</button>
+            </div>
+            <button type="button" class="btn-home" 
+            onclick="window.switchSection('menu')" 
+            style="background-color:#4a5568;">🏠 結束登錄</button>
+        </div>
     </div>
 
-    <!-- 🌐 【頁面三：獨立數據查詢與下載頁面】 -->
+    <!-- 🌐 【功能三：獨立數據查詢與下載頁面】 -->
     <div id="section-query" class="main-section">
         <div class="history">
             <div class="history-header">
@@ -312,6 +310,15 @@
         }
     };
 
+    // --- ★ 核心優化：手動點擊儲存按鈕的全域觸發管道 ---
+    window.triggerLocalSave = function() {
+        if (window.executeLocalSaveFunction) {
+            window.executeLocalSaveFunction();
+        } else {
+            alert("本地資料庫初始化中，請稍後再試！");
+        }
+    };
+
     // --- 刪除與同步的中轉管道 ---
     window.triggerDeleteRecord = function(id) {
         if (window.deleteLocalRecordFunction) {
@@ -321,7 +328,7 @@
     window.triggerFirebaseSync = function() {
         if (window.syncToFirebaseFunction) {
             window.syncToFirebaseFunction();
-        } else { alert("資料庫初始化中..."); }
+        } else { alert("資料庫同步模組載入中..."); }
     };
 
     // --- 照片讀取轉碼 ---
@@ -329,7 +336,7 @@
         window.updateCodePreview();
         document.getElementById('photo').onchange = 
         function(e) {
-            if (e.target.files && e.target.files[0]) {
+            if (e.target.files && e.target.files) {
                 const rdr = new FileReader();
                 rdr.onload = function(evt) {
                     window.base64ImageSaved = evt.target.result;
@@ -338,7 +345,7 @@
                     document.getElementById('previewContainer')
                         .style.display = 'block';
                 };
-                rdr.readAsDataURL(e.target.files[0]);
+                rdr.readAsDataURL(e.target.files);
             }
         };
     };
@@ -346,6 +353,7 @@
     window.allRecordsSaved = [];
     window.deleteLocalRecordFunction = null;
     window.syncToFirebaseFunction = null;
+    window.executeLocalSaveFunction = null; 
 </script>
 <script type="module">
     import { initializeApp } from 
@@ -499,28 +507,33 @@
         };
     };
 
-    // 表單本機極速儲存 (原地留守、欄位鎖定、流水號+1)
-    document.getElementById('recordForm').onsubmit = function(e) {
-        e.preventDefault(); if (!localDB) return;
+    // ★ 核心優化：手動全域儲存代碼（強制原地鎖定、絕不重整、選項原封不動）
+    window.executeLocalSaveFunction = function() {
+        if (!localDB) return;
+        
+        const serialVal = document.getElementById('serial').value.trim();
+        const photoTypeVal = document.getElementById('photoType').value.trim();
+        if (!serialVal || !photoTypeVal) {
+            alert("❌ 請填寫作品流水號與照片型別！");
+            return;
+        }
+
         const r = {
             fullCode: document.getElementById('codePreview').innerText,
             area: document.getElementById('area').value,
             direction: document.getElementById('direction').value,
             roofPos: document.getElementById('roofPos').value,
             compCode: document.getElementById('compCode').value,
-            serial: document.getElementById('serial').value,
-            photoType: document.getElementById('photoType').value,
+            serial: serialVal, photoType: photoTypeVal,
             craft: document.getElementById('craft').value,
             note: document.getElementById('note').value,
             photo: window.base64ImageSaved, synced: 0,
             timestamp: new Date().toLocaleString()
         };
-        const tx = localDB.transaction(
-            ["local_records"], "readwrite"
-        );
+        const tx = localDB.transaction(["local_records"], "readwrite");
         tx.objectStore("local_records").add(r);
         tx.oncomplete = function() {
-            alert("💾 數據已存入本機！\n編碼：" + r.fullCode);
+            alert("💾 數據已安全存入當前平板！\n編碼：" + r.fullCode);
             document.getElementById('note').value = "";
             document.getElementById('photo').value = "";
             document.getElementById('previewContainer')
@@ -532,7 +545,7 @@
         };
     };
 
-    // 極窄版 Excel (CSV) 匯出功能
+    // 🍏 修正並對齊對稱的 Excel (CSV) 匯出功能
     document.getElementById('exportBtn').onclick = function() {
         if (window.allRecordsSaved.length === 0) { 
             alert("目前本機沒有數據！"); return; 
@@ -563,4 +576,3 @@
 </script>
 </body>
 </html>
-
