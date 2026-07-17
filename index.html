@@ -77,7 +77,7 @@
                 </div>
                 <div class="form-group">
                     <label>建築區域 [殿區]</label>
-                    <select id="area">
+                    <select id="area" onchange="window.updateCodePreview()">
                         <option value="SH" selected>三川殿 (SH)</option>
                         <option value="FL">前殿龍門 (FL)</option>
                         <option value="FR">前殿虎門 (FR)</option>
@@ -91,7 +91,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>屋面部位</label>
-                    <select id="roofPos">
+                    <select id="roofPos" onchange="window.updateCodePreview()">
                         <option value="MR" selected>正脊 (MR)</option>
                         <option value="DR">垂脊 (DR)</option>
                         <option value="HR">戧脊 (HR)</option>
@@ -100,19 +100,19 @@
             </div>
 
             <div class="btn-group">
-                <button type="button" class="btn-submit" id="nextPageBtn">下一步：填寫細部分類與拍照 ➡️</button>
+                <!-- 🚀 核心修正：直接內嵌 onclick，100% 確保流暢切換到第二頁 -->
+                <button type="button" class="btn-submit" onclick="window.switchPage(2)">下一步：填寫細部分類與拍照 ➡️</button>
             </div>
         </div>
 
-        <!-- 📄 【第二頁】：細部分類、方位、流水號與拍照 (已將細部分類移至此) -->
+        <!-- 📄 【第二頁】：細部分類、方位、流水號與拍照 -->
         <div id="page2" class="page">
             <h3 style="color:#2b6cb0; margin-bottom:15px; border-left:4px solid #2b6cb0; padding-left:8px;">第二步：詳細普查數據與影像紀錄</h3>
             
-            <!-- 🔄 成功移到這裡的構件細部分類 -->
             <div class="form-row">
                 <div class="form-group">
                     <label>構件細部分類</label>
-                    <select id="compCode">
+                    <select id="compCode" onchange="window.updateCodePreview()">
                         <option value="11" selected>脊堵/脊肚 (11)</option>
                         <option value="16">排頭 (16)</option>
                         <option value="08">西施脊 (08)</option>
@@ -120,7 +120,7 @@
                 </div>
                 <div class="form-group">
                     <label>屋面朝向 [方位]</label>
-                    <select id="direction">
+                    <select id="direction" onchange="window.updateCodePreview()">
                         <option value="W" selected>西 West (W)</option>
                         <option value="E">東 East (E)</option>
                         <option value="S">南 South (S)</option>
@@ -132,11 +132,11 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>作品流水號 (三位數)</label>
-                    <input type="text" id="serial" value="001" required style="font-family: monospace;">
+                    <input type="text" id="serial" value="001" oninput="window.updateCodePreview()" required style="font-family: monospace;">
                 </div>
                 <div class="form-group">
                     <label>照片型別+序號</label>
-                    <input type="text" id="photoType" value="O01" required style="font-family: monospace;">
+                    <input type="text" id="photoType" value="O01" oninput="window.updateCodePreview()" required style="font-family: monospace;">
                 </div>
             </div>
 
@@ -165,7 +165,8 @@
             </div>
 
             <div class="btn-group">
-                <button type="button" class="btn-nav" id="prevPageBtn">⬅️ 返回第一步</button>
+                <!-- 🚀 核心修正：直接內嵌 onclick，100% 確保返回第一頁 -->
+                <button type="button" class="btn-nav" onclick="window.switchPage(1)">⬅️ 返回第一步</button>
                 <button type="submit" class="btn-submit">💾 儲存並同步文資數據</button>
             </div>
         </div>
@@ -180,7 +181,57 @@
         <div id="dataList"></div>
     </div>
 </div>
-    <!-- 封功能進安全模組空間中，確保連動和資料庫儲存順序正確 -->
+    <script>
+        // 🛠️ 終極修復：將換頁和編碼變換函數直接掛載在 window 全域上，網頁開起來立刻就能執行
+        window.switchPage = function(pageNum) {
+            try {
+                document.getElementById('page1').classList.remove('active');
+                document.getElementById('page2').classList.remove('active');
+                document.getElementById('page' + pageNum).classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch(err) {
+                console.error("換頁錯誤", err);
+            }
+        };
+
+        window.updateCodePreview = function() {
+            try {
+                const area = document.getElementById('area').value;
+                const direction = document.getElementById('direction').value;
+                const roofPos = document.getElementById('roofPos').value;
+                const compCode = document.getElementById('compCode').value;
+                const serial = document.getElementById('serial').value.trim() || '？';
+                const photoType = document.getElementById('photoType').value.trim() || '？';
+                document.getElementById('codePreview').innerText = `LS-${area}-${direction}-${roofPos}-${compCode}-${serial}-${photoType}`;
+            } catch(e) {
+                console.error("預覽變換錯誤", e);
+            }
+        };
+
+        // 平板相機影像快速轉 Base64 處理
+        window.onload = function() {
+            window.updateCodePreview();
+            
+            const photoInput = document.getElementById('photo');
+            if (photoInput) {
+                photoInput.addEventListener('change', function(e) {
+                    if (e.target.files && e.target.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            window.base64ImageSaved = event.target.result;
+                            document.getElementById('imagePreview').src = window.base64ImageSaved;
+                            document.getElementById('previewContainer').style.display = 'block';
+                        };
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                });
+            }
+        };
+        
+        window.base64ImageSaved = "";
+        window.allRecordsSaved = [];
+    </script>
+    <!-- 將資料庫處理獨立封裝在後方模組內，完全不阻礙平板前台的按鈕與換頁操作 -->
     <script type="module">
         import { initializeApp } from "https://gstatic.com";
         import { getFirestore, collection, addDoc, onSnapshot, enableIndexedDbPersistence } from "https://gstatic.com";
@@ -196,41 +247,13 @@
             measurementId: "G-KF50RT64YM"
         };
 
-        const inputs = ['area', 'direction', 'roofPos', 'compCode', 'serial', 'photoType'];
-        let base64Image = "";
-        let allRecords = [];
         let db, firestoreCollection;
 
-        // --- 換頁控制函數 ---
-        function switchPage(pageNum) {
-            document.getElementById('page1').classList.remove('active');
-            document.getElementById('page2').classList.remove('active');
-            document.getElementById('page' + pageNum).classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // --- 跨分頁即時對齊預覽編碼功能 ---
-        function updateCodePreview() {
-            try {
-                const area = document.getElementById('area').value;
-                const direction = document.getElementById('direction').value;
-                const roofPos = document.getElementById('roofPos').value;
-                const compCode = document.getElementById('compCode').value;
-                const serial = document.getElementById('serial').value.trim() || '？';
-                const photoType = document.getElementById('photoType').value.trim() || '？';
-                document.getElementById('codePreview').innerText = `LS-${area}-${direction}-${roofPos}-${compCode}-${serial}-${photoType}`;
-            } catch(e) {
-                console.error("更新編碼錯誤", e);
-            }
-        }
-
-        // --- 網路連線燈號控制 ---
-        function setupNetworkIndicator() {
+        function updateStatusBadge(isOnline) {
             const badge = document.getElementById('networkStatus');
             const text = document.getElementById('statusText');
             if (!badge || !text) return;
-            
-            if (navigator.onLine) {
+            if (isOnline) {
                 badge.className = "sync-status-badge online";
                 text.innerText = "雲端已連線";
             } else {
@@ -239,158 +262,123 @@
             }
         }
 
-        // --- 核心事件監聽綁定 ---
-        document.addEventListener('DOMContentLoaded', function() {
-            // A. 連動監聽
-            inputs.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.addEventListener('change', updateCodePreview);
-                    el.addEventListener('input', updateCodePreview);
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            
+            // 啟用本地離線持久化快取
+            enableIndexedDbPersistence(db).catch((err) => {
+                console.warn("快取提示:", err.code);
+            });
+
+            firestoreCollection = collection(db, "survey_records");
+            updateStatusBadge(navigator.onLine);
+
+            // 監聽雲端資料流
+            onSnapshot(firestoreCollection, (snapshot) => {
+                const dataList = document.getElementById('dataList');
+                if (!dataList) return;
+                
+                dataList.innerHTML = "";
+                window.allRecordsSaved = [];
+                let docs = [];
+
+                snapshot.forEach(doc => {
+                    let data = doc.data();
+                    data.id = doc.id;
+                    docs.push(data);
+                });
+                
+                docs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                docs.forEach(val => {
+                    window.allRecordsSaved.push(val);
+                    const card = document.createElement('div');
+                    card.className = 'data-card';
+                    card.innerHTML = `
+                        <strong style="color:#2b6cb0; font-size:15px;">🔍 編碼：${val.fullCode}</strong><br>
+                        <span style="color:#718096; font-size:12px;">🕒 登記時間：${val.timestamp} | 🎨 工藝：${val.craft}</span><br>
+                        ${val.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 備註：${val.note}</div>` : ''}
+                        ${val.photo ? `<img src="${val.photo}" alt="影像">` : ''}
+                    `;
+                    dataList.appendChild(card);
+                });
+
+                if (window.allRecordsSaved.length === 0) {
+                    dataList.innerHTML = "<p style='color:#a0aec0; text-align:center;'>雲端資料庫目前尚無數據</p>";
                 }
             });
-            updateCodePreview();
 
-            // B. 雙分頁按鈕主動綁定
-            document.getElementById('nextPageBtn').onclick = () => switchPage(2);
-            document.getElementById('prevPageBtn').onclick = () => switchPage(1);
+        } catch(err) {
+            console.error("Firebase 連線初始化異常", err);
+        }
 
-            // C. 網路狀態指示燈
-            setupNetworkIndicator();
-            window.addEventListener('online', setupNetworkIndicator);
-            window.addEventListener('offline', setupNetworkIndicator);
+        // 監聽網路連線狀況
+        window.addEventListener('online', () => updateStatusBadge(true));
+        window.addEventListener('offline', () => updateStatusBadge(false));
 
-            // D. 平板拍照影像讀取
-            const photoInput = document.getElementById('photo');
-            if (photoInput) {
-                photoInput.addEventListener('change', function(e) {
-                    if (e.target.files && e.target.files) {
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            base64Image = event.target.result;
-                            document.getElementById('imagePreview').src = base64Image;
-                            document.getElementById('previewContainer').style.display = 'block';
-                        };
-                        reader.readAsDataURL(e.target.files);
-                    }
-                });
+        // 表單點擊提交儲存
+        document.getElementById('recordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!firestoreCollection) {
+                alert("🚨 系統尚未完全連上 Firebase，請確認平板網路是否通暢！");
+                return;
             }
-            // E. Firebase 載入與初始化
+
+            const record = {
+                fullCode: document.getElementById('codePreview').innerText,
+                area: document.getElementById('area').value,
+                direction: document.getElementById('direction').value,
+                roofPos: document.getElementById('roofPos').value,
+                compCode: document.getElementById('compCode').value,
+                serial: document.getElementById('serial').value,
+                photoType: document.getElementById('photoType').value,
+                craft: document.getElementById('craft').value,
+                note: document.getElementById('note').value,
+                photo: window.base64ImageSaved,
+                timestamp: new Date().toLocaleString()
+            };
+
             try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
+                await addDoc(firestoreCollection, record);
+                alert("🎉 普查數據儲存成功並已排入雲端！\n完整識別碼為：" + record.fullCode);
                 
-                // 開啟大容量 IndexedDB 離線快取空間
-                enableIndexedDbPersistence(db).catch((err) => {
-                    console.warn("離線快取限制說明:", err.code);
-                });
-
-                firestoreCollection = collection(db, "survey_records");
+                // 儲存完成後重置欄位
+                document.getElementById('note').value = "";
+                document.getElementById('photo').value = "";
+                document.getElementById('previewContainer').style.display = 'none';
+                window.base64ImageSaved = "";
+                window.updateCodePreview();
                 
-                // F. 實時異動數據流接聽
-                onSnapshot(firestoreCollection, (snapshot) => {
-                    const dataList = document.getElementById('dataList');
-                    if (!dataList) return;
-                    
-                    dataList.innerHTML = "";
-                    allRecords = [];
-                    let docs = [];
-
-                    snapshot.forEach(doc => {
-                        let data = doc.data();
-                        data.id = doc.id;
-                        docs.push(data);
-                    });
-                    
-                    docs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-                    docs.forEach(val => {
-                        allRecords.push(val);
-                        const card = document.createElement('div');
-                        card.className = 'data-card';
-                        card.innerHTML = `
-                            <strong style="color:#2b6cb0; font-size:15px;">🔍 編碼：${val.fullCode}</strong><br>
-                            <span style="color:#718096; font-size:12px;">🕒 登記時間：${val.timestamp} | 🎨 工藝：${val.craft}</span><br>
-                            ${val.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 備註：${val.note}</div>` : ''}
-                            ${val.photo ? `<img src="${val.photo}" alt="影像">` : ''}
-                        `;
-                        dataList.appendChild(card);
-                    });
-
-                    if (allRecords.length === 0) {
-                        dataList.innerHTML = "<p style='color:#a0aec0; text-align:center;'>雲端資料庫目前尚無數據</p>";
-                    }
-                });
-
-            } catch(firebaseErr) {
-                console.error("Firebase 連線初始化受阻", firebaseErr);
+                // 自動無條件回到第一頁
+                window.switchPage(1);
+            } catch (err) {
+                alert("⚠️ 儲存失敗！請確認 Firebase 後台 Rules 是否有確實打開為測試模式(if true)！\n訊息: " + err.message);
             }
+        });
 
-            // G. 核心普查資料提交儲存
-            document.getElementById('recordForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                if (!firestoreCollection) {
-                    alert("🚨 儲存受阻：網頁尚未成功與 Firebase 雲端對接，請確認您的網路連接！");
-                    return;
-                }
-
-                const record = {
-                    fullCode: document.getElementById('codePreview').innerText,
-                    area: document.getElementById('area').value,
-                    direction: document.getElementById('direction').value,
-                    roofPos: document.getElementById('roofPos').value,
-                    compCode: document.getElementById('compCode').value,
-                    serial: document.getElementById('serial').value,
-                    photoType: document.getElementById('photoType').value,
-                    craft: document.getElementById('craft').value,
-                    note: document.getElementById('note').value,
-                    photo: base64Image,
-                    timestamp: new Date().toLocaleString()
-                };
-
-                try {
-                    // 寫入雲端 (若離線則打包進平板快取佇列中)
-                    await addDoc(firestoreCollection, record);
-                    
-                    alert("🎉 數據儲存成功並已成功同步至雲端！\n完整編碼為：" + record.fullCode);
-                    
-                    // 清空第二頁的暫存欄位與影像
-                    document.getElementById('note').value = "";
-                    document.getElementById('photo').value = "";
-                    document.getElementById('previewContainer').style.display = 'none';
-                    base64Image = "";
-                    updateCodePreview();
-                    
-                    // 儲存完成後，將平板畫面自動切換回【第一頁】，方便連續登記
-                    switchPage(1);
-                } catch (err) {
-                    alert("⚠️ 儲存遭到拒絕！請確認 Firebase 後台 Rules 規則是否已確實發布改為測試模式！\n錯誤訊息: " + err.message);
-                }
+        // 匯出 CSV 報表
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (window.allRecordsSaved.length === 0) {
+                alert("目前資料庫內沒有數據可供匯出！");
+                return;
+            }
+            let csvContent = "\uFEFF"; 
+            csvContent += "完整登錄編碼,建築區域,方位,屋面部位,細部分類,流水號,照片序號,工藝,備註說明,登記時間\n";
+            window.allRecordsSaved.forEach(r => {
+                const row = [
+                    r.fullCode, r.area, r.direction, r.roofPos, r.compCode, r.serial, r.photoType, r.craft, r.note || '', r.timestamp
+                ].map(text => `"${text.replace(/"/g, '""')}"`).join(",");
+                csvContent += row + "\n";
             });
-
-            // H. 匯出 Excel (CSV) 報表
-            document.getElementById('exportBtn').addEventListener('click', function() {
-                if (allRecords.length === 0) {
-                    alert("目前資料庫沒有數據可供匯出！");
-                    return;
-                }
-                let csvContent = "\uFEFF"; 
-                csvContent += "完整登錄編碼,建築區域,方位,屋面部位,細部分類,流水號,照片序號,工藝,備註說明,登記時間\n";
-                allRecords.forEach(r => {
-                    const row = [
-                        r.fullCode, r.area, r.direction, r.roofPos, r.compCode, r.serial, r.photoType, r.craft, r.note || '', r.timestamp
-                    ].map(text => `"${text.replace(/"/g, '""')}"`).join(",");
-                    csvContent += row + "\n";
-                });
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.setAttribute("download", `龍山寺文資普查分頁表_${new Date().toLocaleDateString()}.csv`);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `龍山寺文資普查分頁表_${new Date().toLocaleDateString()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         });
     </script>
 </body>
