@@ -28,7 +28,7 @@
         
         /* 表單排版 */
         .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
-        .form-group { flex: 1; min-width: 0; }
+        .form-row .form-group { flex: 1; min-width: 0; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; color: #4a5568; }
         input[type="text"], select, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 8px; box-sizing: border-box; font-size: 16px; background-color: #fff; -webkit-appearance: none; }
         input:focus, select:focus { border-color: #3182ce; outline: none; box-shadow: 0 0 0 3px rgba(66,153,225,0.4); }
@@ -43,11 +43,15 @@
         /* 照片預覽與快取卡片 */
         .preview-container { margin-top: 10px; display: none; text-align: center; }
         .preview-container img { max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #cbd5e0; }
+        
+        /* ⚙️ 移入第二頁下方的歷史數據庫樣式 */
         .history { margin-top: 35px; border-top: 2px solid #e2e8f0; padding-top: 20px; }
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .history h2 { font-size: 18px; margin: 0; color: #4a5568; }
-        .data-card { background: #f7fafc; padding: 15px; border-radius: 10px; margin-bottom: 12px; border-left: 6px solid #2b6cb0; font-size: 14px; }
+        .data-card { background: #f7fafc; padding: 15px; border-radius: 10px; margin-bottom: 12px; border-left: 6px solid #2b6cb0; font-size: 14px; position: relative; }
         .data-card img { max-width: 150px; display: block; margin-top: 10px; border-radius: 6px; }
+        .delete-btn { position: absolute; top: 15px; right: 15px; color: #e53e3e; cursor: pointer; font-weight: bold; border: none; background: none; font-size: 15px; padding: 5px; }
+        .delete-btn:hover { text-shadow: 0 0 2px rgba(229,62,62,0.3); }
     </style>
 </head>
 <body>
@@ -100,7 +104,6 @@
             </div>
 
             <div class="btn-group">
-                <!-- 🚀 核心修正：直接內嵌 onclick，100% 確保流暢切換到第二頁 -->
                 <button type="button" class="btn-submit" onclick="window.switchPage(2)">下一步：填寫細部分類與拍照 ➡️</button>
             </div>
         </div>
@@ -165,24 +168,25 @@
             </div>
 
             <div class="btn-group">
-                <!-- 🚀 核心修正：直接內嵌 onclick，100% 確保返回第一頁 -->
                 <button type="button" class="btn-nav" onclick="window.switchPage(1)">⬅️ 返回第一步</button>
                 <button type="submit" class="btn-submit">💾 儲存並同步文資數據</button>
             </div>
+
+            <!-- 🔄 成功移入：現在歷史紀錄清單在第二頁的最下方，直接顯示 -->
+            <div class="history">
+                <div class="history-header">
+                    <h2>📋 本次調查數據實時清單</h2>
+                    <button type="button" id="exportBtn" class="btn-export" style="flex: none; width: auto; padding: 8px 15px; font-size: 14px;">🍏 匯出 Excel (CSV)</button>
+                </div>
+                <div id="dataList"></div>
+            </div>
+
         </div>
         
     </form>
-
-    <div class="history">
-        <div class="history-header">
-            <h2>📋 雲端實時同步數據庫</h2>
-            <button id="exportBtn" class="btn-export" style="flex: none; width: auto; padding: 8px 15px; font-size: 14px;">🍏 匯出 Excel (CSV)</button>
-        </div>
-        <div id="dataList"></div>
-    </div>
 </div>
     <script>
-        // 🛠️ 終極修復：將換頁和編碼變換函數直接掛載在 window 全域上，網頁開起來立刻就能執行
+        // 全域控制函數，網頁開啟時即刻生效
         window.switchPage = function(pageNum) {
             try {
                 document.getElementById('page1').classList.remove('active');
@@ -208,21 +212,44 @@
             }
         };
 
-        // 平板相機影像快速轉 Base64 處理
+        // 🛠️ 核心優化：流水號三位數（如 001）自動加一補零函數
+        window.autoIncrementSerial = function() {
+            try {
+                const serialEl = document.getElementById('serial');
+                const currentVal = parseInt(serialEl.value, 10);
+                if (!isNaN(currentVal)) {
+                    const nextVal = currentVal + 1;
+                    // 將數字轉回三位數字串形式 (例如 2 變 "002")
+                    serialEl.value = String(nextVal).padStart(3, '0');
+                }
+            } catch(err) {
+                console.error("流水號遞增出錯", err);
+            }
+        };
+
+        // 🛠️ 核心優化：將刪除指令拋給第四段的 Firebase 模組執行
+        window.triggerDeleteRecord = function(docId) {
+            if (window.deleteFirebaseDocFunction) {
+                window.deleteFirebaseDocFunction(docId);
+            } else {
+                alert("系統資料庫載入中，請稍後再試！");
+            }
+        };
+
         window.onload = function() {
             window.updateCodePreview();
             
             const photoInput = document.getElementById('photo');
             if (photoInput) {
                 photoInput.addEventListener('change', function(e) {
-                    if (e.target.files && e.target.files[0]) {
+                    if (e.target.files && e.target.files) {
                         const reader = new FileReader();
                         reader.onload = function(event) {
                             window.base64ImageSaved = event.target.result;
                             document.getElementById('imagePreview').src = window.base64ImageSaved;
                             document.getElementById('previewContainer').style.display = 'block';
                         };
-                        reader.readAsDataURL(e.target.files[0]);
+                        reader.readAsDataURL(e.target.files);
                     }
                 });
             }
@@ -230,11 +257,12 @@
         
         window.base64ImageSaved = "";
         window.allRecordsSaved = [];
+        window.deleteFirebaseDocFunction = null; // 用來綁定第四段的刪除函數
     </script>
-    <!-- 將資料庫處理獨立封裝在後方模組內，完全不阻礙平板前台的按鈕與換頁操作 -->
+    <!-- 負責雲端讀寫、監聽異動與刪除文件的模組區塊 -->
     <script type="module">
         import { initializeApp } from "https://gstatic.com";
-        import { getFirestore, collection, addDoc, onSnapshot, enableIndexedDbPersistence } from "https://gstatic.com";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, enableIndexedDbPersistence } from "https://gstatic.com";
 
         // 連接您的真實專案 qqbase-39057
         const firebaseConfig = {
@@ -266,7 +294,6 @@
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             
-            // 啟用本地離線持久化快取
             enableIndexedDbPersistence(db).catch((err) => {
                 console.warn("快取提示:", err.code);
             });
@@ -274,7 +301,19 @@
             firestoreCollection = collection(db, "survey_records");
             updateStatusBadge(navigator.onLine);
 
-            // 監聽雲端資料流
+            // 🚀 核心更新：將真實的 Firebase 刪除功能綁定到全域視窗，以便按鈕觸發
+            window.deleteFirebaseDocFunction = async function(docId) {
+                if (!confirm("⚠️ 確定要從雲端資料庫中「永久刪除」這筆普查數據嗎？")) return;
+                try {
+                    const docRef = doc(db, "survey_records", docId);
+                    await deleteDoc(docRef);
+                    alert("🗑️ 數據已成功從雲端刪除！");
+                } catch (err) {
+                    alert("刪除失敗，請檢查權限設定: " + err.message);
+                }
+            };
+
+            // 實時更新清單 (加上 onclick="window.triggerDeleteRecord")
             onSnapshot(firestoreCollection, (snapshot) => {
                 const dataList = document.getElementById('dataList');
                 if (!dataList) return;
@@ -285,7 +324,7 @@
 
                 snapshot.forEach(doc => {
                     let data = doc.data();
-                    data.id = doc.id;
+                    data.id = doc.id; // 這就是雲端唯一的 Document ID
                     docs.push(data);
                 });
                 
@@ -296,6 +335,8 @@
                     const card = document.createElement('div');
                     card.className = 'data-card';
                     card.innerHTML = `
+                        <!-- 🚀 每個卡片右上角都配備一個全域刪除鍵 -->
+                        <button type="button" class="delete-btn" onclick="window.triggerDeleteRecord('${val.id}')">❌ 刪除</button>
                         <strong style="color:#2b6cb0; font-size:15px;">🔍 編碼：${val.fullCode}</strong><br>
                         <span style="color:#718096; font-size:12px;">🕒 登記時間：${val.timestamp} | 🎨 工藝：${val.craft}</span><br>
                         ${val.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 備註：${val.note}</div>` : ''}
@@ -313,16 +354,15 @@
             console.error("Firebase 連線初始化異常", err);
         }
 
-        // 監聽網路連線狀況
         window.addEventListener('online', () => updateStatusBadge(true));
         window.addEventListener('offline', () => updateStatusBadge(false));
 
-        // 表單點擊提交儲存
+        // 表單提交儲存
         document.getElementById('recordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             if (!firestoreCollection) {
-                alert("🚨 系統尚未完全連上 Firebase，請確認平板網路是否通暢！");
+                alert("🚨 系統尚未完全連上 Firebase，請確認網路環境！");
                 return;
             }
 
@@ -342,19 +382,20 @@
 
             try {
                 await addDoc(firestoreCollection, record);
-                alert("🎉 普查數據儲存成功並已排入雲端！\n完整識別碼為：" + record.fullCode);
+                alert("🎉 數據儲存成功並已排入雲端！\n完整識別碼為：" + record.fullCode);
                 
-                // 儲存完成後重置欄位
+                // 儲存完成後重置輸入欄位
                 document.getElementById('note').value = "";
                 document.getElementById('photo').value = "";
                 document.getElementById('previewContainer').style.display = 'none';
                 window.base64ImageSaved = "";
-                window.updateCodePreview();
                 
-                // 自動無條件回到第一頁
-                window.switchPage(1);
+                // 🚀 核心優化：不再跳回第一頁 (拿掉了 switchPage)，改為流水號自動 +1 方便現場連續作業
+                window.autoIncrementSerial();
+                window.updateCodePreview(); // 重新計算頂部藍框編碼
+                
             } catch (err) {
-                alert("⚠️ 儲存失敗！請確認 Firebase 後台 Rules 是否有確實打開為測試模式(if true)！\n訊息: " + err.message);
+                alert("⚠️ 儲存失敗！錯誤訊息: " + err.message);
             }
         });
 
@@ -380,7 +421,7 @@
             link.click();
             document.body.removeChild(link);
         });
-    </script>
+    });
+</script>
 </body>
 </html>
-
