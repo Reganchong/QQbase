@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>艋舺龍山寺屋面傳統裝飾普查系統</title>
+    <title>龍山寺屋面傳統裝飾普查系統</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
@@ -28,7 +28,7 @@
         .page { display: none; }
         .page.active { display: block; }
         
-        /* 📱 專屬：目錄首頁大卡片按鈕樣式 */
+        /* 📱 目錄首頁大卡片按鈕樣式 */
         .menu-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 30px 0; }
         @media (min-width: 600px) { .menu-grid { grid-template-columns: 1fr 1fr; } .menu-item.full-width { grid-column: span 2; } }
         .menu-item { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; -webkit-user-select: none; user-select: none; }
@@ -69,7 +69,7 @@
     <h1>🏛️ 艋舺龍山寺屋面傳統裝飾普查系統</h1>
     <div style="text-align: center; color: #718096; font-size: 14px; margin-bottom: 15px;">學術普查 PWA 離線同步平台</div>
     
-    <!-- 預覽編碼框：常駐在頂部，讓使用者隨時看得到目前的狀態 -->
+    <!-- 預覽編碼框常駐頂部 -->
     <div class="code-preview-box">
         <div id="networkStatus" class="sync-status-badge">
             <span class="dot"></span> <span id="statusText">等待連線...</span>
@@ -78,7 +78,7 @@
         <div class="generated-code" id="codePreview">LS-SH-W-MR-11-001-O01</div>
     </div>
 
-    <!-- 🌐 【功能一：目錄導覽首頁】 (預設顯示) -->
+    <!-- 🌐 【功能一：目錄導覽首頁】 -->
     <div id="section-menu" class="main-section active">
         <div class="menu-grid">
             <div class="menu-item" onclick="window.switchSection('log')">
@@ -97,7 +97,7 @@
         <div style="text-align: center; color: #a0aec0; font-size: 12px; margin-top: 40px;">平板專用系統 · 離線作業優先設計</div>
     </div>
 
-    <!-- 🌐 【功能二：數據登錄頁面】 (內含之前的雙分頁) -->
+    <!-- 🌐 【功能二：數據登錄頁面】 -->
     <div id="section-log" class="main-section">
         <form id="recordForm">
             <!-- 📄 登錄第一頁：大部位設定 -->
@@ -136,7 +136,7 @@
                 </div>
             </div>
 
-            <!-- 📄 登錄第二頁：細部紀錄與現場拍照（點儲存時原地留守） -->
+            <!-- 📄 登錄第二頁：細部紀錄與現場拍照（修正：儲存時會絕對停留在這頁） -->
             <div id="page2" class="page">
                 <h3 style="color:#2b6cb0; margin-bottom:15px; border-left:4px solid #2b6cb0; padding-left:8px;">第二步：詳細普查數據與影像紀錄</h3>
                 <div class="form-row">
@@ -183,7 +183,7 @@
                     <input type="file" id="photo" accept="image/*">
                     <div class="preview-container" id="previewContainer">
                         <img id="imagePreview" src="" alt="照片預覽">
-                    </div>
+                </div>
                 </div>
                 <div class="form-group" style="margin-top: 15px;">
                     <label>📝 題材內容 / 保存狀況備註說明</label>
@@ -211,17 +211,16 @@
     </div>
 </div>
     <script>
-        // 🛠️ 核心優化：跨功能大目錄切換導覽函數
+        // 跨功能大目錄切換導覽函數
         window.switchSection = function(sectionId) {
             try {
                 document.getElementById('section-menu').classList.remove('active');
                 document.getElementById('section-log').classList.remove('active');
                 document.getElementById('section-query').classList.remove('active');
                 
-                // 活化點選的大目錄區塊
                 document.getElementById('section-' + sectionId).classList.add('active');
                 
-                // 每次換大目錄時，如果是進入登錄，預設切回登錄的第一步
+                // 只有主動從首頁點進「數據登錄工具」時，才幫他切回第一步，其餘時間不干涉
                 if (sectionId === 'log') {
                     window.switchPage(1);
                 }
@@ -229,7 +228,7 @@
             } catch(err) { console.error(err); }
         };
 
-        // 登錄內部的第一步/第二步分頁換頁
+        // 登錄內部的第一步/第二步換頁
         window.switchPage = function(pageNum) {
             try {
                 document.getElementById('page1').classList.remove('active');
@@ -239,7 +238,7 @@
             } catch(err) { console.error(err); }
         };
 
-        // 選單打字連動預覽編碼
+        // 選單即時對齊預覽編碼
         window.updateCodePreview = function() {
             try {
                 const area = document.getElementById('area').value;
@@ -252,7 +251,7 @@
             } catch(e) {}
         };
 
-        // 三位數流水號自動遞增 +1
+        // 流水號自動遞增 +1
         window.autoIncrementSerial = function() {
             try {
                 const serialEl = document.getElementById('serial');
@@ -277,14 +276,14 @@
             const photoInput = document.getElementById('photo');
             if (photoInput) {
                 photoInput.addEventListener('change', function(e) {
-                    if (e.target.files && e.target.files[0]) {
+                    if (e.target.files && e.target.files) {
                         const reader = new FileReader();
                         reader.onload = function(event) {
                             window.base64ImageSaved = event.target.result;
                             document.getElementById('imagePreview').src = window.base64ImageSaved;
                             document.getElementById('previewContainer').style.display = 'block';
                         };
-                        reader.readAsDataURL(e.target.files[0]);
+                        reader.readAsDataURL(e.target.files);
                     }
                 });
             }
@@ -335,7 +334,7 @@
             firestoreCollection = collection(db, "survey_records");
             updateStatusBadge(navigator.onLine);
 
-            // 實時綁定刪除功能
+            // 綁定全域刪除
             window.deleteFirebaseDocFunction = async function(docId) {
                 if (!confirm("⚠️ 確定要從雲端永久刪除這筆文資數據卡片嗎？")) return;
                 try {
@@ -347,7 +346,7 @@
                 }
             };
 
-            // 實時監聽雲端與本地快取異動並渲染
+            // 監聽異動並渲染到查詢分頁中
             onSnapshot(firestoreCollection, (snapshot) => {
                 const dataList = document.getElementById('dataList');
                 if (!dataList) return;
@@ -413,15 +412,18 @@
                 await addDoc(firestoreCollection, record);
                 alert("🎉 數據登錄成功！\n識別碼：" + record.fullCode);
                 
-                // 留在第二頁，清空局部暫存
+                // 🚀 關鍵優化 1：只清理文字備註與照片檔案欄位
                 document.getElementById('note').value = "";
                 document.getElementById('photo').value = "";
                 document.getElementById('previewContainer').style.display = 'none';
                 window.base64ImageSaved = "";
                 
-                // 流水號自動遞增 +1
+                // 🚀 關鍵優化 2：流水號自動安全 +1 (其餘下拉選單數值完全原封不動鎖在原地)
                 window.autoIncrementSerial();
-                window.updateCodePreview();
+                window.updateCodePreview(); // 刷新藍框
+                
+                // 🚀 關鍵優化 3：徹底移除了回到第一頁的 switchPage(1) 指令，強制留在同一頁！
+                
             } catch (err) {
                 alert("儲存失敗: " + err.message);
             }
