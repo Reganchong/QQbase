@@ -2,117 +2,149 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, 
+    initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>龍山寺屋面傳統裝飾普查系統</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" 
+    content="black-translucent">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f5f5f7; color: #1d1d1f; margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 24px; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
-        h1 { font-size: 22px; text-align: center; margin-bottom: 5px; color: #1a365d; }
-        
-        /* 頂部即時編碼預覽區 */
-        .code-preview-box { background-color: #ebf8ff; border: 2px dashed #3182ce; padding: 18px; border-radius: 10px; margin-bottom: 20px; text-align: center; position: relative; }
-        .code-preview-box label { font-size: 13px; color: #2b6cb0; font-weight: bold; display: block; margin-bottom: 8px; }
-        .generated-code { font-family: "Courier New", Courier, monospace; font-size: 24px; font-weight: bold; color: #2b6cb0; word-break: break-all; }
-        
-        /* 網路連線指示燈 */
-        .sync-status-badge { position: absolute; top: 12px; right: 15px; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 20px; background: #feebc8; color: #c05621; }
-        .sync-status-badge.online { background: #c6f6d5; color: #22543d; }
+        body { font-family: -apple-system, sans-serif; 
+        background-color: #f5f5f7; color: #1d1d1f; 
+        margin: 0; padding: 15px; }
+        .container { max-width: 800px; margin: 0 auto; 
+        background: white; padding: 24px; 
+        border-radius: 16px; 
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+        h1 { font-size: 22px; text-align: center; 
+        margin-bottom: 5px; color: #1a365d; }
+        .code-preview-box { background-color: #ebf8ff; 
+        border: 2px dashed #3182ce; padding: 18px; 
+        border-radius: 10px; margin-bottom: 20px; 
+        text-align: center; position: relative; }
+        .code-preview-box label { font-size: 13px; 
+        color: #2b6cb0; font-weight: bold; 
+        display: block; margin-bottom: 8px; }
+        .generated-code { font-family: monospace; 
+        font-size: 24px; font-weight: bold; 
+        color: #2b6cb0; word-break: break-all; }
+        .sync-status-badge { position: absolute; 
+        top: 12px; right: 15px; display: flex; 
+        align-items: center; gap: 6px; font-size: 12px; 
+        font-weight: bold; padding: 4px 10px; 
+        border-radius: 20px; background: #feebc8; 
+        color: #c05621; }
+        .sync-status-badge.online { background: #c6f6d5; 
+        color: #22543d; }
         .sync-status-badge.online .dot { background: #38a169; }
-        .sync-status-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: #dd6b20; display: inline-block; }
-        
-        /* 📄 頁面控制核心 */
-        .main-section { display: none; }
-        .main-section.active { display: block; }
-        .page { display: none; }
-        .page.active { display: block; }
-        
-        /* 📱 目錄首頁大卡片按鈕樣式 */
-        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 30px 0; }
-        @media (min-width: 600px) { .menu-grid { grid-template-columns: 1fr 1fr; } .menu-item.full-width { grid-column: span 2; } }
-        .menu-item { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; -webkit-user-select: none; user-select: none; }
-        .menu-item:active { background: #edf2f7; transform: scale(0.98); }
-        .menu-item h3 { margin: 0 0 8px 0; color: #2b6cb0; font-size: 18px; }
+        .sync-status-badge .dot { width: 8px; height: 8px; 
+        border-radius: 50%; background: #dd6b20; 
+        display: inline-block; }
+        .main-section, .page { display: none; }
+        .main-section.active, .page.active { display: block; }
+        .menu-grid { display: grid; grid-template-columns: 1fr; 
+        gap: 16px; margin: 30px 0; }
+        @media (min-width: 600px) { 
+        .menu-grid { grid-template-columns: 1fr 1fr; } 
+        .menu-item.full-width { grid-column: span 2; } }
+        .menu-item { background: #f7fafc; 
+        border: 2px solid #e2e8f0; border-radius: 12px; 
+        padding: 24px; text-align: center; cursor: pointer; }
+        .menu-item h3 { margin: 0 0 8px 0; color: #2b6cb0; }
         .menu-item p { margin: 0; color: #718096; font-size: 13px; }
-        .menu-item.sync-card { background: #fffaf0; border-color: #feebc8; }
+        .menu-item.sync-card { background: #fffaf0; 
+        border-color: #feebc8; }
         .menu-item.sync-card h3 { color: #dd6b20; }
-        
-        /* 表單排版 */
         .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
         .form-row .form-group { flex: 1; min-width: 0; }
-        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; color: #4a5568; }
-        input[type="text"], select, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 8px; box-sizing: border-box; font-size: 16px; background-color: #fff; -webkit-appearance: none; }
-        input:focus, select:focus { border-color: #3182ce; outline: none; box-shadow: 0 0 0 3px rgba(66,153,225,0.4); }
-        
+        label { display: block; font-weight: 600; 
+        margin-bottom: 6px; font-size: 14px; color: #4a5568; }
+        input[type="text"], select, textarea { width: 100%; 
+        padding: 12px; border: 1px solid #cbd5e0; 
+        border-radius: 8px; box-sizing: border-box; 
+        font-size: 16px; background-color: #fff; }
         .btn-group { display: flex; gap: 12px; margin-top: 20px; }
-        button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; user-select: none; }
+        button { flex: 1; padding: 15px; border: none; 
+        border-radius: 8px; font-size: 16px; font-weight: bold; 
+        cursor: pointer; }
         .btn-submit { background-color: #2b6cb0; color: white; }
         .btn-nav { background-color: #718096; color: white; }
         .btn-export { background-color: #38a169; color: white; }
-        .btn-home { background-color: #1a365d; color: white; margin-top: 20px; width: 100%; display: block; }
-        
-        /* 歷史紀錄與快取卡片樣式 */
-        .preview-container { margin-top: 10px; display: none; text-align: center; }
-        .preview-container img { max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #cbd5e0; }
+        .btn-home { background-color: #1a365d; color: white; 
+        margin-top: 20px; width: 100%; display: block; }
+        .preview-container { margin-top: 10px; display: none; 
+        text-align: center; }
+        .preview-container img { max-width: 100%; 
+        max-height: 200px; border-radius: 8px; }
         .history { margin-top: 20px; }
-        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .history-header { display: flex; 
+        justify-content: space-between; align-items: center; 
+        margin-bottom: 15px; }
         .history h2 { font-size: 18px; margin: 0; color: #4a5568; }
-        .data-card { background: #f7fafc; padding: 15px; border-radius: 10px; margin-bottom: 12px; border-left: 6px solid #2b6cb0; font-size: 14px; position: relative; }
-        .data-card img { max-width: 150px; display: block; margin-top: 10px; border-radius: 6px; }
-        .delete-btn { position: absolute; top: 15px; right: 15px; color: #e53e3e; cursor: pointer; font-weight: bold; border: none; background: none; font-size: 15px; padding: 5px; }
-        
-        /* 同步狀態小標籤 */
-        .card-sync-tag { display: inline-block; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 8px; }
+        .data-card { background: #f7fafc; padding: 15px; 
+        border-radius: 10px; margin-bottom: 12px; 
+        border-left: 6px solid #2b6cb0; font-size: 14px; 
+        position: relative; }
+        .data-card img { max-width: 150px; display: block; 
+        margin-top: 10px; border-radius: 6px; }
+        .delete-btn { position: absolute; top: 15px; right: 15px; 
+        color: #e53e3e; cursor: pointer; font-weight: bold; 
+        border: none; background: none; font-size: 15px; }
+        .card-sync-tag { display: inline-block; font-size: 11px; 
+        padding: 2px 6px; border-radius: 4px; font-weight: bold; 
+        margin-left: 8px; }
         .tag-unsynced { background: #feebc8; color: #c05621; }
         .tag-synced { background: #c6f6d5; color: #22543d; }
     </style>
 </head>
-<body>
 
+<body>
 <div class="container">
     <h1>🏛️ 艋舺龍山寺屋面傳統裝飾普查系統</h1>
-    <div style="text-align: center; color: #718096; font-size: 14px; margin-bottom: 15px;">學術普查 PWA 本機優先離線同步版</div>
+    <div style="text-align: center; color: #718096; 
+    font-size: 14px; margin-bottom: 15px;">本機優先離線同步版</div>
     
-    <!-- 預覽編碼框常駐頂部 -->
     <div class="code-preview-box">
         <div id="networkStatus" class="sync-status-badge">
-            <span class="dot"></span> <span id="statusText">正在檢測連線...</span>
+            <span class="dot"></span> <span id="statusText">檢測中...</span>
         </div>
-        <label>當前選擇的完整編號 (Full Code Format)</label>
-        <div class="generated-code" id="codePreview">LS-SH-W-MR-11-001-O01</div>
+        <label>當前選擇的完整編號</label>
+        <div class="generated-code" id="codePreview"></div>
     </div>
 
-    <!-- 🌐 【功能一：目錄導覽首頁】 -->
+    <!-- 🌐 【頁面一：目錄導覽首頁】 -->
     <div id="section-menu" class="main-section active">
         <div class="menu-grid">
             <div class="menu-item" onclick="window.switchSection('log')">
                 <h3>➕ 數據登錄工具</h3>
-                <p>在本機平板儲存裝飾普查資料，選項原封不動，流水號自動+1。</p>
+                <p>在本機平板極速儲存裝飾普查，選項鎖定，流水號自動+1。</p>
             </div>
             <div class="menu-item" onclick="window.switchSection('query')">
                 <h3>🔍 查詢歷史數據</h3>
-                <p>翻看當前平板儲存的所有卡片，可即時查看同步狀態或進行刪除。</p>
+                <p>翻看當前平板內所有卡片，可即時查看同步狀態或刪除。</p>
             </div>
-            <!-- 🔄 核心更新：首頁手動觸發同步按鈕 -->
-            <div class="menu-item sync-card full-width" onclick="window.triggerFirebaseSync()">
+            <div class="menu-item sync-card full-width" 
+            onclick="window.triggerFirebaseSync()">
                 <h3>🔄 點擊同步至雲端資料庫</h3>
-                <p>回到有網路的地方時點選此處，將平板儲存的所有普查卡片一次性批量推送到雲端。</p>
+                <p>回到有網路的地方時點選此處，將卡片一次性批量推送到雲端。</p>
             </div>
         </div>
-        <div style="text-align: center; color: #a0aec0; font-size: 12px; margin-top: 40px;">平板專用系統 · 離線作業優先設計</div>
     </div>
 
-    <!-- 🌐 【功能二：數據登錄頁面】 -->
+    <!-- 🌐 【頁面二：數據登錄頁面】 -->
     <div id="section-log" class="main-section">
         <form id="recordForm">
-            <!-- 📄 登錄第一頁：大部位設定 -->
+            <!-- 📄 登錄第一頁：宏觀部位 -->
             <div id="page1" class="page active">
-                <h3 style="color:#2b6cb0; margin-bottom:15px; border-left:4px solid #2b6cb0; padding-left:8px;">第一步：選擇主要建築部位</h3>
+                <h3 style="color:#2b6cb0; margin-bottom:15px; 
+                border-left:4px solid #2b6cb0; padding-left:8px;">
+                第一步：選擇主要建築部位</h3>
                 <div class="form-row">
                     <div class="form-group" style="flex: 0 0 80px;">
                         <label>寺廟代號</label>
-                        <input type="text" id="prefix" value="LS" disabled style="background-color: #edf2f7; text-align: center; font-weight: bold;">
+                        <input type="text" id="prefix" value="LS" 
+                        disabled style="background-color: #edf2f7; 
+                        text-align: center; font-weight: bold;">
                     </div>
                     <div class="form-group">
                         <label>建築區域 [殿區]</label>
@@ -137,14 +169,18 @@
                     </div>
                 </div>
                 <div class="btn-group">
-                    <button type="button" class="btn-nav" onclick="window.switchSection('menu')">🏠 返回目錄首頁</button>
-                    <button type="button" class="btn-submit" onclick="window.switchPage(2)">下一步：填寫細部與拍照 ➡️</button>
+                    <button type="button" class="btn-nav" 
+                    onclick="window.switchSection('menu')">🏠 回目錄</button>
+                    <button type="button" class="btn-submit" 
+                    onclick="window.switchPage(2)">下一步 ➡️</button>
                 </div>
             </div>
 
-            <!-- 📄 登錄第二頁：細部紀錄與現場拍照（點儲存時原地留守，選項不變，流水號+1） -->
+            <!-- 📄 登錄第二頁：細部紀錄與現場拍照（原地留守，選項鎖定） -->
             <div id="page2" class="page">
-                <h3 style="color:#2b6cb0; margin-bottom:15px; border-left:4px solid #2b6cb0; padding-left:8px;">第二步：詳細普查數據與影像紀錄</h3>
+                <h3 style="color:#2b6cb0; margin-bottom:15px; 
+                border-left:4px solid #2b6cb0; padding-left:8px;">
+                第二步：詳細數據與影像紀錄</h3>
                 <div class="form-row">
                     <div class="form-group">
                         <label>構件細部分類</label>
@@ -166,17 +202,21 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>作品流水號 (三位數)</label>
-                        <input type="text" id="serial" value="001" oninput="window.updateCodePreview()" required style="font-family: monospace;">
+                        <label>作品流水號</label>
+                        <input type="text" id="serial" value="001" 
+                        oninput="window.updateCodePreview()" required 
+                        style="font-family: monospace;">
                     </div>
                     <div class="form-group">
                         <label>照片型別+序號</label>
-                        <input type="text" id="photoType" value="O01" oninput="window.updateCodePreview()" required style="font-family: monospace;">
+                        <input type="text" id="photoType" value="O01" 
+                        oninput="window.updateCodePreview()" required 
+                        style="font-family: monospace;">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>工藝形式 (附加欄位)</label>
+                        <label>工藝形式</label>
                         <select id="craft">
                             <option value="CP" selected>剪黏工藝 (CP)</option>
                             <option value="JP">交趾陶工藝 (JP)</option>
@@ -185,365 +225,342 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>📷 調查影像上傳 / 平板相機現場拍攝 (選填)</label>
+                    <label>📷 調查影像 (選填)</label>
                     <input type="file" id="photo" accept="image/*">
                     <div class="preview-container" id="previewContainer">
-                        <img id="imagePreview" src="" alt="照片預覽">
+                        <img id="imagePreview" src="" alt="預覽">
                     </div>
                 </div>
                 <div class="form-group" style="margin-top: 15px;">
-                    <label>📝 題材內容 / 保存狀況備註說明</label>
-                    <textarea id="note" rows="2" placeholder="請輸入作品細部觀察描述..."></textarea>
+                    <label>📝 題材內容 / 保存狀況備註</label>
+                    <textarea id="note" rows="2" 
+                    placeholder="請輸入細部觀察描述..."></textarea>
                 </div>
                 <div class="btn-group">
-                    <button type="button" class="btn-nav" onclick="window.switchPage(1)">⬅️ 返回第一步</button>
-                    <button type="submit" class="btn-submit">💾 儲存至當前平板本機</button>
+                    <button type="button" class="btn-nav" 
+                    onclick="window.switchPage(1)">⬅️ 返回第一步</button>
+                    <button type="submit" class="btn-submit">
+                    💾 儲存至當前平板本機</button>
                 </div>
-                <button type="button" class="btn-home" onclick="window.switchSection('menu')" style="background-color:#4a5568;">🏠 結束登錄，回目錄首頁</button>
+                <button type="button" class="btn-home" 
+                onclick="window.switchSection('menu')" 
+                style="background-color:#4a5568;">🏠 結束登錄</button>
             </div>
         </form>
     </div>
 
-    <!-- 🌐 【功能三：獨立數據查詢與下載頁面】（可查看本機所有快取資料） -->
+    <!-- 🌐 【頁面三：獨立數據查詢與下載頁面】 -->
     <div id="section-query" class="main-section">
         <div class="history">
             <div class="history-header">
                 <h2>📋 平板本機已快取數據總覽</h2>
-                <button type="button" id="exportBtn" class="btn-export" style="flex: none; width: auto; padding: 8px 15px; font-size: 14px;">🍏 匯出 Excel (CSV)</button>
+                <button type="button" id="exportBtn" 
+                class="btn-export">🍏 匯出 Excel (CSV)</button>
             </div>
             <div id="dataList"></div>
         </div>
-        <button type="button" class="btn-home" onclick="window.switchSection('menu')">🏠 返回目錄主選單</button>
+        <button type="button" class="btn-home" 
+        onclick="window.switchSection('menu')">🏠 返回目錄</button>
     </div>
 </div>
-    <script>
-        // 跨功能主目錄導覽函數
-        window.switchSection = function(sectionId) {
-            try {
-                document.getElementById('section-menu').classList.remove('active');
-                document.getElementById('section-log').classList.remove('active');
-                document.getElementById('section-query').classList.remove('active');
-                
-                document.getElementById('section-' + sectionId).classList.add('active');
-                
-                if (sectionId === 'log') {
-                    window.switchPage(1);
-                }
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } catch(err) { console.error(err); }
-        };
+<script>
+    // --- 換Section大目錄 ---
+    window.switchSection = function(id) {
+        document.getElementById('section-menu')
+            .classList.remove('active');
+        document.getElementById('section-log')
+            .classList.remove('active');
+        document.getElementById('section-query')
+            .classList.remove('active');
+        document.getElementById('section-' + id)
+            .classList.add('active');
+        if (id === 'log') { window.switchPage(1); }
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    };
 
-        // 登錄內部的第一步/第二步換頁
-        window.switchPage = function(pageNum) {
-            try {
-                document.getElementById('page1').classList.remove('active');
-                document.getElementById('page2').classList.remove('active');
-                document.getElementById('page' + pageNum).classList.add('active');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } catch(err) { console.error(err); }
-        };
+    // --- 換Form分頁 ---
+    window.switchPage = function(num) {
+        document.getElementById('page1')
+            .classList.remove('active');
+        document.getElementById('page2')
+            .classList.remove('active');
+        document.getElementById('page' + num)
+            .classList.add('active');
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    };
 
-        // 選單即時對齊預覽編碼
-        window.updateCodePreview = function() {
-            try {
-                const area = document.getElementById('area').value;
-                const direction = document.getElementById('direction').value;
-                const roofPos = document.getElementById('roofPos').value;
-                const compCode = document.getElementById('compCode').value;
-                const serial = document.getElementById('serial').value.trim() || '？';
-                const photoType = document.getElementById('photoType').value.trim() || '？';
-                document.getElementById('codePreview').innerText = `LS-${area}-${direction}-${roofPos}-${compCode}-${serial}-${photoType}`;
-            } catch(e) {}
-        };
+    // --- 即時預覽編碼 ---
+    window.updateCodePreview = function() {
+        const area = document.getElementById('area').value;
+        const dir = document.getElementById('direction').value;
+        const roof = document.getElementById('roofPos').value;
+        const comp = document.getElementById('compCode').value;
+        const ser = document.getElementById('serial')
+            .value.trim() || '？';
+        const pType = document.getElementById('photoType')
+            .value.trim() || '？';
+        document.getElementById('codePreview').innerText = 
+        `LS-${area}-${dir}-${roof}-${comp}-${ser}-${pType}`;
+    };
 
-        // 流水號自動遞增 +1
-        window.autoIncrementSerial = function() {
-            try {
-                const serialEl = document.getElementById('serial');
-                const currentVal = parseInt(serialEl.value, 10);
-                if (!isNaN(currentVal)) {
-                    serialEl.value = String(currentVal + 1).padStart(3, '0');
-                }
-            } catch(err) {}
-        };
+    // --- 流水號自動遞增 ---
+    window.autoIncrementSerial = function() {
+        const el = document.getElementById('serial');
+        const val = parseInt(el.value, 10);
+        if (!isNaN(val)) { 
+            el.value = String(val + 1).padStart(3, '0'); 
+        }
+    };
 
-        // 中轉點選的本機刪除指令
-        window.triggerDeleteRecord = function(localId) {
-            if (window.deleteLocalRecordFunction) {
-                window.deleteLocalRecordFunction(localId);
-            } else {
-                alert("資料庫載入中，請稍後再試！");
+    // --- 刪除與同步的中轉管道 ---
+    window.triggerDeleteRecord = function(id) {
+        if (window.deleteLocalRecordFunction) {
+            window.deleteLocalRecordFunction(id);
+        }
+    };
+    window.triggerFirebaseSync = function() {
+        if (window.syncToFirebaseFunction) {
+            window.syncToFirebaseFunction();
+        } else { alert("資料庫初始化中..."); }
+    };
+
+    // --- 照片讀取轉碼 ---
+    window.onload = function() {
+        window.updateCodePreview();
+        document.getElementById('photo').onchange = 
+        function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const rdr = new FileReader();
+                rdr.onload = function(evt) {
+                    window.base64ImageSaved = evt.target.result;
+                    document.getElementById('imagePreview')
+                        .src = evt.target.result;
+                    document.getElementById('previewContainer')
+                        .style.display = 'block';
+                };
+                rdr.readAsDataURL(e.target.files[0]);
             }
         };
+    };
+    window.base64ImageSaved = "";
+    window.allRecordsSaved = [];
+    window.deleteLocalRecordFunction = null;
+    window.syncToFirebaseFunction = null;
+</script>
+<script type="module">
+    import { initializeApp } from 
+    "https://gstatic.com";
+    import { getFirestore, collection, addDoc } from 
+    "https://gstatic.com";
 
-        // 🚀 核心更新：首頁按鈕手動調用 Firebase 同步的管道
-        window.triggerFirebaseSync = function() {
-            if (window.syncToFirebaseFunction) {
-                window.syncToFirebaseFunction();
-            } else {
-                alert("Firebase 雲端尚未啟動，請檢查網路或在網頁上方確認狀態！");
-            }
-        };
+    // 完美切齊的極窄版雲端金鑰
+    const config = {
+        apiKey: "AIzaSyCcQwZq42FnlL5_V0HCQ1mjNZaulQrRh1w",
+        authDomain: "://firebaseapp.com",
+        projectId: "qqbase-39057",
+        storageBucket: "qqbase-39057.firebasestorage.app",
+        messagingSenderId: "173614464944",
+        appId: "1:173614464944:web:aeb38060c576cf495aa075",
+        measurementId: "G-KF50RT64YM"
+    };
 
-        window.onload = function() {
-            window.updateCodePreview();
-            const photoInput = document.getElementById('photo');
-            if (photoInput) {
-                photoInput.addEventListener('change', function(e) {
-                    if (e.target.files && e.target.files) {
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            window.base64ImageSaved = event.target.result;
-                            document.getElementById('imagePreview').src = window.base64ImageSaved;
-                            document.getElementById('previewContainer').style.display = 'block';
-                        };
-                        reader.readAsDataURL(e.target.files);
-                    }
-                });
-            }
-        };
+    let localDB = null, cloudCollection = null;
+
+    function toggleBadge(on) {
+        const b = document.getElementById('networkStatus');
+        const t = document.getElementById('statusText');
+        if(!b || !t) return;
+        b.className = on ? 
+            "sync-status-badge online" : "sync-status-badge";
+        t.innerText = on ? "網路已連線" : "離線優先模式";
+    }
+
+    // 啟動本機 IndexedDB 資料庫
+    const req = indexedDB.open("LongshanLocalDatabase", 1);
+    req.onupgradeneeded = function(e) {
+        let d = e.target.result;
+        if (!d.objectStoreNames.contains("local_records")) {
+            d.createObjectStore("local_records", 
+            { keyPath: "id", autoIncrement: true });
+        }
+    };
+    req.onsuccess = function(e) { 
+        localDB = e.target.result; renderList(); 
+    };
+
+    // 啟動 Firebase 連線
+    try {
+        const app = initializeApp(config);
+        cloudCollection = collection(
+            getFirestore(app), "survey_records"
+        );
+        toggleBadge(navigator.onLine);
+    } catch(err) { console.error(err); }
+
+    window.addEventListener('online', () => toggleBadge(true));
+    window.addEventListener('offline', () => toggleBadge(false));
+
+    // 讀取並渲染本機普查清單
+    function renderList() {
+        const box = document.getElementById('dataList');
+        if (!box || !localDB) return;
+        box.innerHTML = ""; window.allRecordsSaved = [];
         
-        window.base64ImageSaved = "";
-        window.allRecordsSaved = []; // 供查詢和 Excel 導出使用的暫存器
-        window.deleteLocalRecordFunction = null; 
-        window.syncToFirebaseFunction = null; // 由第四段綁定
-    </script>
-    <!-- 負責處理平板 IndexedDB 本地儲存、手動與 Firebase 雲端批量同步的引擎 -->
-    <script type="module">
-        import { initializeApp } from "https://gstatic.com";
-        import { getFirestore, collection, addDoc } from "https://gstatic.com";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCcQwZq42FnlL5_V0HCQ1mjNZaulQrRh1w",
-            authDomain: "://firebaseapp.com",
-            projectId: "qqbase-39057",
-            storageBucket: "qqbase-39057.firebasestorage.app",
-            messagingSenderId: "173614464944",
-            appId: "1:173614464944:web:aeb38060c576cf495aa075",
-            measurementId: "G-KF50RT64YM"
+        const tx = localDB.transaction(
+            ["local_records"], "readonly"
+        );
+        tx.objectStore("local_records").openCursor(null, "prev")
+        .onsuccess = function(e) {
+            const cur = e.target.result;
+            if (cur) {
+                const v = cur.value; 
+                window.allRecordsSaved.push(v);
+                const tag = v.synced === 1 ? 
+                `<span class="card-sync-tag tag-synced">☁️ 已同步</span>` : 
+                `<span class="card-sync-tag tag-unsynced">⏳ 暫存中</span>`;
+                
+                const card = document.createElement('div');
+                card.className = 'data-card';
+                card.innerHTML = `
+                    <button type="button" class="delete-btn" 
+                    onclick="window.triggerDeleteRecord(${v.id})">❌</button>
+                    <strong>🔍 編碼：${v.fullCode}</strong>${tag}<br>
+                    <span style="color:#718096; font-size:12px;">
+                    🕒 時間：${v.timestamp}</span><br>
+                    ${v.note ? `<div style="margin-top:5px; background:#fff; 
+                    padding:6px; border:1px solid #edf2f7;">
+                    📝 備註：${v.note}</div>` : ''}
+                    ${v.photo ? `<img src="${v.photo}">` : ''}
+                `;
+                box.appendChild(card); cur.continue();
+            } else if (window.allRecordsSaved.length === 0) {
+                box.innerHTML = "<p style='color:#a0aec0; " +
+                "text-align:center;'>目前本機尚無普查數據</p>";
+            }
         };
+    }
 
-        let localDB = null;
-        let firestoreCollection = null;
+    // 本機卡片單獨移除
+    window.deleteLocalRecordFunction = function(id) {
+        if (!confirm("⚠️ 確定要從平板本機刪除嗎？")) return;
+        const tx = localDB.transaction(
+            ["local_records"], "readwrite"
+        );
+        tx.objectStore("local_records").delete(id);
+        tx.oncomplete = function() { 
+            alert("🗑️ 數據已自本機移除！"); renderList(); 
+        };
+    };
 
-        function updateStatusBadge(isOnline) {
-            const badge = document.getElementById('networkStatus');
-            const text = document.getElementById('statusText');
-            if (!badge || !text) return;
-            if (isOnline) {
-                badge.className = "sync-status-badge online";
-                text.innerText = "網路已連線";
+    // 手動批量同步上傳雲端
+    window.syncToFirebaseFunction = async function() {
+        if (!navigator.onLine) { 
+            alert("🚨 同步失敗：目前平板沒有網路！"); return; 
+        }
+        if (!cloudCollection) { 
+            alert("🚨 雲端連線失敗！"); return; 
+        }
+        alert("📡 正在將平板離線數據發送至雲端...");
+
+        const tx = localDB.transaction(
+            ["local_records"], "readwrite"
+        );
+        const store = tx.objectStore("local_records");
+        let unsynced = 0, success = 0;
+
+        store.openCursor().onsuccess = async function(e) {
+            const cur = e.target.result;
+            if (cur) {
+                const r = cur.value;
+                if (r.synced === 0) {
+                    unsynced++;
+                    try {
+                        const clean = {
+                            fullCode: r.fullCode, area: r.area, 
+                            direction: r.direction, roofPos: r.roofPos, 
+                            compCode: r.compCode, serial: r.serial,
+                            photoType: r.photoType, craft: r.craft, 
+                            note: r.note, photo: r.photo, 
+                            timestamp: r.timestamp
+                        };
+                        await addDoc(cloudCollection, clean);
+                        r.synced = 1; cur.update(r); success++;
+                    } catch(err) { console.error(err); }
+                }
+                cur.continue();
             } else {
-                badge.className = "sync-status-badge";
-                text.innerText = "網路已斷線 (離線優先)";
-            }
-        }
-
-        // --- A. 初始化平板大容量本機資料庫 IndexedDB ---
-        const dbRequest = indexedDB.open("LongshanLocalDatabase", 1);
-        dbRequest.onupgradeneeded = function(e) {
-            let d = e.target.result;
-            if (!d.objectStoreNames.contains("local_records")) {
-                d.createObjectStore("local_records", { keyPath: "id", autoIncrement: true });
-            }
-        };
-        dbRequest.onsuccess = function(e) {
-            localDB = e.target.result;
-            loadLocalRecords(); // 初始化時讀取本機已存資料
-        };
-
-        // --- B. 初始化 Google Firebase 雲端連接 ---
-        try {
-            const app = initializeApp(firebaseConfig);
-            const firestore = getFirestore(app);
-            firestoreCollection = collection(firestore, "survey_records");
-            updateStatusBadge(navigator.onLine);
-        } catch(err) {
-            console.error("Firebase 初始化異常", err);
-        }
-
-        window.addEventListener('online', () => updateStatusBadge(true));
-        window.addEventListener('offline', () => updateStatusBadge(false));
-
-        // --- C. 渲染平板當前數據快取清單 ---
-        function loadLocalRecords() {
-            const dataList = document.getElementById('dataList');
-            if (!dataList || !localDB) return;
-            
-            dataList.innerHTML = "";
-            window.allRecordsSaved = [];
-            
-            const transaction = localDB.transaction(["local_records"], "readonly");
-            const store = transaction.objectStore("local_records");
-            const cursorRequest = store.openCursor(null, "prev"); // 最新建立的排在最上面
-
-            cursorRequest.onsuccess = function(e) {
-                const cursor = e.target.result;
-                if (cursor) {
-                    const val = cursor.value;
-                    window.allRecordsSaved.push(val);
-                    
-                    // 依據有沒有上傳，亮起不同的狀態標籤
-                    const syncTag = val.synced === 1 
-                        ? `<span class="card-sync-tag tag-synced">☁️ 已同步雲端</span>`
-                        : `<span class="card-sync-tag tag-unsynced">⏳ 離線暫存中</span>`;
-
-                    const card = document.createElement('div');
-                    card.className = 'data-card';
-                    card.innerHTML = `
-                        <button type="button" class="delete-btn" onclick="window.triggerDeleteRecord(${val.id})">❌ 刪除</button>
-                        <strong style="color:#2b6cb0; font-size:15px;">🔍 編碼：${val.fullCode}</strong>${syncTag}<br>
-                        <span style="color:#718096; font-size:12px;">🕒 登記時間：${val.timestamp} | 🎨 工藝：${val.craft}</span><br>
-                        ${val.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 備註：${val.note}</div>` : ''}
-                        ${val.photo ? `<img src="${val.photo}" alt="影像">` : ''}
-                    `;
-                    dataList.appendChild(card);
-                    cursor.continue();
-                } else if (window.allRecordsSaved.length === 0) {
-                    dataList.innerHTML = "<p style='color:#a0aec0; text-align:center;'>平板本機資料庫目前尚無數據</p>";
+                if (unsynced === 0) { 
+                    alert("☁️ 所有資料皆已同步，無新增項目。"); 
+                } else { 
+                    alert(`🎉 同步成功！\n上傳了 ${success} 筆暫存！`); 
                 }
-            };
+                renderList();
+            }
+        };
+    };
+
+    // 表單本機極速儲存 (原地留守、欄位鎖定、流水號+1)
+    document.getElementById('recordForm').onsubmit = function(e) {
+        e.preventDefault(); if (!localDB) return;
+        const r = {
+            fullCode: document.getElementById('codePreview').innerText,
+            area: document.getElementById('area').value,
+            direction: document.getElementById('direction').value,
+            roofPos: document.getElementById('roofPos').value,
+            compCode: document.getElementById('compCode').value,
+            serial: document.getElementById('serial').value,
+            photoType: document.getElementById('photoType').value,
+            craft: document.getElementById('craft').value,
+            note: document.getElementById('note').value,
+            photo: window.base64ImageSaved, synced: 0,
+            timestamp: new Date().toLocaleString()
+        };
+        const tx = localDB.transaction(
+            ["local_records"], "readwrite"
+        );
+        tx.objectStore("local_records").add(r);
+        tx.oncomplete = function() {
+            alert("💾 數據已存入本機！\n編碼：" + r.fullCode);
+            document.getElementById('note').value = "";
+            document.getElementById('photo').value = "";
+            document.getElementById('previewContainer')
+                .style.display = 'none';
+            window.base64ImageSaved = "";
+            window.autoIncrementSerial(); 
+            window.updateCodePreview(); 
+            renderList();
+        };
+    };
+
+    // 極窄版 Excel (CSV) 匯出功能
+    document.getElementById('exportBtn').onclick = function() {
+        if (window.allRecordsSaved.length === 0) { 
+            alert("目前本機沒有數據！"); return; 
         }
-
-        // --- D. 本機獨立刪除按鈕功能 ---
-        window.deleteLocalRecordFunction = function(localId) {
-            if (!confirm("⚠️ 確定要將這筆數據從「平板本機中」永久刪除嗎？")) return;
-            if (!localDB) return;
-
-            const transaction = localDB.transaction(["local_records"], "readwrite");
-            const store = transaction.objectStore("local_records");
-            store.delete(localId);
-
-            transaction.oncomplete = function() {
-                alert("🗑️ 本機數據已成功刪除！");
-                loadLocalRecords();
-            };
-        };
-
-        // --- E. 核心功能：首頁按鈕手動批量上傳雲端同步引擎 ---
-        window.syncToFirebaseFunction = async function() {
-            if (!navigator.onLine) {
-                alert("🚨 同步失敗：目前平板沒有網路，請連上廟宇 Wi-Fi 或熱點後再進行同步！");
-                return;
-            }
-            if (!firestoreCollection) {
-                alert("🚨 雲端連線失敗，請檢查金鑰配置是否正確！");
-                return;
-            }
-            if (!localDB) return;
-
-            alert("📡 正在掃描平板，準備將離線暫存數據打包推送到 Google 雲端...");
-
-            const transaction = localDB.transaction(["local_records"], "readwrite");
-            const store = transaction.objectStore("local_records");
-            const cursorRequest = store.openCursor();
-            let unsyncedCount = 0;
-            let successCount = 0;
-
-            cursorRequest.onsuccess = async function(e) {
-                const cursor = e.target.result;
-                if (cursor) {
-                    const record = cursor.value;
-                    
-                    // 只把 synced 為 0 (尚未上傳) 的普查卡片推上雲端
-                    if (record.synced === 0) {
-                        unsyncedCount++;
-                        try {
-                            // 打包成乾淨的格式發送給 Firebase (不需要上傳本機的自增 id)
-                            const cloudData = {
-                                fullCode: record.fullCode, area: record.area, direction: record.direction,
-                                roofPos: record.roofPos, compCode: record.compCode, serial: record.serial,
-                                photoType: record.photoType, craft: record.craft, note: record.note,
-                                photo: record.photo, timestamp: record.timestamp
-                            };
-                            
-                            await addDoc(firestoreCollection, cloudData);
-                            
-                            // 上傳雲端成功後，將本機這筆資料的狀態標記改為 1 (已同步)
-                            let updatedRecord = record;
-                            updatedData.synced = 1;
-                            cursor.update(updatedRecord);
-                            successCount++;
-                        } catch(err) {
-                            console.error(`編碼 ${record.fullCode} 同步失敗:`, err);
-                        }
-                    }
-                    cursor.continue();
-                } else {
-                    // 全部文件掃描結束
-                    if (unsyncedCount === 0) {
-                        alert("☁️ 雲端同步完成！平板本機內所有的普查卡片先前皆已同步完畢，沒有新增項目。");
-                    } else {
-                        alert(`🎉 雲端批量同步大成功！\n共偵測到 ${unsyncedCount} 筆離線暫存數據，已成功打包上傳 ${successCount} 筆！`);
-                    }
-                    loadLocalRecords(); // 刷新查詢頁面狀態
-                }
-            };
-        };
-
-        // --- F. 表單無條件儲存至當前平板本機 ---
-        document.getElementById('recordForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (!localDB) {
-                alert("平板本機資料庫未就緒！");
-                return;
-            }
-
-            const record = {
-                fullCode: document.getElementById('codePreview').innerText,
-                area: document.getElementById('area').value,
-                direction: document.getElementById('direction').value,
-                roofPos: document.getElementById('roofPos').value,
-                compCode: document.getElementById('compCode').value,
-                serial: document.getElementById('serial').value,
-                photoType: document.getElementById('photoType').value,
-                craft: document.getElementById('craft').value,
-                note: document.getElementById('note').value,
-                photo: window.base64ImageSaved,
-                synced: 0, // 🚀 0 代表高效率存入平板本機快取，完全不用等待網路，晚點才手動同步
-                timestamp: new Date().toLocaleString()
-            };
-
-            const transaction = localDB.transaction(["local_records"], "readwrite");
-            const store = transaction.objectStore("local_records");
-            store.add(record);
-
-            transaction.oncomplete = function() {
-                alert("💾 數據已成功存入平板本機！\n完整編碼：" + record.fullCode);
-                
-                // 留在第二頁原地，只清空備註與影像
-                document.getElementById('note').value = "";
-                document.getElementById('photo').value = "";
-                document.getElementById('previewContainer').style.display = 'none';
-                window.base64ImageSaved = "";
-                
-                // 流水號高效率遞增
-                window.autoIncrementSerial();
-                window.updateCodePreview();
-                
-                loadLocalRecords(); // 更新查詢列表的背景快取
-            };
+        let csv = "\uFEFF";
+        csv += "完整登錄編碼,建築區域,方位,屋面部位," +
+               "細部分類,流水號,照片序號,工藝,備註,同步狀態,登記時間\n";
+        
+        window.allRecordsSaved.forEach(r => {
+            const txt = r.synced === 1 ? "已同步" : "僅本機暫存";
+            const row = [
+                r.fullCode, r.area, r.direction, r.roofPos, r.compCode,
+                r.serial, r.photoType, r.craft, r.note || '', txt, 
+                r.timestamp
+            ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
+            csv += row + "\n";
         });
-
-        // 下載 CSV 表格
-        document.getElementById('exportBtn').addEventListener('click', function() {
-            if (window.allRecordsSaved.length === 0) {
-                alert("目前本機沒有數據可供匯出！");
-                return;
-            }
-            let csvContent = "\uFEFF";
-            csvContent += "完整登錄編碼,建築區域,方位,屋面部位,細部分類,流水號,照片序號,工藝,備註說明,同步狀態,登記時間\n";
-            window.allRecordsSaved.forEach(r => {
-                const syncStatusText = r.synced === 1 ? "已同步雲端" : "僅本機離線暫存";
-                const row = [r.fullCode, r.area, r.direction, r.roofPos, r.compCode, r.serial, r.photoType, r.craft, r.note || '', syncStatusText, r.timestamp].map(text => "${text.replace(/"/g, '""')}").join(",");
-            csvContent += row + "\n";
-        });
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a"); 
         link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", 龍山寺本機文資普查表_${new Date().toLocaleDateString()}.csv);
-        document.body.appendChild(link);
-        link.click();
+        link.setAttribute("download", 
+            `龍山寺普查表_${new Date().toLocaleDateString()}.csv`);
+        document.body.appendChild(link); 
+        link.click(); 
         document.body.removeChild(link);
-        });
-        });
+    };
+</script>
+</body>
+</html>
+
