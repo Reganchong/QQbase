@@ -9,8 +9,6 @@
         body { font-family: -apple-system, sans-serif; 
         background-color: #111827; color: #f9fafb; 
         margin: 0; padding: 0; overflow: hidden; }
-        
-        /* 頂部控制列 */
         .top-bar { background: #1f2937; padding: 15px 20px; 
         display: flex; justify-content: space-between; 
         align-items: center; border-bottom: 3px solid #ffbc0d; }
@@ -20,30 +18,24 @@
         font-weight: bold; cursor: pointer; }
         .btn-home { color: #9ca3af; text-decoration: none; 
         font-size: 14px; font-weight: bold; }
+        .main-layout { display: flex; height: calc(100vh - 58px); }
         
-        /* 🍔 麥當勞式主體雙欄佈局 */
-        .main-layout { display: flex; 
-        height: calc(100vh - 58px); }
-        
-        /* 左側大類別列（麥當勞點心飲料列） */
-        .sidebar { width: 110px; background: #1f2937; 
+        /* ⚙️ 核心優化：加寬左側列並開啟流暢滑動，完美承載 20 個觸控鈕 */
+        .sidebar { width: 140px; background: #1f2937; 
         display: flex; flex-direction: column; 
-        border-right: 1px solid #374151; overflow-y: auto; }
-        .category-btn { padding: 20px 10px; text-align: center; 
+        border-right: 1px solid #374151; overflow-y: auto; 
+        -webkit-overflow-scrolling: touch; }
+        .category-btn { padding: 16px 8px; text-align: center; 
         cursor: pointer; border-bottom: 1px solid #374151; 
         transition: all 0.2s; -webkit-user-select: none; }
         .category-btn.active { background: #ffbc0d; color: #111827; 
         font-weight: bold; }
-        .category-btn .icon { font-size: 24px; display: block; 
-        margin-bottom: 5px; }
-        .category-btn .text { font-size: 12px; }
+        .category-btn .text { font-size: 12px; display: block; 
+        line-height: 1.4; }
         
-        /* 右側物件網格顯示區（麥當勞商品點選區） */
         .content-grid { flex: 1; padding: 20px; overflow-y: auto; 
         display: grid; grid-template-columns: repeat(auto-fill, 
         minmax(160px, 1fr)); gap: 16px; align-content: start; }
-        
-        /* 商品卡片樣式 */
         .item-card { background: #1f2937; border-radius: 12px; 
         overflow: hidden; cursor: pointer; border: 2px solid transparent; 
         transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
@@ -60,11 +52,9 @@
         .item-card .info-box .title { font-size: 11px; color: #9ca3af; 
         margin-top: 4px; overflow: hidden; text-overflow: ellipsis; 
         white-space: nowrap; }
-        
-        /* 彈出詳細視窗 (Modal) */
         .modal { display: none; position: fixed; top: 0; left: 0; 
         width: 100%; height: 100%; background: rgba(0,0,0,0.85); 
-        align-items: center; justify-content: center; z-index: 100; p; }
+        align-items: center; justify-content: center; z-index: 100; }
         .modal.active { display: flex; }
         .modal-container { background: #1f2937; width: 90%; 
         max-width: 500px; border-radius: 16px; overflow: hidden; 
@@ -90,51 +80,73 @@
 </head>
 <body>
 
-    <!-- 頂部列 -->
     <div class="top-bar">
         <a href="index.html" class="btn-home">⬅ 離開展示</a>
-        <h1>🏛️ 龍山寺文資互動導覽機</h1>
+        <h1>🏛️ 龍山寺文資互動展示機</h1>
         <button type="button" class="btn-import" 
         onclick="document.getElementById('displayImport').click()">
-        📂 導入數據包</button>
+        📂 導入普查打包檔</button>
     </div>
     <input type="file" id="displayImport" accept=".survey" 
     style="display:none;">
 
-    <!-- 🍔 主體點餐機排版 -->
     <div class="main-layout">
-        <!-- 左欄：殿區大類別切換 -->
+        <!-- 🚀 完美同步：左側全面升級為 20 個官方學術殿區選單 -->
         <div class="sidebar" id="sidebarMenu">
             <div class="category-btn active" onclick="window.filterArea('SH')">
-                <span class="icon">⛩️</span><span class="text">三川殿</span>
-            </div>
+                <span class="text">三川殿<br>(SH)</span></div>
             <div class="category-btn" onclick="window.filterArea('FL')">
-                <span class="icon">🐉</span><span class="text">前殿龍門</span>
-            </div>
+                <span class="text">前殿龍門<br>(FL)</span></div>
             <div class="category-btn" onclick="window.filterArea('FR')">
-                <span class="icon">🐯</span><span class="text">前殿虎門</span>
-            </div>
+                <span class="text">前殿虎門<br>(FR)</span></div>
+            <div class="category-btn" onclick="window.filterArea('LC')">
+                <span class="text">左下山前廊<br>(LC)</span></div>
+            <div class="category-btn" onclick="window.filterArea('RC')">
+                <span class="text">右下山前廊<br>(RC)</span></div>
+            <div class="category-btn" onclick="window.filterArea('XL')">
+                <span class="text">左下山護室<br>(XL)</span></div>
+            <div class="category-btn" onclick="window.filterArea('XR')">
+                <span class="text">右下山護室<br>(XR)</span></div>
+            <div class="category-btn" onclick="window.filterArea('GL')">
+                <span class="text">左過水廊<br>(GL)</span></div>
+            <div class="category-btn" onclick="window.filterArea('GR')">
+                <span class="text">右過水廊<br>(GR)</span></div>
+            <div class="category-btn" onclick="window.filterArea('TL')">
+                <span class="text">左頂山護室<br>(TL)</span></div>
+            <div class="category-btn" onclick="window.filterArea('TR')">
+                <span class="text">右頂山護室<br>(TR)</span></div>
+            <div class="category-btn" onclick="window.filterArea('BT')">
+                <span class="text">鐘樓<br>(BT)</span></div>
+            <div class="category-btn" onclick="window.filterArea('DT')">
+                <span class="text">鼓樓<br>(DT)</span></div>
+            <div class="category-btn" onclick="window.filterArea('YH')">
+                <span class="text">後殿月老廳<br>(YH)</span></div>
+            <div class="category-btn" onclick="window.filterArea('HH')">
+                <span class="text">後殿華佗廳<br>(HH)</span></div>
             <div class="category-btn" onclick="window.filterArea('RL')">
-                <span class="icon">🚪</span><span class="text">後殿龍門</span>
-            </div>
-            <div class="category-btn" onclick="window.filterArea('RR')">
-                <span class="icon">🚪</span><span class="text">後殿虎門</span>
-            </div>
+                <span class="text">後殿龍門<br>(RL)</span></div>
+            <div class="category-btn" onclick="window.filterArea('RR)'.replace(')',''))">
+                <span class="text">後殿虎門<br>(RR)</span></div>
             <div class="category-btn" onclick="window.filterArea('TH')">
-                <span class="icon">媽</span><span class="text">聖母殿</span>
-            </div>
+                <span class="text">聖母殿<br>(TH)</span></div>
+            <div class="category-btn" onclick="window.filterArea('GH')">
+                <span class="text">關帝殿<br>(GH)</span></div>
+            <div class="category-btn" onclick="window.filterArea('WH')">
+                <span class="text">文昌殿<br>(WH)</span></div>
+            <div class="category-btn" onclick="window.filterArea('PL')">
+                <span class="text">牌樓<br>(PL)</span></div>
         </div>
 
         <!-- 右欄：商品卡片展示網格 -->
         <div class="content-grid" id="contentGrid">
             <div style="grid-column: 1/-1; text-align: center; 
             color: #6b7280; padding-top: 50px;">
-                💡 請先點擊右上角導入調查打包檔案 (.survey)
+                💡 請先點擊右上角導入普查打包檔案 (.survey)
             </div>
         </div>
     </div>
 
-    <!-- 🍔 商品放大檢視彈窗 -->
+    <!-- 商品放大檢視細節彈窗 -->
     <div class="modal" id="detailModal" onclick="window.closeDetail()">
         <div class="modal-container" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="window.closeDetail()">×</button>
@@ -159,7 +171,7 @@
     window.displayRecords = [];
     window.currentSelectedArea = 'SH';
 
-    // --- 🚀 核心優化：點餐機數據導入解析引擎 ---
+    // 大打包檔案解析讀取
     document.getElementById('displayImport').onchange = function(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -168,20 +180,18 @@
         reader.onload = function(evt) {
             try {
                 const parsed = JSON.parse(evt.target.result);
-                // 自動相容單檔與大打包包
+                // 💡 自動相容解包：不論是單筆還是大打包陣列，通通解析進來
                 window.displayRecords = Array.isArray(parsed) ? parsed : [parsed];
-                alert(`🎉 成功載入展示數據！共偵測到 ${window.displayRecords.length} 個文資物件。`);
-                window.filterArea(window.currentSelectedArea); // 實時刷畫面
-            } catch(err) { alert("檔案讀取錯誤！"); }
+                alert(`🎉 展示機充填成功！共載入 ${window.displayRecords.length} 筆普查紀錄卡片。`);
+                window.filterArea(window.currentSelectedArea);
+            } catch(err) { alert("檔案讀取或解包出錯！"); }
         };
         reader.readAsText(file);
     };
 
-    // --- 🚀 核心優化：麥當勞式點選大類別（過濾殿區） ---
+    // 點選大類別篩選商品卡片
     window.filterArea = function(areaCode) {
         window.currentSelectedArea = areaCode;
-        
-        // 更新左側大按鈕的 active 亮色狀態
         const buttons = document.querySelectorAll('.category-btn');
         buttons.forEach(btn => {
             if (btn.getAttribute('onclick').includes(`'${areaCode}'`)) {
@@ -189,38 +199,35 @@
             } else { btn.classList.remove('active'); }
         });
 
-        // 篩選出目前選定殿區的卡片資料
         const filtered = window.displayRecords.filter(r => r.area === areaCode);
         const grid = document.getElementById('contentGrid');
         if (!grid) return; grid.innerHTML = "";
 
         if (filtered.length === 0) {
             grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; 
-            color:#6b7280; padding-top:5px;"> Empty 📋 該區域目前尚無普查物件資料</div>`;
+            color:#6b7280; padding-top:60px;">📋 該殿區目前尚無已導入的普查物件</div>`;
             return;
         }
 
-        // 循環建立麥當勞商品卡片
         filtered.forEach(r => {
             const card = document.createElement('div');
             card.className = 'item-card';
-            card.onclick = () => window.openDetail(r); // 點擊看商品詳細
-            
+            card.onclick = () => window.openDetail(r);
             card.innerHTML = `
                 <div class="img-box">
                     ${r.photo ? `<img src="${r.photo}">` : 
-                    '<span class="no-pic">📷 現場無拍照</span>'}
+                    '<span class="no-pic">📷 無影像</span>'}
                 </div>
                 <div class="info-box">
                     <div class="code">${r.prefix}-${r.area}-${r.serial}</div>
-                    <div class="title">工藝：${r.craft} | 方位：${r.direction}</div>
+                    <div class="title">方位：${r.direction} | 工藝：${r.craft}</div>
                 </div>
             `;
             grid.appendChild(card);
         });
     };
 
-    // --- 🚀 核心優化：點擊商品彈出滿版大視窗檢視 ---
+    // 點擊卡片彈出大商品視窗
     window.openDetail = function(r) {
         document.getElementById('mImg').src = r.photo || "";
         document.getElementById('mImg').style.display = r.photo ? "block" : "none";
@@ -230,7 +237,7 @@
         document.getElementById('mDir').innerText = r.direction;
         document.getElementById('mCraft').innerText = r.craft;
         document.getElementById('mNote').innerText = 
-            r.note ? `📝 調查描述：${r.note}` : "📝 調查備註：現場無特別描述。";
+            r.note ? `📝 調查描述：${r.note}` : "📝 調查備註：現場無詳細描述。";
         
         document.getElementById('detailModal').classList.add('active');
     };
