@@ -45,6 +45,7 @@
         color: white; }
         .btn-nav { background-color: #718096; 
         color: white; }
+        .btn-export { background-color: #38a169; color: white; }
         .btn-home { background-color: #1a365d; 
         color: white; margin-top: 20px; width: 100%; 
         display: block; text-align: center; 
@@ -55,6 +56,21 @@
         display: none; text-align: center; }
         .preview-container img { max-width: 100%; 
         max-height: 200px; border-radius: 8px; }
+        
+        /* ⚙️ 第二頁下方實時暫存列表專屬樣式 */
+        .history { margin-top: 30px; 
+        border-top: 2px solid #e2e8f0; padding-top: 20px; }
+        .history h2 { font-size: 18px; margin: 0 0 15px 0; 
+        color: #4a5568; }
+        .data-card { background: #f7fafc; padding: 15px; 
+        border-radius: 10px; margin-bottom: 12px; 
+        border-left: 6px solid #2b6cb0; font-size: 14px; 
+        position: relative; }
+        .data-card img { max-width: 150px; display: block; 
+        margin-top: 10px; border-radius: 6px; }
+        .delete-btn { position: absolute; top: 15px; right: 15px; 
+        color: #e53e3e; cursor: pointer; font-weight: bold; 
+        border: none; background: none; font-size: 15px; }
     </style>
 </head>
 <body>
@@ -90,7 +106,6 @@
                 </select>
             </div>
         </div>
-        <!-- 🔄 成功移到第一頁的屋面朝向 -->
         <div class="form-row">
             <div class="form-group">
                 <label>屋面朝向 [方位]</label>
@@ -111,13 +126,12 @@
         </div>
     </div>
 
-    <!-- 📄 第二步分頁：詳細構件部位、序號與影像紀錄 -->
+    <!-- 📄 第二步分頁：詳細數據、實時暫存與大打包按鈕 -->
     <div id="page2" class="page">
         <h3 style="color:#2b6cb0; margin-bottom:15px; 
         border-left:4px solid #2b6cb0; padding-left:8px;">
         第二步：詳細普查數據與影像紀錄</h3>
         <div class="form-row">
-            <!-- 🔄 成功移到第二頁的屋面部位 -->
             <div class="form-group">
                 <label>屋面部位</label>
                 <select id="roofPos" onchange="updateCodePreview()">
@@ -174,92 +188,78 @@
         <div class="btn-group">
             <button type="button" class="btn-nav" 
             onclick="switchPage(1)">⬅️ 返回第一步</button>
+            <!-- 🚀 點擊只會推入暫存，絕對不跳下載 -->
             <button type="button" class="btn-submit" 
-            onclick="executeLocalSave()">
-            💾 直接存成檔案下載</button>
+            onclick="saveToTemporaryList()">💾 暫存此筆普查數據</button>
         </div>
+
+        <!-- ⚙️ 移入第二頁下方：本次連續登錄的實時清單與大打包下載鍵 -->
+        <div class="history">
+            <div class="history-header" style="display:flex; 
+            justify-content:space-between; align-items:center;">
+                <h2>📝 本次連續登錄暫存區 (<span id="tempCount">0</span> 筆)</h2>
+                <!-- 📦 大大降低混亂：點擊一次打包下載今日所有數據包 -->
+                <button type="button" class="btn-export" 
+                onclick="downloadBulkPackFile()">📦 打包下載全部暫存</button>
+            </div>
+            <div id="tempDataList"></div>
+        </div>
+
         <a href="index.html" class="btn-home">🏠 結束登錄，回首頁</a>
     </div>
 </div>
 <script>
     let base64Image = "";
+    // 💡 本次操作的記憶體大卡盒（用來大批量收取資料）
+    window.currentSessionRecords = [];
 
-    // --- 平板分頁切換控制 ---
     function switchPage(num) {
-        document.getElementById('page1')
-            .classList.remove('active');
-        document.getElementById('page2')
-            .classList.remove('active');
-        document.getElementById('page' + num)
-            .classList.add('active');
+        document.getElementById('page1').classList.remove('active');
+        document.getElementById('page2').classList.remove('active');
+        document.getElementById('page' + num).classList.add('active');
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
-    // --- 跨分頁即時編碼預覽連動 ---
     function updateCodePreview() {
         const area = document.getElementById('area').value;
         const dir = document.getElementById('direction').value;
         const roof = document.getElementById('roofPos').value;
         const comp = document.getElementById('compCode').value;
-        const ser = document.getElementById('serial')
-            .value.trim() || '？';
-        const pType = document.getElementById('photoType')
-            .value.trim() || '？';
-        
-        // 💡 保持論文標準：寺廟-殿區-方位-部位-細部-流水號-型別
+        const ser = document.getElementById('serial').value.trim() || '？';
+        const pType = document.getElementById('photoType').value.trim() || '？';
         document.getElementById('codePreview').innerText = 
         `LS-${area}-${dir}-${roof}-${comp}-${ser}-${pType}`;
     }
 
-    // --- 實體安全存檔與流水號自動遞增 ---
-    function executeLocalSave() {
-        const ser = document.getElementById('serial')
-            .value.trim();
-        const pType = document.getElementById('photoType')
-            .value.trim();
-        if (!ser || !pType) { 
-            alert("❌ 請填寫流水號與照片型別！"); 
-            return; 
-        }
+    // --- 🚀 核心優化：點擊儲存時，只存入平板本機畫面，絕對不跳下載視窗 ---
+    function saveToTemporaryList() {
+        const ser = document.getElementById('serial').value.trim();
+        const pType = document.getElementById('photoType').value.trim();
+        if (!ser || !pType) { alert("❌ 請填寫流水號與照片型別！"); return; }
 
         const record = {
-            fullCode: document.getElementById('codePreview')
-                .innerText,
+            fullCode: document.getElementById('codePreview').innerText,
             area: document.getElementById('area').value,
             direction: document.getElementById('direction').value,
             roofPos: document.getElementById('roofPos').value,
             compCode: document.getElementById('compCode').value,
-            serial: ser, 
-            photoType: pType,
+            serial: ser, photoType: pType,
             craft: document.getElementById('craft').value,
             note: document.getElementById('note').value,
             photo: base64Image,
             timestamp: new Date().toLocaleString()
         };
 
-        // 打包檔案並下載
-        const jsonStr = JSON.stringify(record, null, 2);
-        const blob = new Blob([jsonStr], 
-            { type: "application/json" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        
-        const timestampToken = new Date().getTime();
-        link.setAttribute("download", 
-            `普查_${record.fullCode}_${timestampToken}.survey`);
-        
-        document.body.appendChild(link); 
-        link.click(); 
-        document.body.removeChild(link);
+        // 塞入本次的記憶體暫存盒
+        window.currentSessionRecords.push(record);
 
-        // 原地死鎖：只清理第二頁的備註與相機快取，選單選項原封不動
+        // 原地鎖定：只重置備註與相機快取，選單全部不准動
         document.getElementById('note').value = "";
         document.getElementById('photo').value = "";
-        document.getElementById('previewContainer')
-            .style.display = 'none';
+        document.getElementById('previewContainer').style.display = 'none';
         base64Image = "";
         
-        // 流水號自動加一
+        // 流水號自動遞增 +1
         const val = parseInt(ser, 10);
         if (!isNaN(val)) { 
             document.getElementById('serial').value = 
@@ -267,22 +267,76 @@
         }
         
         updateCodePreview();
-        alert("💾 數據檔案已成功下載，選項已為您完整鎖定！");
+        refreshTempUIList(); // 渲染下方清單
     }
 
-    // --- 平板網頁加載完畢與平板鏡頭相機拍照監聽 ---
+    // 實時重新渲染下方的暫存卡片
+    function refreshTempUIList() {
+        const box = document.getElementById('tempDataList');
+        document.getElementById('tempCount').innerText = 
+            window.currentSessionRecords.length;
+        if (!box) return; box.innerHTML = "";
+        
+        // 倒序排列，最新存的在最上面
+        let reversed = [...window.currentSessionRecords].reverse();
+        reversed.forEach((val, index) => {
+            // 換算回真實陣列的真實索引
+            const realIndex = window.currentSessionRecords.length - 1 - index;
+            const card = document.createElement('div');
+            card.className = 'data-card';
+            card.innerHTML = `
+                <button type="button" class="delete-btn" 
+                onclick="removeTempCard(${realIndex})">❌ 刪除</button>
+                <strong>🔍 暫存編碼：${val.fullCode}</strong><br>
+                <span style="color:#718096; font-size:12px;">🕒 暫存時間：${val.timestamp}</span><br>
+                ${val.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 備註：${val.note}</div>` : ''}
+                ${val.photo ? `<img src="${val.photo}">` : ''}
+            `;
+            box.appendChild(card);
+        });
+
+        if (window.currentSessionRecords.length === 0) {
+            box.innerHTML = "<p style='color:#a0aec0; text-align:center;'>目前暫存區尚無數據</p>";
+        }
+    }
+
+    // 暫存區的卡片刪除功能
+    function removeTempCard(index) {
+        if (!confirm("確定要移除這筆暫存數據嗎？")) return;
+        window.currentSessionRecords.splice(index, 1);
+        refreshTempUIList();
+    }
+
+    // --- 🚀 核心優化：點擊一鍵大打包，生出唯一一個下載實體檔案包 ---
+    function downloadBulkPackFile() {
+        if (window.currentSessionRecords.length === 0) {
+            alert("❌ 目前暫存區空空如也，沒有數據可以打包！"); return;
+        }
+
+        // 把整個操作陣列直接轉成單一的 JSON 下載
+        const jsonStr = JSON.stringify(window.currentSessionRecords, null, 2);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        
+        const areaToken = document.getElementById('area').value;
+        const dateToken = new Date().toLocaleDateString().replace(/\//g, "-");
+        link.setAttribute("download", `龍山寺普查打包_${areaToken}_${dateToken}.survey`);
+        
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        alert(`📦 大打包成功！已將本次登錄的 ${window.currentSessionRecords.length} 筆卡片完美結合成一個實體檔案！`);
+    }
+
     window.onload = function() {
         updateCodePreview();
-        document.getElementById('photo').onchange = 
-        function(e) {
+        refreshTempUIList();
+        document.getElementById('photo').onchange = function(e) {
             if (e.target.files && e.target.files[0]) {
                 const rdr = new FileReader();
                 rdr.onload = function(evt) {
                     base64Image = evt.target.result;
-                    document.getElementById('imagePreview').src = 
-                        evt.target.result;
-                    document.getElementById('previewContainer')
-                        .style.display = 'block';
+                    document.getElementById('imagePreview').src = evt.target.result;
+                    document.getElementById('previewContainer').style.display = 'block';
                 };
                 rdr.readAsDataURL(e.target.files[0]);
             }
