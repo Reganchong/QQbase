@@ -9,12 +9,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" 
     content="black-translucent">
     <style>
-        body { font-family: -apple-system, sans-serif; 
-        background-color: #f5f5f7; color: #1d1d1f; 
-        margin: 0; padding: 15px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 
+        "Segoe UI", Roboto, sans-serif; background-color: #f5f5f7; 
+        color: #1d1d1f; margin: 0; padding: 15px; }
         .container { max-width: 800px; margin: 0 auto; 
-        background: white; padding: 24px; 
-        border-radius: 16px; 
+        background: white; padding: 24px; border-radius: 16px; 
         box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
         h1 { font-size: 22px; text-align: center; 
         margin-bottom: 5px; color: #1a365d; }
@@ -49,7 +48,9 @@
         .menu-item.full-width { grid-column: span 2; } }
         .menu-item { background: #f7fafc; 
         border: 2px solid #e2e8f0; border-radius: 12px; 
-        padding: 24px; text-align: center; cursor: pointer; }
+        padding: 24px; text-align: center; cursor: pointer; 
+        transition: all 0.2s; }
+        .menu-item:hover { background: #edf2f7; transform: translateY(-1px); }
         .menu-item h3 { margin: 0 0 8px 0; color: #2b6cb0; }
         .menu-item p { margin: 0; color: #718096; font-size: 13px; }
         .menu-item.sync-card { background: #fffaf0; 
@@ -66,12 +67,16 @@
         .btn-group { display: flex; gap: 12px; margin-top: 20px; }
         button { flex: 1; padding: 15px; border: none; 
         border-radius: 8px; font-size: 16px; font-weight: bold; 
-        cursor: pointer; }
+        cursor: pointer; transition: background 0.2s; }
         .btn-submit { background-color: #2b6cb0; color: white; }
+        .btn-submit:hover { background-color: #1d4ed8; }
         .btn-nav { background-color: #718096; color: white; }
+        .btn-nav:hover { background-color: #4b5563; }
         .btn-export { background-color: #38a169; color: white; }
+        .btn-export:hover { background-color: #15803d; }
         .btn-home { background-color: #1a365d; color: white; 
         margin-top: 20px; width: 100%; display: block; }
+        .btn-home:hover { background-color: #0f172a; }
         .preview-container { margin-top: 10px; display: none; 
         text-align: center; }
         .preview-container img { max-width: 100%; 
@@ -101,7 +106,7 @@
 <div class="container">
     <h1>🏛️ 艋舺龍山寺屋面傳統裝飾普查系統</h1>
     <div style="text-align: center; color: #718096; 
-    font-size: 14px; margin-bottom: 15px;">本機優先離線同步版</div>
+    font-size: 14px; margin-bottom: 15px;">實體檔案安全備份版</div>
     
     <div class="code-preview-box">
         <div id="networkStatus" class="sync-status-badge">
@@ -111,149 +116,157 @@
         <div class="generated-code" id="codePreview"></div>
     </div>
 
-    <!-- 🌐 【功能一：目錄導覽首頁】 (預設顯示) -->
+    <!-- 🌐 【功能一：目錄導覽首頁】 -->
     <div id="section-menu" class="main-section active">
         <div class="menu-grid">
             <div class="menu-item" onclick="window.switchSection('log')">
                 <h3>➕ 數據登錄工具</h3>
-                <p>在本機平板極速儲存裝飾普查，選項鎖定，流水號自動+1。</p>
+                <p>在本機平板/電腦直接下載實體檔案，選項鎖定，流水號自動+1。</p>
             </div>
             <div class="menu-item" onclick="window.switchSection('query')">
-                <h3>🔍 查詢歷史數據</h3>
-                <p>翻看當前平板內所有卡片，可即時查看同步狀態或刪除。</p>
+                <h3>🔍 導入與查詢歷史數據</h3>
+                <p>選取普查實體檔案，在平板/電腦畫面上瞬間還原檢視與產出報表。</p>
             </div>
             <div class="menu-item sync-card full-width" 
-            onclick="window.triggerFirebaseSync()">
-                <h3>🔄 點擊同步至雲端資料庫</h3>
-                <p>回到有網路的地方時點選此處，將卡片一次性批量推送到雲端。</p>
+            onclick="window.triggerFileImportForSync()">
+                <h3>🔄 點擊批量上傳同步至雲端</h3>
+                <p>回到有網路的地方時點選此處，選取本機檔案一次性大批量上傳雲端。</p>
             </div>
         </div>
+        <input type="file" id="bulkImportInput" multiple accept=".survey" 
+        style="display:none;">
     </div>
 
-    <!-- 🌐 【功能二：數據登錄頁面】 (已轉為原地鎖定容器) -->
+    <!-- 🌐 【功能二：數據登錄頁面】 -->
     <div id="section-log" class="main-section">
-        <!-- 📄 登錄第一頁：宏觀部位 -->
-        <div id="page1" class="page active">
-            <h3 style="color:#2b6cb0; margin-bottom:15px; 
-            border-left:4px solid #2b6cb0; padding-left:8px;">
-            第一步：選擇主要建築部位</h3>
-            <div class="form-row">
-                <div class="form-group" style="flex: 0 0 80px;">
-                    <label>寺廟代號</label>
-                    <input type="text" id="prefix" value="LS" 
-                    disabled style="background-color: #edf2f7; 
-                    text-align: center; font-weight: bold;">
+        <form id="recordForm">
+            <!-- 📄 登錄第一頁：宏觀部位 -->
+            <div id="page1" class="page active">
+                <h3 style="color:#2b6cb0; margin-bottom:15px; 
+                border-left:4px solid #2b6cb0; padding-left:8px;">
+                第一步：選擇主要建築部位</h3>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 0 0 80px;">
+                        <label>寺廟代號</label>
+                        <input type="text" id="prefix" value="LS" 
+                        disabled style="background-color: #edf2f7; 
+                        text-align: center; font-weight: bold;">
+                    </div>
+                    <div class="form-group">
+                        <label>建築區域 [殿區]</label>
+                        <select id="area" onchange="window.updateCodePreview()">
+                            <option value="SH" selected>三川殿 (SH)</option>
+                            <option value="FL">前殿龍門 (FL)</option>
+                            <option value="FR">前殿虎門 (FR)</option>
+                            <option value="RL">後殿龍門 (RL)</option>
+                            <option value="RR">後殿虎門 (RR)</option>
+                            <option value="TH">天上聖母殿 (TH)</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>建築區域 [殿區]</label>
-                    <select id="area" onchange="window.updateCodePreview()">
-                        <option value="SH" selected>三川殿 (SH)</option>
-                        <option value="FL">前殿龍門 (FL)</option>
-                        <option value="FR">前殿虎門 (FR)</option>
-                        <option value="RL">後殿龍門 (RL)</option>
-                        <option value="RR">後殿虎門 (RR)</option>
-                        <option value="TH">天上聖母殿 (TH)</option>
-                    </select>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>屋面部位</label>
+                        <select id="roofPos" onchange="window.updateCodePreview()">
+                            <option value="MR" selected>正脊 (MR)</option>
+                            <option value="DR">垂脊 (DR)</option>
+                            <option value="HR">戧脊 (HR)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn-nav" 
+                    onclick="window.switchSection('menu')">🏠 回目錄</button>
+                    <button type="button" class="btn-submit" 
+                    onclick="window.switchPage(2)">下一步 ➡️</button>
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>屋面部位</label>
-                    <select id="roofPos" onchange="window.updateCodePreview()">
-                        <option value="MR" selected>正脊 (MR)</option>
-                        <option value="DR">垂脊 (DR)</option>
-                        <option value="HR">戧脊 (HR)</option>
-                    </select>
-                </div>
-            </div>
-            <div class="btn-group">
-                <button type="button" class="btn-nav" 
-                onclick="window.switchSection('menu')">🏠 回目錄</button>
-                <button type="button" class="btn-submit" 
-                onclick="window.switchPage(2)">下一步 ➡️</button>
-            </div>
-        </div>
 
-        <!-- 📄 登錄第二頁：細部紀錄與現場拍照（原地留守，選項鎖定，流水號+1） -->
-        <div id="page2" class="page">
-            <h3 style="color:#2b6cb0; margin-bottom:15px; 
-            border-left:4px solid #2b6cb0; padding-left:8px;">
-            第二步：詳細數據與影像紀錄</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>構件細部分類</label>
-                    <select id="compCode" onchange="window.updateCodePreview()">
-                        <option value="11" selected>脊堵/脊肚 (11)</option>
-                        <option value="16">排頭 (16)</option>
-                        <option value="08">西施脊 (08)</option>
-                    </select>
+            <!-- 📄 登錄第二頁：細部紀錄（原地留守，選項鎖定，點擊直接下載） -->
+            <div id="page2" class="page">
+                <h3 style="color:#2b6cb0; margin-bottom:15px; 
+                border-left:4px solid #2b6cb0; padding-left:8px;">
+                第二步：詳細數據與影像紀錄</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>構件細部分類</label>
+                        <select id="compCode" onchange="window.updateCodePreview()">
+                            <option value="11" selected>脊堵/脊肚 (11)</option>
+                            <option value="16">排頭 (16)</option>
+                            <option value="08">西施脊 (08)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>屋面朝向 [方位]</label>
+                        <select id="direction" onchange="window.updateCodePreview()">
+                            <option value="W" selected>西 West (W)</option>
+                            <option value="E">東 East (E)</option>
+                            <option value="S">南 South (S)</option>
+                            <option value="N">北 North (N)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>作品流水號</label>
+                        <input type="text" id="serial" value="001" 
+                        oninput="window.updateCodePreview()" required 
+                        style="font-family: monospace;">
+                    </div>
+                    <div class="form-group">
+                        <label>照片型別+序號</label>
+                        <input type="text" id="photoType" value="O01" 
+                        oninput="window.updateCodePreview()" required 
+                        style="font-family: monospace;">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>工藝形式</label>
+                        <select id="craft">
+                            <option value="CP" selected>剪黏工藝 (CP)</option>
+                            <option value="JP">交趾陶工藝 (JP)</option>
+                            <option value="CS">泥塑工藝 (CS)</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>屋面朝向 [方位]</label>
-                    <select id="direction" onchange="window.updateCodePreview()">
-                        <option value="W" selected>西 West (W)</option>
-                        <option value="E">東 East (E)</option>
-                        <option value="S">南 South (S)</option>
-                        <option value="N">北 North (N)</option>
-                    </select>
+                    <label>📷 調查影像 (選填)</label>
+                    <input type="file" id="photo" accept="image/*">
+                    <div class="preview-container" id="previewContainer">
+                        <img id="imagePreview" src="" alt="預覽">
+                    </div>
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>作品流水號</label>
-                    <input type="text" id="serial" value="001" 
-                    oninput="window.updateCodePreview()" required 
-                    style="font-family: monospace;">
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>📝 題材內容 / 保存狀況備註</label>
+                    <textarea id="note" rows="2" 
+                    placeholder="請輸入細部觀察描述..."></textarea>
                 </div>
-                <div class="form-group">
-                    <label>照片型別+序號</label>
-                    <input type="text" id="photoType" value="O01" 
-                    oninput="window.updateCodePreview()" required 
-                    style="font-family: monospace;">
+                <div class="btn-group">
+                    <button type="button" class="btn-nav" 
+                    onclick="window.switchPage(1)">⬅️ 返回第一步</button>
+                    <button type="button" class="btn-submit" 
+                    onclick="window.triggerLocalSave()">💾 直接存成檔案下載</button>
                 </div>
+                <button type="button" class="btn-home" 
+                onclick="window.switchSection('menu')" 
+                style="background-color:#4a5568;">🏠 結束登錄</button>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>工藝形式</label>
-                    <select id="craft">
-                        <option value="CP" selected>剪黏工藝 (CP)</option>
-                        <option value="JP">交趾陶工藝 (JP)</option>
-                        <option value="CS">泥塑工藝 (CS)</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>📷 調查影像 (選填)</label>
-                <input type="file" id="photo" accept="image/*">
-                <div class="preview-container" id="previewContainer">
-                    <img id="imagePreview" src="" alt="預覽">
-                </div>
-            </div>
-            <div class="form-group" style="margin-top: 15px;">
-                <label>📝 題材內容 / 保存狀況備註</label>
-                <textarea id="note" rows="2" 
-                placeholder="請輸入細部觀察描述..."></textarea>
-            </div>
-            <div class="btn-group">
-                <button type="button" class="btn-nav" 
-                onclick="window.switchPage(1)">⬅️ 返回第一步</button>
-                <!-- 🚀 核心優化：手動按鈕儲存，100% 穩穩留在第二頁 -->
-                <button type="button" class="btn-submit" 
-                onclick="window.triggerLocalSave()">💾 儲存此筆文資數據</button>
-            </div>
-            <button type="button" class="btn-home" 
-            onclick="window.switchSection('menu')" 
-            style="background-color:#4a5568;">🏠 結束登錄</button>
-        </div>
+        </form>
     </div>
 
-    <!-- 🌐 【功能三：獨立數據查詢與下載頁面】 -->
+    <!-- 🌐 【功能三：獨立實體檔案檢視與下載頁面】 -->
     <div id="section-query" class="main-section">
         <div class="history">
             <div class="history-header">
-                <h2>📋 平板本機已快取數據總覽</h2>
+                <h2>📋 導入外部普查檔案進行檢視</h2>
+                <button type="button" class="btn-submit" style="background-color:#2b6cb0; 
+                padding: 8px 15px; font-size:14px; flex:none; width:auto;"
+                onclick="window.triggerQueryImport()">📂 選擇檔案還原檢視</button>
+                
                 <button type="button" id="exportBtn" 
-                class="btn-export">🍏 匯出 Excel (CSV)</button>
+                class="btn-export" style="padding: 8px 15px; font-size:14px; 
+                flex:none; width:auto; margin-left:8px;">🍏 匯出總 Excel</button>
             </div>
             <div id="dataList"></div>
         </div>
@@ -262,97 +275,93 @@
     </div>
 </div>
 <script>
-    // --- 換Section大目錄 ---
+    // --- 大目錄導覽 ---
     window.switchSection = function(id) {
-        document.getElementById('section-menu')
-            .classList.remove('active');
-        document.getElementById('section-log')
-            .classList.remove('active');
-        document.getElementById('section-query')
-            .classList.remove('active');
-        document.getElementById('section-' + id)
-            .classList.add('active');
+        document.getElementById('section-menu').classList.remove('active');
+        document.getElementById('section-log').classList.remove('active');
+        document.getElementById('section-query').classList.remove('active');
+        document.getElementById('section-' + id).classList.add('active');
         if (id === 'log') { window.switchPage(1); }
         window.scrollTo({top: 0, behavior: 'smooth'});
     };
 
-    // --- 換Form分頁 ---
+    // --- 分頁換頁 ---
     window.switchPage = function(num) {
-        document.getElementById('page1')
-            .classList.remove('active');
-        document.getElementById('page2')
-            .classList.remove('active');
-        document.getElementById('page' + num)
-            .classList.add('active');
+        document.getElementById('page1').classList.remove('active');
+        document.getElementById('page2').classList.remove('active');
+        document.getElementById('page' + num).classList.add('active');
         window.scrollTo({top: 0, behavior: 'smooth'});
     };
 
-    // --- 即時預覽編碼 ---
+    // --- 編碼變換 ---
     window.updateCodePreview = function() {
         const area = document.getElementById('area').value;
         const dir = document.getElementById('direction').value;
         const roof = document.getElementById('roofPos').value;
         const comp = document.getElementById('compCode').value;
-        const ser = document.getElementById('serial')
-            .value.trim() || '？';
-        const pType = document.getElementById('photoType')
-            .value.trim() || '？';
+        const ser = document.getElementById('serial').value.trim() || '？';
+        const pType = document.getElementById('photoType').value.trim() || '？';
         document.getElementById('codePreview').innerText = 
         `LS-${area}-${dir}-${roof}-${comp}-${ser}-${pType}`;
     };
 
-    // --- 流水號自動遞增 ---
     window.autoIncrementSerial = function() {
         const el = document.getElementById('serial');
         const val = parseInt(el.value, 10);
-        if (!isNaN(val)) { 
-            el.value = String(val + 1).padStart(3, '0'); 
-        }
+        if (!isNaN(val)) { el.value = String(val + 1).padStart(3, '0'); }
     };
 
-    // --- 手動點擊儲存按鈕的全域觸發管道 ---
+    // --- 在本機硬碟直接下載實體專屬檔案 (.survey) ---
+    window.downloadSurveyFile = function(record) {
+        try {
+            const jsonString = JSON.stringify(record, null, 2);
+            const blob = new Blob([jsonString], { type: "application/json" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            
+            const safeTime = new Date().getTime();
+            link.setAttribute("download", `普查_${record.fullCode}_${safeTime}.survey`);
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch(err) { alert("下載出錯: " + err.message); }
+    };
+
+    // 按鈕全域管道中轉
     window.triggerLocalSave = function() {
-        if (window.executeLocalSaveFunction) {
-            window.executeLocalSaveFunction();
-        } else {
-            alert("本地資料庫初始化中，請稍後再試！");
-        }
+        if (window.executeLocalSaveFunction) { window.executeLocalSaveFunction(); }
+    };
+    window.triggerQueryImport = function() {
+        window.currentImportMode = 'query';
+        document.getElementById('bulkImportInput').click();
+    };
+    window.triggerFileImportForSync = function() {
+        window.currentImportMode = 'sync';
+        document.getElementById('bulkImportInput').click();
+    };
+    window.triggerDeleteRecord = function(fCode) {
+        if (window.deleteLocalRecordFunction) { window.deleteLocalRecordFunction(fCode); }
     };
 
-    // --- 刪除中轉管道 ---
-    window.triggerDeleteRecord = function(id, fCode) {
-        if (window.deleteLocalRecordFunction) {
-            window.deleteLocalRecordFunction(id, fCode);
-        }
-    };
-
-    // --- 同步的中轉管道 ---
-    window.triggerFirebaseSync = function() {
-        if (window.syncToFirebaseFunction) {
-            window.syncToFirebaseFunction();
-        } else { alert("資料庫同步模組載入中..."); }
-    };
-
-    // --- 照片讀取轉碼 ---
     window.onload = function() {
         window.updateCodePreview();
-        document.getElementById('photo').onchange = 
-        function(e) {
+        document.getElementById('photo').onchange = function(e) {
             if (e.target.files && e.target.files) {
                 const rdr = new FileReader();
                 rdr.onload = function(evt) {
                     window.base64ImageSaved = evt.target.result;
-                    document.getElementById('imagePreview')
-                        .src = evt.target.result;
-                    document.getElementById('previewContainer')
-                        .style.display = 'block';
+                    document.getElementById('imagePreview').src = evt.target.result;
+                    document.getElementById('previewContainer').style.display = 'block';
                 };
                 rdr.readAsDataURL(e.target.files);
             }
         };
     };
+
     window.base64ImageSaved = "";
     window.allRecordsSaved = [];
+    window.currentImportMode = 'query';
     window.deleteLocalRecordFunction = null;
     window.syncToFirebaseFunction = null;
     window.executeLocalSaveFunction = null; 
@@ -363,7 +372,6 @@
     import { getFirestore, collection, addDoc } from 
     "https://gstatic.com";
 
-    // 完美切齊的極窄版雲端金鑰
     const config = {
         apiKey: "AIzaSyCcQwZq42FnlL5_V0HCQ1mjNZaulQrRh1w",
         authDomain: "://firebaseapp.com",
@@ -374,171 +382,90 @@
         measurementId: "G-KF50RT64YM"
     };
 
-    let localDB = null, cloudCollection = null;
-    window.backupMemoryStorage = []; 
+    let cloudCollection = null;
 
-    function toggleBadge(on) {
-        const b = document.getElementById('networkStatus');
-        const t = document.getElementById('statusText');
-        if(!b || !t) return;
-        b.className = on ? 
-            "sync-status-badge online" : "sync-status-badge";
-        t.innerText = on ? "網路已連線" : "離線優先模式";
-    }
-
-    // 啟動本機 IndexedDB 資料庫
-    try {
-        const req = indexedDB.open("LongshanLocalDatabase", 1);
-        req.onupgradeneeded = function(e) {
-            let d = e.target.result;
-            if (!d.objectStoreNames.contains("local_records")) {
-                d.createObjectStore("local_records", 
-                { keyPath: "id", autoIncrement: true });
-            }
-        };
-        req.onsuccess = function(e) { 
-            localDB = e.target.result; renderList(); 
-        };
-        req.onerror = function() {
-            console.warn("硬碟遭隱私鎖定，切換至備用記憶體模式。");
-        };
-    } catch(err) {
-        console.warn("啟用記憶體沙盒方案。");
-    }
-
-    // 啟動 Firebase 連線
     try {
         const app = initializeApp(config);
-        cloudCollection = collection(
-            getFirestore(app), "survey_records"
-        );
-        toggleBadge(navigator.onLine);
+        cloudCollection = collection(getFirestore(app), "survey_records");
+        document.getElementById('networkStatus').className = "sync-status-badge online";
+        document.getElementById('statusText').innerText = "實體存檔模式";
     } catch(err) { console.error(err); }
 
-    window.addEventListener('online', () => toggleBadge(true));
-    window.addEventListener('offline', () => toggleBadge(false));
+    // 批量導入並解析 .survey 實體檔案 (支援電腦滑鼠大批量多選)
+    document.getElementById('bulkImportInput').onchange = function(e) {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
 
-    // 讀取並渲染本機普查清單
-    function renderList() {
-        const box = document.getElementById('dataList');
-        if (!box) return;
-        box.innerHTML = ""; window.allRecordsSaved = [];
-        
-        if (localDB) {
-            const tx = localDB.transaction(["local_records"], "readonly");
-            tx.objectStore("local_records").openCursor(null, "prev")
-            .onsuccess = function(e) {
-                const cur = e.target.result;
-                if (cur) {
-                    const v = cur.value; window.allRecordsSaved.push(v);
-                    drawCard(v, box); cur.continue();
-                } else { checkEmptyList(box); }
-            };
-        } else {
-            let reversedMemory = [...window.backupMemoryStorage].reverse();
-            reversedMemory.forEach(v => {
-                window.allRecordsSaved.push(v);
-                drawCard(v, box);
-            });
-            checkEmptyList(box);
-        }
-    }
+        let loadedRecords = [];
+        let processedCount = 0;
 
-    function drawCard(v, box) {
-        const tag = v.synced === 1 ? 
-        `<span class="card-sync-tag tag-synced">☁️ 已同步</span>` : 
-        `<span class="card-sync-tag tag-unsynced">⏳ 暫存中</span>`;
-        const card = document.createElement('div');
-        card.className = 'data-card';
-        card.innerHTML = `
-            <button type="button" class="delete-btn" 
-            onclick="window.triggerDeleteRecord(${v.id || 0}, '${v.fullCode}')">❌</button>
-            <strong>🔍 編碼：${v.fullCode}</strong>${tag}<br>
-            <span style="color:#718096; font-size:12px;">🕒 時間：${v.timestamp}</span><br>
-            ${v.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 備註：${v.note}</div>` : ''}
-            ${v.photo ? `<img src="${v.photo}">` : ''}
-        `;
-        box.appendChild(card);
-    }
-
-    function checkEmptyList(box) {
-        if (window.allRecordsSaved.length === 0) {
-            box.innerHTML = "<p style='color:#a0aec0; text-align:center;'>目前本機尚無普查數據</p>";
-        }
-    }
-
-    // 本機卡片單獨移除
-    window.deleteLocalRecordFunction = function(id, fCode) {
-        if (!confirm("⚠️ 確定要從平板本機刪除這筆數據嗎？")) return;
-        
-        if (localDB && id !== 0) {
-            const tx = localDB.transaction(["local_records"], "readwrite");
-            tx.objectStore("local_records").delete(id);
-            tx.oncomplete = function() { 
-                alert("🗑️ 數據已自本機移除！"); renderList(); 
-            };
-        } else {
-            window.backupMemoryStorage = window.backupMemoryStorage
-                .filter(item => item.fullCode !== fCode);
-            alert("🗑️ 數據已自備用快取中移除！");
-            renderList();
-        }
-    };
-
-    // 手動批量同步上傳雲端
-    window.syncToFirebaseFunction = async function() {
-        if (!navigator.onLine) { alert("🚨 同步失敗：目前平板沒有網路！"); return; }
-        if (!cloudCollection) { alert("🚨 雲端連線失敗！"); return; }
-        alert("📡 正在將平板離線數據發送至雲端...");
-
-        let success = 0;
-
-        if (localDB) {
-            const tx = localDB.transaction(["local_records"], "readwrite");
-            const store = tx.objectStore("local_records");
-            store.openCursor().onsuccess = async function(e) {
-                const cur = e.target.result;
-                if (cur) {
-                    const r = cur.value;
-                    if (r.synced === 0) {
-                        try {
-                            await uploadDocToFirebase(r);
-                            r.synced = 1; cur.update(r); success++;
-                        } catch(err) {}
+        for (let i = 0; i < files.length; i++) {
+            const reader = new FileReader();
+            reader.onload = async function(evt) {
+                try {
+                    const record = JSON.parse(evt.target.result);
+                    loadedRecords.push(record);
+                } catch(err) {}
+                
+                processedCount++;
+                if (processedCount === files.length) {
+                    if (window.currentImportMode === 'query') {
+                        window.allRecordsSaved = loadedRecords;
+                        renderUIList();
+                    } else if (window.currentImportMode === 'sync') {
+                        await executeBulkFirebaseSync(loadedRecords);
                     }
-                    cur.continue();
-                } else { showSyncAlert(success); }
-            };
-        } else {
-            for (let r of window.backupMemoryStorage) {
-                if (r.synced === 0) {
-                    try {
-                        await uploadDocToFirebase(r);
-                        r.synced = 1; success++;
-                    } catch(err) {}
+                    document.getElementById('bulkImportInput').value = ""; 
                 }
-            }
-            showSyncAlert(success);
+            };
+            reader.readAsText(files[i]);
         }
     };
 
-    async function uploadDocToFirebase(r) {
-        const clean = {
-            fullCode: r.fullCode, area: r.area, direction: r.direction,
-            roofPos: r.roofPos, compCode: r.compCode, serial: r.serial,
-            photoType: r.photoType, craft: r.craft, note: r.note,
-            photo: r.photo, timestamp: r.timestamp
-        };
-        await addDoc(cloudCollection, clean);
+    // 渲染清單到查詢分頁上
+    function renderUIList() {
+        const box = document.getElementById('dataList');
+        if (!box) return; box.innerHTML = "";
+        
+        let reversed = [...window.allRecordsSaved].reverse();
+        reversed.forEach(val => {
+            const card = document.createElement('div');
+            card.className = 'data-card';
+            card.innerHTML = `
+                <button type="button" class="delete-btn" 
+                onclick="window.triggerDeleteRecord('${val.fullCode}')">❌</button>
+                <strong>🔍 導入編碼：${val.fullCode}</strong><br>
+                <span style="color:#718096; font-size:12px;">🕒 普查時間：${val.timestamp}</span><br>
+                ${val.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 備註：${val.note}</div>` : ''}
+                ${val.photo ? `<img src="${val.photo}">` : ''}
+            `;
+            box.appendChild(card);
+        });
     }
 
-    function showSyncAlert(count) {
-        if (count === 0) { alert("☁️ 本機所有資料先前皆已同步。"); }
-        else { alert(`🎉 同步成功！成功上傳了 ${count} 筆數據到雲端！`); }
-        renderList();
+    // 移除當前畫面檢視
+    window.deleteLocalRecordFunction = function(fCode) {
+        window.allRecordsSaved = window.allRecordsSaved
+            .filter(item => item.fullCode !== fCode);
+        renderUIList();
+    };
+
+    // 批量同步至 Firebase 雲端資料庫
+    async function executeBulkFirebaseSync(records) {
+        if (!navigator.onLine || !cloudCollection) {
+            alert("🚨 同步失敗：請連上穩定網路再進行同步！"); return;
+        }
+        alert(`📡 正在將選取的 ${records.length} 筆實體檔案大批量上傳至雲端...`);
+        let success = 0;
+        for (let r of records) {
+            try {
+                await addDoc(cloudCollection, r); success++;
+            } catch(err) {}
+        }
+        alert(`☁️ 雲端批量同步成功！\n共成功同步上傳了 ${success} 筆數據卡片！`);
     }
 
-    // ★ 終極儲存：雙軌制引擎 (強制原地鎖定、選項完好不動)
+    // 核心功能：實體下載與原地鎖定
     window.executeLocalSaveFunction = function() {
         const serialVal = document.getElementById('serial').value.trim();
         const photoTypeVal = document.getElementById('photoType').value.trim();
@@ -546,7 +473,7 @@
             alert("❌ 請填寫作品流水號與照片型別！"); return;
         }
 
-        const r = {
+        const record = {
             fullCode: document.getElementById('codePreview').innerText,
             area: document.getElementById('area').value,
             direction: document.getElementById('direction').value,
@@ -555,49 +482,38 @@
             serial: serialVal, photoType: photoTypeVal,
             craft: document.getElementById('craft').value,
             note: document.getElementById('note').value,
-            photo: window.base64ImageSaved, synced: 0,
+            photo: window.base64ImageSaved,
             timestamp: new Date().toLocaleString()
         };
 
-        if (localDB) {
-            const tx = localDB.transaction(["local_records"], "readwrite");
-            tx.objectStore("local_records").add(r);
-            tx.oncomplete = function() { finalizeSave(r.fullCode); };
-        } else {
-            window.backupMemoryStorage.push(r);
-            finalizeSave(r.fullCode + " (暫存於平板暫存區)");
-        }
-    };
+        window.downloadSurveyFile(record);
 
-    function finalizeSave(msg) {
-        alert("💾 數據已安全存入當前平板！\n編碼：" + msg);
         document.getElementById('note').value = "";
         document.getElementById('photo').value = "";
         document.getElementById('previewContainer').style.display = 'none';
         window.base64ImageSaved = "";
+        
         window.autoIncrementSerial(); 
         window.updateCodePreview(); 
-        renderList();
-    }
+    };
 
-    // Excel (CSV) 匯出功能
+    // ✅ 已修正變選殘留：大總匯 Excel (CSV) 導出功能
     document.getElementById('exportBtn').onclick = function() {
-        if (window.allRecordsSaved.length === 0) { alert("目前本機沒有數據！"); return; }
+        if (window.allRecordsSaved.length === 0) { alert("目前畫面上沒有任何導入數據！"); return; }
         let csv = "\uFEFF";
-        csv += "完整登錄編碼,建築區域,方位,屋面部位,細部分類,流水號,照片序號,工藝,備註,同步狀態,登記時間\n";
+        csv += "完整登錄編碼,建築區域,方位,屋面部位,細部分類,流水號,照片序號,工藝,備註,登記時間\n";
         
         window.allRecordsSaved.forEach(r => {
-            const txt = r.synced === 1 ? "已同步" : "僅本機暫存";
             const row = [
                 r.fullCode, r.area, r.direction, r.roofPos, r.compCode,
-                r.serial, r.photoType, r.craft, r.note || '', txt, r.timestamp
+                r.serial, r.photoType, r.craft, r.note || '', r.timestamp
             ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
             csv += row + "\n";
         });
         
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", `龍山寺普查表_${new Date().toLocaleDateString()}.csv`);
+        link.setAttribute("download", `龍山寺普查總統計報表_${new Date().toLocaleDateString()}.csv`);
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     };
 </script>
