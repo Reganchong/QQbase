@@ -2,28 +2,59 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, 
+    initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>普查系統 - 數據登錄工具</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background-color: #f5f5f7; color: #1d1d1f; margin: 0; padding: 15px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 24px; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
-        h1 { font-size: 22px; text-align: center; margin-bottom: 20px; color: #1a365d; }
-        .code-preview-box { background-color: #ebf8ff; border: 2px dashed #3182ce; padding: 18px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
-        .code-preview-box label { font-size: 13px; color: #2b6cb0; font-weight: bold; display: block; margin-bottom: 8px; }
-        .generated-code { font-family: monospace; font-size: 24px; font-weight: bold; color: #2b6cb0; word-break: break-all; }
+        body { font-family: -apple-system, sans-serif; 
+        background-color: #f5f5f7; color: #1d1d1f; 
+        margin: 0; padding: 15px; }
+        .container { max-width: 800px; margin: 0 auto; 
+        background: white; padding: 24px; border-radius: 16px; 
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+        h1 { font-size: 22px; text-align: center; 
+        margin-bottom: 20px; color: #1a365d; }
+        .code-preview-box { background-color: #ebf8ff; 
+        border: 2px dashed #3182ce; padding: 18px; 
+        border-radius: 10px; margin-bottom: 20px; 
+        text-align: center; }
+        .code-preview-box label { font-size: 13px; 
+        color: #2b6cb0; font-weight: bold; 
+        display: block; margin-bottom: 8px; }
+        .generated-code { font-family: monospace; 
+        font-size: 24px; font-weight: bold; 
+        color: #2b6cb0; word-break: break-all; }
         .page { display: none; }
         .page.active { display: block; }
-        .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .form-row { display: flex; gap: 15px; 
+        margin-bottom: 15px; }
         .form-row .form-group { flex: 1; min-width: 0; }
-        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; color: #4a5568; }
-        input[type="text"], select, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 8px; box-sizing: border-box; font-size: 16px; background-color: #fff; }
-        .btn-group { display: flex; gap: 12px; margin-top: 20px; }
-        button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .btn-submit { background-color: #2b6cb0; color: white; }
-        .btn-nav { background-color: #718096; color: white; }
-        .btn-home { background-color: #1a365d; color: white; margin-top: 20px; width: 100%; display: block; text-align: center; text-decoration: none; padding: 15px 0; border-radius: 8px; box-sizing: border-box; font-weight: bold; }
-        .preview-container { margin-top: 10px; display: none; text-align: center; }
-        .preview-container img { max-width: 100%; max-height: 200px; border-radius: 8px; }
+        label { display: block; font-weight: 600; 
+        margin-bottom: 6px; font-size: 14px; 
+        color: #4a5568; }
+        input[type="text"], select, textarea { width: 100%; 
+        padding: 12px; border: 1px solid #cbd5e0; 
+        border-radius: 8px; box-sizing: border-box; 
+        font-size: 16px; background-color: #fff; }
+        .btn-group { display: flex; gap: 12px; 
+        margin-top: 20px; }
+        button { flex: 1; padding: 15px; border: none; 
+        border-radius: 8px; font-size: 16px; 
+        font-weight: bold; cursor: pointer; }
+        .btn-submit { background-color: #2b6cb0; 
+        color: white; }
+        .btn-nav { background-color: #718096; 
+        color: white; }
+        .btn-home { background-color: #1a365d; 
+        color: white; margin-top: 20px; width: 100%; 
+        display: block; text-align: center; 
+        text-decoration: none; padding: 15px 0; 
+        border-radius: 8px; box-sizing: border-box; 
+        font-weight: bold; }
+        .preview-container { margin-top: 10px; 
+        display: none; text-align: center; }
+        .preview-container img { max-width: 100%; 
+        max-height: 200px; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -37,11 +68,15 @@
 
     <!-- 📄 第一步分頁：宏觀部位 -->
     <div id="page1" class="page active">
-        <h3 style="color:#2b6cb0; margin-bottom:15px; border-left:4px solid #2b6cb0; padding-left:8px;">第一步：選擇主要建築部位</h3>
+        <h3 style="color:#2b6cb0; margin-bottom:15px; 
+        border-left:4px solid #2b6cb0; padding-left:8px;">
+        第一步：選擇主要建築部位</h3>
         <div class="form-row">
             <div class="form-group" style="flex: 0 0 80px;">
                 <label>寺廟代號</label>
-                <input type="text" id="prefix" value="LS" disabled style="background-color: #edf2f7; text-align: center; font-weight: bold;">
+                <input type="text" id="prefix" value="LS" 
+                disabled style="background-color: #edf2f7; 
+                text-align: center; font-weight: bold;">
             </div>
             <div class="form-group">
                 <label>建築區域 [殿區]</label>
@@ -66,14 +101,19 @@
             </div>
         </div>
         <div class="btn-group">
-            <a href="index.html" class="btn-home" style="margin-top:0; width:auto; flex:1;">🏠 回首頁目錄</a>
-            <button type="button" class="btn-submit" onclick="switchPage(2)">下一步 ➡️</button>
+            <a href="index.html" class="btn-home" 
+            style="margin-top:0; width:auto; flex:1;">
+            🏠 回首頁目錄</a>
+            <button type="button" class="btn-submit" 
+            onclick="switchPage(2)">下一步 ➡️</button>
         </div>
     </div>
 
-    <!-- 📄 第二步分頁：細部紀錄（★原地防跳機制優化） -->
+    <!-- 📄 第二步分頁：細部紀錄 -->
     <div id="page2" class="page">
-        <h3 style="color:#2b6cb0; margin-bottom:15px; border-left:4px solid #2b6cb0; padding-left:8px;">第二步：詳細數據與影像紀錄</h3>
+        <h3 style="color:#2b6cb0; margin-bottom:15px; 
+        border-left:4px solid #2b6cb0; padding-left:8px;">
+        第二步：詳細數據與影像紀錄</h3>
         <div class="form-row">
             <div class="form-group">
                 <label>構件細部分類</label>
@@ -96,11 +136,15 @@
         <div class="form-row">
             <div class="form-group">
                 <label>作品流水號</label>
-                <input type="text" id="serial" value="001" oninput="updateCodePreview()" required style="font-family: monospace;">
+                <input type="text" id="serial" value="001" 
+                oninput="updateCodePreview()" required 
+                style="font-family: monospace;">
             </div>
             <div class="form-group">
                 <label>照片型別+序號</label>
-                <input type="text" id="photoType" value="O01" oninput="updateCodePreview()" required style="font-family: monospace;">
+                <input type="text" id="photoType" value="O01" 
+                oninput="updateCodePreview()" required 
+                style="font-family: monospace;">
             </div>
         </div>
         <div class="form-row">
@@ -122,85 +166,124 @@
         </div>
         <div class="form-group" style="margin-top: 15px;">
             <label>📝 題材內容 / 保存狀況備註</label>
-            <textarea id="note" rows="2" placeholder="請輸入細部觀察描述..."></textarea>
+            <textarea id="note" rows="2" 
+            placeholder="請輸入細部觀察描述..."></textarea>
         </div>
         <div class="btn-group">
-            <button type="button" class="btn-nav" onclick="switchPage(1)">⬅️ 返回第一步</button>
-            <button type="button" class="btn-submit" onclick="executeLocalSave()">💾 直接存成檔案下載</button>
+            <button type="button" class="btn-nav" 
+            onclick="switchPage(1)">⬅️ 返回第一步</button>
+            <button type="button" class="btn-submit" 
+            onclick="executeLocalSave()">
+            💾 直接存成檔案下載</button>
         </div>
         <a href="index.html" class="btn-home">🏠 結束登錄，回首頁</a>
     </div>
 </div>
-
 <script>
     let base64Image = "";
 
+    // --- 平板分頁切換控制 ---
     function switchPage(num) {
-        document.getElementById('page1').classList.remove('active');
-        document.getElementById('page2').classList.remove('active');
-        document.getElementById('page' + num).classList.add('active');
+        document.getElementById('page1')
+            .classList.remove('active');
+        document.getElementById('page2')
+            .classList.remove('active');
+        document.getElementById('page' + num)
+            .classList.add('active');
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
+    // --- 跨分頁即時編碼預覽連動 ---
     function updateCodePreview() {
         const area = document.getElementById('area').value;
         const dir = document.getElementById('direction').value;
         const roof = document.getElementById('roofPos').value;
         const comp = document.getElementById('compCode').value;
-        const ser = document.getElementById('serial').value.trim() || '？';
-        const pType = document.getElementById('photoType').value.trim() || '？';
-        document.getElementById('codePreview').innerText = `LS-${area}-${dir}-${roof}-${comp}-${ser}-${pType}`;
+        const ser = document.getElementById('serial')
+            .value.trim() || '？';
+        const pType = document.getElementById('photoType')
+            .value.trim() || '？';
+        document.getElementById('codePreview').innerText = 
+        `LS-${area}-${dir}-${roof}-${comp}-${ser}-${pType}`;
     }
 
+    // --- 實體安全存檔與流水號自動遞增 ---
     function executeLocalSave() {
-        const ser = document.getElementById('serial').value.trim();
-        const pType = document.getElementById('photoType').value.trim();
-        if (!ser || !pType) { alert("❌ 請填寫流水號與照片型別！"); return; }
+        const ser = document.getElementById('serial')
+            .value.trim();
+        const pType = document.getElementById('photoType')
+            .value.trim();
+        if (!ser || !pType) { 
+            alert("❌ 請填寫流水號與照片型別！"); 
+            return; 
+        }
 
         const record = {
-            fullCode: document.getElementById('codePreview').innerText,
+            fullCode: document.getElementById('codePreview')
+                .innerText,
             area: document.getElementById('area').value,
             direction: document.getElementById('direction').value,
             roofPos: document.getElementById('roofPos').value,
             compCode: document.getElementById('compCode').value,
-            serial: ser, photoType: pType,
+            serial: ser, 
+            photoType: pType,
             craft: document.getElementById('craft').value,
             note: document.getElementById('note').value,
             photo: base64Image,
             timestamp: new Date().toLocaleString()
         };
 
-        // 直接打包成獨立實體檔案下載
-        const blob = new Blob([JSON.stringify(record, null, 2)], { type: "application/json" });
+        // 打包物件為實體專屬檔案並觸發平板/電腦瀏覽器下載
+        const jsonStr = JSON.stringify(record, null, 2);
+        const blob = new Blob([jsonStr], 
+            { type: "application/json" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", `普查_${record.fullCode}_${new Date().getTime()}.survey`);
-        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        
+        const timestampToken = new Date().getTime();
+        link.setAttribute("download", 
+            `普查_${record.fullCode}_${timestampToken}.survey`);
+        
+        document.body.appendChild(link); 
+        link.click(); 
+        document.body.removeChild(link);
 
-        // 原地鎖定：只清理備註與照片預覽
+        // ★ 原地鎖定防跳機制：只清理第二頁的備註與相機快取
         document.getElementById('note').value = "";
         document.getElementById('photo').value = "";
-        document.getElementById('previewContainer').style.display = 'none';
+        document.getElementById('previewContainer')
+            .style.display = 'none';
         base64Image = "";
         
-        // 流水號自動遞增 +1
+        // 流水號自動加一（維持三位數編碼防呆）
         const val = parseInt(ser, 10);
-        if (!isNaN(val)) { document.getElementById('serial').value = String(val + 1).padStart(3, '0'); }
+        if (!isNaN(val)) { 
+            document.getElementById('serial').value = 
+                String(val + 1).padStart(3, '0'); 
+        }
+        
         updateCodePreview();
-        alert("💾 數據檔案已成功下載至平板硬碟！");
+        alert("💾 普查檔案已成功下載，選項已為您完整鎖定！");
     }
 
+    // --- 平板網頁加載完畢與平板鏡頭相機拍照監聽 ---
     window.onload = function() {
         updateCodePreview();
-        document.getElementById('photo').onchange = function(e) {
+        document.getElementById('photo').onchange = 
+        function(e) {
             if (e.target.files && e.target.files[0]) {
                 const rdr = new FileReader();
                 rdr.onload = function(evt) {
                     base64Image = evt.target.result;
-                    document.getElementById('imagePreview').src = evt.target.result;
-                    document.getElementById('previewContainer').style.display = 'block';
-                  };
-              rdr.readAsDataURL(e.target.files[0]);
-              }
+                    document.getElementById('imagePreview').src = 
+                        evt.target.result;
+                    document.getElementById('previewContainer')
+                        .style.display = 'block';
+                };
+                rdr.readAsDataURL(e.target.files[0]);
+            }
         };
     };
+</script>
+</body>
+</html>
