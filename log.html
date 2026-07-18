@@ -66,11 +66,11 @@
         <div class="generated-code" id="codePreview"></div>
     </div>
 
-    <!-- 📄 第一步分頁：宏觀部位 -->
+    <!-- 📄 第一步分頁：大建築環境與方位朝向 -->
     <div id="page1" class="page active">
         <h3 style="color:#2b6cb0; margin-bottom:15px; 
         border-left:4px solid #2b6cb0; padding-left:8px;">
-        第一步：選擇主要建築部位</h3>
+        第一步：選擇主要建築與朝向方位</h3>
         <div class="form-row">
             <div class="form-group" style="flex: 0 0 80px;">
                 <label>寺廟代號</label>
@@ -90,13 +90,15 @@
                 </select>
             </div>
         </div>
+        <!-- 🔄 成功移到第一頁的屋面朝向 -->
         <div class="form-row">
             <div class="form-group">
-                <label>屋面部位</label>
-                <select id="roofPos" onchange="updateCodePreview()">
-                    <option value="MR" selected>正脊 (MR)</option>
-                    <option value="DR">垂脊 (DR)</option>
-                    <option value="HR">戧脊 (HR)</option>
+                <label>屋面朝向 [方位]</label>
+                <select id="direction" onchange="updateCodePreview()">
+                    <option value="W" selected>西 West (W)</option>
+                    <option value="E">東 East (E)</option>
+                    <option value="S">南 South (S)</option>
+                    <option value="N">北 North (N)</option>
                 </select>
             </div>
         </div>
@@ -109,27 +111,27 @@
         </div>
     </div>
 
-    <!-- 📄 第二步分頁：細部紀錄 -->
+    <!-- 📄 第二步分頁：詳細構件部位、序號與影像紀錄 -->
     <div id="page2" class="page">
         <h3 style="color:#2b6cb0; margin-bottom:15px; 
         border-left:4px solid #2b6cb0; padding-left:8px;">
-        第二步：詳細數據與影像紀錄</h3>
+        第二步：詳細普查數據與影像紀錄</h3>
         <div class="form-row">
+            <!-- 🔄 成功移到第二頁的屋面部位 -->
+            <div class="form-group">
+                <label>屋面部位</label>
+                <select id="roofPos" onchange="updateCodePreview()">
+                    <option value="MR" selected>正脊 (MR)</option>
+                    <option value="DR">垂脊 (DR)</option>
+                    <option value="HR">戧脊 (HR)</option>
+                </select>
+            </div>
             <div class="form-group">
                 <label>構件細部分類</label>
                 <select id="compCode" onchange="updateCodePreview()">
                     <option value="11" selected>脊堵/脊肚 (11)</option>
                     <option value="16">排頭 (16)</option>
                     <option value="08">西施脊 (08)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>屋面朝向 [方位]</label>
-                <select id="direction" onchange="updateCodePreview()">
-                    <option value="W" selected>西 West (W)</option>
-                    <option value="E">東 East (E)</option>
-                    <option value="S">南 South (S)</option>
-                    <option value="N">北 North (N)</option>
                 </select>
             </div>
         </div>
@@ -203,6 +205,8 @@
             .value.trim() || '？';
         const pType = document.getElementById('photoType')
             .value.trim() || '？';
+        
+        // 💡 保持論文標準：寺廟-殿區-方位-部位-細部-流水號-型別
         document.getElementById('codePreview').innerText = 
         `LS-${area}-${dir}-${roof}-${comp}-${ser}-${pType}`;
     }
@@ -233,7 +237,7 @@
             timestamp: new Date().toLocaleString()
         };
 
-        // 打包物件為實體專屬檔案並觸發平板/電腦瀏覽器下載
+        // 打包檔案並下載
         const jsonStr = JSON.stringify(record, null, 2);
         const blob = new Blob([jsonStr], 
             { type: "application/json" });
@@ -248,14 +252,14 @@
         link.click(); 
         document.body.removeChild(link);
 
-        // ★ 原地鎖定防跳機制：只清理第二頁的備註與相機快取
+        // 原地死鎖：只清理第二頁的備註與相機快取，選單選項原封不動
         document.getElementById('note').value = "";
         document.getElementById('photo').value = "";
         document.getElementById('previewContainer')
             .style.display = 'none';
         base64Image = "";
         
-        // 流水號自動加一（維持三位數編碼防呆）
+        // 流水號自動加一
         const val = parseInt(ser, 10);
         if (!isNaN(val)) { 
             document.getElementById('serial').value = 
@@ -263,7 +267,7 @@
         }
         
         updateCodePreview();
-        alert("💾 普查檔案已成功下載，選項已為您完整鎖定！");
+        alert("💾 數據檔案已成功下載，選項已為您完整鎖定！");
     }
 
     // --- 平板網頁加載完畢與平板鏡頭相機拍照監聽 ---
