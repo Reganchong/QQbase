@@ -36,15 +36,21 @@
         padding: 12px; border: 1px solid #cbd5e0; 
         border-radius: 8px; box-sizing: border-box; 
         font-size: 16px; background-color: #fff; }
+        .checkbox-group { display: flex; flex-wrap: wrap; 
+        gap: 12px; padding: 8px 0; }
+        .checkbox-label { display: flex; align-items: center; 
+        gap: 8px; background: #f7fafc; padding: 10px 14px; 
+        border-radius: 8px; border: 1px solid #e2e8f0; 
+        cursor: pointer; font-size: 14px; font-weight: 600; }
+        .checkbox-label input[type="checkbox"] { width: 18px; 
+        height: 18px; cursor: pointer; }
         .btn-group { display: flex; gap: 12px; 
         margin-top: 20px; }
         button { flex: 1; padding: 15px; border: none; 
         border-radius: 8px; font-size: 16px; 
         font-weight: bold; cursor: pointer; }
-        .btn-submit { background-color: #2b6cb0; 
-        color: white; }
-        .btn-nav { background-color: #718096; 
-        color: white; }
+        .btn-submit { background-color: #2b6cb0; color: white; }
+        .btn-nav { background-color: #718096; color: white; }
         .btn-export { background-color: #38a169; color: white; }
         .btn-home { background-color: #1a365d; 
         color: white; margin-top: 20px; width: 100%; 
@@ -56,8 +62,6 @@
         display: none; text-align: center; }
         .preview-container img { max-width: 100%; 
         max-height: 200px; border-radius: 8px; }
-        
-        /* ⚙️ 第二頁下方實時暫存列表專屬樣式 */
         .history { margin-top: 30px; 
         border-top: 2px solid #e2e8f0; padding-top: 20px; }
         .history h2 { font-size: 18px; margin: 0 0 15px 0; 
@@ -134,14 +138,13 @@
         </div>
         <div class="btn-group">
             <a href="index.html" class="btn-home" 
-            style="margin-top:0; width:auto; flex:1;">
-            🏠 回首頁目錄</a>
+            style="margin-top:0; width:auto; flex:1;">🏠 回目錄</a>
             <button type="button" class="btn-submit" 
             onclick="switchPage(2)">下一步 ➡️</button>
         </div>
     </div>
 
-    <!-- 📄 第二步分頁：詳細數據、實時暫存與大打包按鈕 -->
+    <!-- 📄 第二步分頁：詳細數據、工藝多選與大打包 -->
     <div id="page2" class="page">
         <h3 style="color:#2b6cb0; margin-bottom:15px; 
         border-left:4px solid #2b6cb0; padding-left:8px;">
@@ -198,54 +201,24 @@
                 style="font-family: monospace;">
             </div>
         </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>工藝形式</label>
-                <select id="craft">
-                    <option value="CP" selected>剪黏工藝 (CP)</option>
-                    <option value="JP">交趾陶工藝 (JP)</option>
-                    <option value="CS">泥塑工藝 (CS)</option>
-                </select>
-            </div>
-        </div>
+        
         <div class="form-group">
-            <label>📷 調查影像 (選填)</label>
-            <input type="file" id="photo" accept="image/*">
-            <div class="preview-container" id="previewContainer">
-                <img id="imagePreview" src="" alt="預覽">
-            </div>
-        </div>
-        <div class="form-group" style="margin-top: 15px;">
-            <label>📝 題材內容 / 保存狀況備註</label>
-            <textarea id="note" rows="2" 
-            placeholder="請輸入細部觀察描述..."></textarea>
-        </div>
-        <div class="btn-group">
-            <button type="button" class="btn-nav" 
-            onclick="switchPage(1)">⬅️ 返回第一步</button>
-            <!-- 🚀 點擊只會推入暫存，絕對不跳下載 -->
-            <button type="button" class="btn-submit" 
-            onclick="saveToTemporaryList()">💾 暫存此筆普查數據</button>
-        </div>
-
-        <!-- ⚙️ 移入第二頁下方：本次連續登錄的實時清單與大打包下載鍵 -->
-        <div class="history">
-            <div class="history-header" style="display:flex; 
-            justify-content:space-between; align-items:center;">
-                <h2>📝 本次連續登錄暫存區 (<span id="tempCount">0</span> 筆)</h2>
-                <!-- 📦 大大降低混亂：點擊一次打包下載今日所有數據包 -->
-                <button type="button" class="btn-export" 
-                onclick="downloadBulkPackFile()">📦 打包下載全部暫存</button>
-            </div>
-            <div id="tempDataList"></div>
-        </div>
-
-        <a href="index.html" class="btn-home">🏠 結束登錄，回首頁</a>
-    </div>
-</div>
+            <label>工藝形式 [可複選項目]</label>
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="craftBox" value="CP" 
+                    onchange="updateCodePreview()"> 剪黏工藝 (CP)
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="craftBox" value="JP" 
+                    onchange="updateCodePreview()"> 交趾陶工藝 (JP)
+                </label>
+                <label class="checkbox-label">泥塑工藝 (CS)
+#### ⚙️ 【log.html 第二段：多選拼裝與打包下載 JavaScript】
+*直接黏貼在前段正下方即可。*
+```html
 <script>
     let base64Image = "";
-    // 💡 本次操作的記憶體大卡盒（用來大批量收取資料）
     window.currentSessionRecords = [];
 
     function switchPage(num) {
@@ -255,6 +228,13 @@
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
+    function getSelectedCrafts() {
+        const boxes = document.querySelectorAll('input[name="craftBox"]:checked');
+        let selected = [];
+        boxes.forEach(cb => selected.push(cb.value));
+        return selected;
+    }
+
     function updateCodePreview() {
         const area = document.getElementById('area').value;
         const dir = document.getElementById('direction').value;
@@ -262,15 +242,21 @@
         const comp = document.getElementById('compCode').value;
         const ser = document.getElementById('serial').value.trim() || '？';
         const pType = document.getElementById('photoType').value.trim() || '？';
+        
+        const crafts = getSelectedCrafts();
+        const craftToken = crafts.length > 0 ? crafts[crafts.length - 1] : "CP";
+        
         document.getElementById('codePreview').innerText = 
-        `LS-${area}-${dir}-${roof}-${comp}-${ser}-${pType}`;
+        `LS-${area}-${dir}-${roof}-${comp}-${ser}-${pType}-${craftToken}`;
     }
 
-    // --- 🚀 核心優化：點擊儲存時，只存入平板本機畫面，絕對不跳下載視窗 ---
     function saveToTemporaryList() {
         const ser = document.getElementById('serial').value.trim();
         const pType = document.getElementById('photoType').value.trim();
         if (!ser || !pType) { alert("❌ 請填寫流水號與照片型別！"); return; }
+
+        const crafts = getSelectedCrafts();
+        if (crafts.length === 0) { alert("❌ 請至少勾選一種工藝形式！"); return; }
 
         const record = {
             fullCode: document.getElementById('codePreview').innerText,
@@ -279,92 +265,74 @@
             roofPos: document.getElementById('roofPos').value,
             compCode: document.getElementById('compCode').value,
             serial: ser, photoType: pType,
-            craft: document.getElementById('craft').value,
+            craft: crafts.join(","), 
             note: document.getElementById('note').value,
             photo: base64Image,
             timestamp: new Date().toLocaleString()
         };
 
-        // 塞入本次的記憶體暫存盒
         window.currentSessionRecords.push(record);
-
-        // 原地鎖定：只重置備註與相機快取，選單全部不准動
         document.getElementById('note').value = "";
         document.getElementById('photo').value = "";
         document.getElementById('previewContainer').style.display = 'none';
         base64Image = "";
         
-        // 流水號自動遞增 +1
+        document.querySelectorAll('input[name="craftBox"]').forEach(cb => cb.checked = false);
+        
         const val = parseInt(ser, 10);
         if (!isNaN(val)) { 
-            document.getElementById('serial').value = 
-                String(val + 1).padStart(3, '0'); 
+            document.getElementById('serial').value = String(val + 1).padStart(3, '0'); 
         }
         
-        updateCodePreview();
-        refreshTempUIList(); // 渲染下方清單
+        updateCodePreview(); refreshTempUIList();
     }
 
-    // 實時重新渲染下方的暫存卡片
     function refreshTempUIList() {
         const box = document.getElementById('tempDataList');
-        document.getElementById('tempCount').innerText = 
-            window.currentSessionRecords.length;
+        document.getElementById('tempCount').innerText = window.currentSessionRecords.length;
         if (!box) return; box.innerHTML = "";
         
-        // 倒序排列，最新存的在最上面
         let reversed = [...window.currentSessionRecords].reverse();
         reversed.forEach((val, index) => {
-            // 換算回真實陣列的真實索引
             const realIndex = window.currentSessionRecords.length - 1 - index;
             const card = document.createElement('div');
             card.className = 'data-card';
             card.innerHTML = `
-                <button type="button" class="delete-btn" 
-                onclick="removeTempCard(${realIndex})">❌ 刪除</button>
+                <button type="button" class="delete-btn" onclick="removeTempCard(${realIndex})">❌ 刪除</button>
                 <strong>🔍 暫存編碼：${val.fullCode}</strong><br>
-                <span style="color:#718096; font-size:12px;">🕒 暫存時間：${val.timestamp}</span><br>
+                <span style="color:#718096; font-size:12px;">🕒 時間：${val.timestamp} | 🎨 工藝：${val.craft}</span><br>
                 ${val.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 備註：${val.note}</div>` : ''}
                 ${val.photo ? `<img src="${val.photo}">` : ''}
             `;
             box.appendChild(card);
         });
-
         if (window.currentSessionRecords.length === 0) {
             box.innerHTML = "<p style='color:#a0aec0; text-align:center;'>目前暫存區尚無數據</p>";
         }
     }
 
-    // 暫存區的卡片刪除功能
     function removeTempCard(index) {
         if (!confirm("確定要移除這筆暫存數據嗎？")) return;
         window.currentSessionRecords.splice(index, 1);
         refreshTempUIList();
     }
 
-    // --- 🚀 核心優化：點擊一鍵大打包，生出唯一一個下載實體檔案包 ---
     function downloadBulkPackFile() {
         if (window.currentSessionRecords.length === 0) {
-            alert("❌ 目前暫存區空空如也，沒有數據可以打包！"); return;
+            alert("❌ 目前暫存區沒有數據可以打包！"); return;
         }
-
-        // 把整個操作陣列直接轉成單一的 JSON 下載
         const jsonStr = JSON.stringify(window.currentSessionRecords, null, 2);
         const blob = new Blob([jsonStr], { type: "application/json" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        
         const areaToken = document.getElementById('area').value;
-        const dateToken = new Date().toLocaleDateString().replace(/\//g, "-");
-        link.setAttribute("download", `龍山寺普查打包_${areaToken}_${dateToken}.survey`);
-        
+        link.setAttribute("download", `龍山寺多選工藝包_${areaToken}_${new Date().getTime()}.survey`);
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        alert(`📦 大打包成功！已將本次登錄的 ${window.currentSessionRecords.length} 筆卡片完美結合成一個實體檔案！`);
+        alert(`📦 大打包成功！已將本次登錄的 ${window.currentSessionRecords.length} 筆資料打包下載！`);
     }
 
     window.onload = function() {
-        updateCodePreview();
-        refreshTempUIList();
+        updateCodePreview(); refreshTempUIList();
         document.getElementById('photo').onchange = function(e) {
             if (e.target.files && e.target.files[0]) {
                 const rdr = new FileReader();
