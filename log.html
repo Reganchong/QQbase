@@ -202,6 +202,7 @@
             </div>
         </div>
         
+                <!-- 🎨 已為您補齊並對稱封閉的工藝形式多選 Checkbox 區塊 -->
         <div class="form-group">
             <label>工藝形式 [可複選項目]</label>
             <div class="checkbox-group">
@@ -213,7 +214,14 @@
                     <input type="checkbox" name="craftBox" value="JP" 
                     onchange="updateCodePreview()"> 交趾陶工藝 (JP)
                 </label>
-                <label class="checkbox-label">泥塑工藝 (CS)
+                <!-- 🚀 完美補齊修復：加入 input 方塊與對稱 label 關閉 -->
+                <label class="checkbox-label">
+                    <input type="checkbox" name="craftBox" value="CS" 
+                    onchange="updateCodePreview()"> 泥塑工藝 (CS)
+                </label>
+            </div>
+        </div>
+
 #### ⚙️ 【log.html 第二段：多選拼裝與打包下載 JavaScript】
 *直接黏貼在前段正下方即可。*
 ```html
