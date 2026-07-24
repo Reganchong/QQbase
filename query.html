@@ -28,8 +28,6 @@
         margin-top: 25px; width: 100%; display: block; 
         text-align: center; text-decoration: none; 
         padding: 15px 0; border-radius: 8px; font-weight: bold; }
-        
-        /* ⚙️ 專屬：新增文資普查表格響應式樣式設定 */
         .table-responsive { width: 100%; overflow-x: auto; 
         margin-bottom: 30px; background: #fff; 
         border-radius: 8px; border: 1px solid #cbd5e0; }
@@ -41,7 +39,6 @@
         td { padding: 10px; border-bottom: 1px solid #e2e8f0; 
         color: #4a5568; word-break: break-all; }
         tr:nth-child(even) { background-color: #f7fafc; }
-        
         .data-card { background: #f7fafc; padding: 15px; 
         border-radius: 10px; margin-bottom: 12px; 
         border-left: 6px solid #2b6cb0; font-size: 14px; 
@@ -58,109 +55,76 @@
     <h1>📋 導入外部普查打包檔案與表格檢視</h1>
     
     <div class="history-header">
-        <!-- 點擊多選可以同時選擇以前的舊檔與全新的打包大檔案包 -->
         <button type="button" class="btn-submit" 
-        onclick="document.getElementById('importInput').click()">
-        📂 選擇普查打包檔還原</button>
-        <button type="button" id="exportBtn" 
-        class="btn-export">🍏 匯出總統計 Excel</button>
+        onclick="document.getElementById('importInput').click()">📂 選擇普查打包檔還原</button>
+        <button type="button" id="exportBtn" class="btn-export">🍏 匯出總統計 Excel</button>
     </div>
-    <input type="file" id="importInput" multiple 
-    accept=".survey" style="display:none;">
+    <input type="file" id="importInput" multiple accept=".survey" style="display:none;">
     
-    <!-- 📊 成功新增：頂部實時數據表格區（內嵌橫向滑動軸防止超框） -->
     <div class="table-responsive">
         <table>
             <thead>
                 <tr>
-                    <th>完整登錄編碼</th>
+                    <th>完整編碼</th>
                     <th>殿區</th>
                     <th>方位</th>
                     <th>部位</th>
-                    <th>細部分類</th>
+                    <th>細部</th>
                     <th>流水號</th>
-                    <th>工藝</th>
+                    <th>工藝形式 (複選結果)</th>
                     <th>時間</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
                 <tr>
-                    <td colspan="8" style="text-align:center; 
-                    color:#a0aec0; padding:30px 0;">
+                    <td colspan="8" style="text-align:center; color:#a0aec0; padding:30px 0;">
                     📊 目前尚無數據，請點選上方按鈕導入檔案。
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
-
-    <!-- 📷 下方卡片對照與詳細備註區 -->
-    <h3 style="color:#4a5568; margin: 25px 0 10px 0; 
-    font-size:16px;">🔍 調查照片影像與備註詳情對照</h3>
+    <h3 style="color:#4a5568; margin: 25px 0 10px 0; font-size:16px;">🔍 調查照片影像與備註詳情對照</h3>
     <div id="dataList"></div>
-    
     <a href="index.html" class="btn-home">🏠 返回目錄主選單</a>
 </div>
 <script>
     window.allRecordsSaved = [];
 
-    // --- 🚀 核心優化：重新打造可同時讀取舊單檔與新大打包檔的解析引擎 ---
     document.getElementById('importInput').onchange = function(e) {
         const files = e.target.files;
         if (!files || files.length === 0) return;
-
-        window.allRecordsSaved = [];
-        let processedCount = 0;
+        window.allRecordsSaved = []; let processedCount = 0;
 
         for (let i = 0; i < files.length; i++) {
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
                     const parsed = JSON.parse(evt.target.result);
-                    
-                    // 💡 技術關鍵：如果讀到的是多筆在一起的陣列，就拆開來一筆筆倒進來
                     if (Array.isArray(parsed)) {
-                        parsed.forEach(record => {
-                            window.allRecordsSaved.push(record);
-                        });
-                    } else {
-                        // 如果讀到的是以前一條數據一個檔案的舊檔案，也相容收下
-                        window.allRecordsSaved.push(parsed);
-                    }
-                } catch(err) {
-                    console.error("檔案解析失敗", err);
-                }
-                
+                        parsed.forEach(r => window.allRecordsSaved.push(r));
+                    } else { window.allRecordsSaved.push(parsed); }
+                } catch(err) {}
                 processedCount++;
-                if (processedCount === files.length) {
-                    renderTableAndCards(); // 觸發實時表格與卡片渲染
-                }
+                if (processedCount === files.length) { renderTableAndCards(); }
             };
             reader.readAsText(files[i]);
         }
     };
 
-    // --- 🚀 核心優化：同時將資料渲染進「統計大表格」與「影像對照卡片」 ---
     function renderTableAndCards() {
         const tableBody = document.getElementById('tableBody');
         const cardBox = document.getElementById('dataList');
         if (!tableBody || !cardBox) return;
-        
-        tableBody.innerHTML = "";
-        cardBox.innerHTML = "";
+        tableBody.innerHTML = ""; cardBox.innerHTML = "";
         
         if (window.allRecordsSaved.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; 
-            color:#a0aec0; padding:20px 0;">📊 目前畫面上沒有任何導入數據。</td></tr>`;
-            cardBox.innerHTML = "<p style='color:#a0aec0; text-align:center;'>無影像卡片。</p>";
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#a0aec0; padding:20px 0;">📊 目前沒有數據。</td></tr>`;
             return;
         }
         
-        // 倒序排列，最新登記的卡片與表格項目排在最頂端
         let reversed = [...window.allRecordsSaved].reverse();
-        
         reversed.forEach((val) => {
-            // A. 實時動態建立大表格的一列 (Row)
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td style="font-weight:bold; color:#2b6cb0;">${val.fullCode}</td>
@@ -169,42 +133,33 @@
                 <td>${val.roofPos}</td>
                 <td>${val.compCode}</td>
                 <td style="font-family:monospace;">${val.serial}</td>
-                <td>${val.craft}</td>
-                <td style="color:#718096; font-size:11px;">${val.timestamp.split(' ')[0]}</td>
+                <td style="font-weight:bold; color:#2f855a;">${val.craft}</td>
+                <td style="color:#718096; font-size:11px;">${val.timestamp}</td>
             `;
             tableBody.appendChild(tr);
 
-            // B. 實時建立下方相對應的影像與備註大卡片
             const card = document.createElement('div');
             card.className = 'data-card';
             card.innerHTML = `
-                <button type="button" class="delete-btn" 
-                onclick="removeCardView('${val.fullCode}')">❌ 移除檢視</button>
+                <button type="button" class="delete-btn" onclick="removeCardView('${val.fullCode}')">❌ 移除檢視</button>
                 <strong>🔍 識別編碼：${val.fullCode}</strong><br>
-                <span style="color:#718096; font-size:12px;">🕒 登記時間：${val.timestamp}</span><br>
-                ${val.note ? `<div style="margin-top:5px; background:#fff; 
-                padding:6px; border:1px solid #edf2f7;">📝 詳細備註：${val.note}</div>` : ''}
+                <span style="color:#718096; font-size:12px;">🕒 時間：${val.timestamp} | 🎨 工藝形式：${val.craft}</span><br>
+                ${val.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 詳細備註：${val.note}</div>` : ''}
                 ${val.photo ? `<img src="${val.photo}">` : ''}
             `;
             cardBox.appendChild(card);
         });
     }
 
-    // 移除當前畫面中的指定項目檢視
     window.removeCardView = function(fCode) {
-        window.allRecordsSaved = window.allRecordsSaved
-            .filter(item => item.fullCode !== fCode);
+        window.allRecordsSaved = window.allRecordsSaved.filter(item => item.fullCode !== fCode);
         renderTableAndCards();
     };
 
-    // 大總匯 Excel (CSV) 檔案導出引擎
     document.getElementById('exportBtn').onclick = function() {
-        if (window.allRecordsSaved.length === 0) { 
-            alert("目前畫面上沒有任何導入數據！"); return; 
-        }
+        if (window.allRecordsSaved.length === 0) { alert("目前畫面上沒有導入數據！"); return; }
         let csv = "\uFEFF";
-        csv += "完整登錄編碼,建築區域,方位,屋面部位,細部分類,流水號,照片序號,工藝,備註,登記時間\n";
-        
+        csv += "完整登錄編碼,建築區域,方位,屋面部位,細部分類,流水號,照片序號,工藝形式(多選結果),備註,登記時間\n";
         window.allRecordsSaved.forEach(r => {
             const row = [
                 r.fullCode, r.area, r.direction, r.roofPos, r.compCode,
@@ -212,12 +167,9 @@
             ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
             csv += row + "\n";
         });
-        
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a"); 
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", 
-            `龍山寺普查大總匯統計表_${new Date().toLocaleDateString()}.csv`);
+        const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `龍山寺普查總匯報表_${new Date().toLocaleDateString()}.csv`);
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     };
 </script>
