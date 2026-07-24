@@ -19,6 +19,8 @@
         .btn-home { color: #9ca3af; text-decoration: none; 
         font-size: 14px; font-weight: bold; }
         .main-layout { display: flex; height: calc(100vh - 58px); }
+        
+        /* 左側大類別欄垂直滾動軸優化 */
         .sidebar { width: 140px; background: #1f2937; 
         display: flex; flex-direction: column; 
         border-right: 1px solid #374151; overflow-y: auto; 
@@ -28,7 +30,9 @@
         transition: all 0.2s; -webkit-user-select: none; }
         .category-btn.active { background: #ffbc0d; color: #111827; 
         font-weight: bold; }
-        .category-btn .text { font-size: 12px; display: block; line-height: 1.4; }
+        .category-btn .text { font-size: 12px; display: block; 
+        line-height: 1.4; }
+        
         .content-grid { flex: 1; padding: 20px; overflow-y: auto; 
         display: grid; grid-template-columns: repeat(auto-fill, 
         minmax(160px, 1fr)); gap: 16px; align-content: start; }
@@ -78,7 +82,7 @@
     <input type="file" id="displayImport" accept=".survey" style="display:none;">
 
     <div class="main-layout">
-        <!-- 🛠️ 語法大巡檢：完美修復好對稱結構與 RR 呼叫的 20 個殿區選單 -->
+        <!-- 左欄 20 個殿區觸控菜單 -->
         <div class="sidebar" id="sidebarMenu">
             <div class="category-btn active" onclick="window.filterArea('SH')"><span class="text">三川殿<br>(SH)</span></div>
             <div class="category-btn" onclick="window.filterArea('FL')"><span class="text">前殿龍門<br>(FL)</span></div>
@@ -102,11 +106,14 @@
             <div class="category-btn" onclick="window.filterArea('WH')"><span class="text">文昌殿<br>(WH)</span></div>
             <div class="category-btn" onclick="window.filterArea('PL')"><span class="text">牌樓<br>(PL)</span></div>
         </div>
+        
+        <!-- 右欄商品展示格網 -->
         <div class="content-grid" id="contentGrid">
             <div style="grid-column:1/-1; text-align:center; color:#6b7280; padding-top:50px;">💡 請先點擊右上角導入普查打包檔案 (.survey)</div>
         </div>
     </div>
 
+    <!-- 商品放大細節視窗 -->
     <div class="modal" id="detailModal" onclick="window.closeDetail()">
         <div class="modal-container" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="window.closeDetail()">×</button>
@@ -127,20 +134,23 @@
     window.displayRecords = [];
     window.currentSelectedArea = 'SH';
 
+    // 批量選取解析並導入檔案
     document.getElementById('displayImport').onchange = function(e) {
         const file = e.target.files; if (!file) return;
         const reader = new FileReader();
         reader.onload = function(evt) {
             try {
                 const parsed = JSON.parse(evt.target.result);
+                // 自動拆解解包大陣列
                 window.displayRecords = Array.isArray(parsed) ? parsed : [parsed];
-                alert(`🎉 展示機導入成功！共載入 ${window.displayRecords.length} 筆多選工藝卡片。`);
+                alert(`🎉 展示數據導入成功！共載入 ${window.displayRecords.length} 筆普查紀錄。`);
                 window.filterArea(window.currentSelectedArea);
-            } catch(err) {}
+            } catch(err) { alert("檔案讀取或解包出錯！"); }
         };
         reader.readAsText(file);
     };
 
+    // 篩選並渲染中間卡片
     window.filterArea = function(areaCode) {
         window.currentSelectedArea = areaCode;
         const buttons = document.querySelectorAll('.category-btn');
@@ -160,10 +170,12 @@
         filtered.forEach(r => {
             const card = document.createElement('div'); card.className = 'item-card';
             card.onclick = () => window.openDetail(r);
+            
+            // 💡 修正防呆：移除找不到的 prefix 變數，直接鎖定 LS
             card.innerHTML = `
                 <div class="img-box">${r.photo ? `<img src="${r.photo}">` : '<span class="no-pic">📷 無影像</span>'}</div>
                 <div class="info-box">
-                    <div class="code">${r.prefix}-${r.area}-${r.serial}</div>
+                    <div class="code">LS-${r.area}-${r.serial}</div>
                     <div class="title">方位：${r.direction} | 工藝：${r.craft}</div>
                 </div>
             `;
@@ -171,18 +183,26 @@
         });
     };
 
+    // 點擊觸控看大詳細
     window.openDetail = function(r) {
-        document.getElementById('mImg').src = r.photo || "";
-        document.getElementById('mImg').style.display = r.photo ? "block" : "none";
+        const imgEl = document.getElementById('mImg');
+        imgEl.src = r.photo || "";
+        imgEl.style.display = r.photo ? "block" : "none";
+        
         document.getElementById('mCode').innerText = r.fullCode;
         document.getElementById('mRoof').innerText = r.roofPos;
         document.getElementById('mComp').innerText = r.compCode;
         document.getElementById('mDir').innerText = r.direction;
-        document.getElementById('mCraft').innerText = r.craft;
-        document.getElementById('mNote').innerText = r.note ? `📝 調查描述：${r.note}` : "📝 現場無描述。";
+        document.getElementById('mCraft').innerText = r.craft; // 支援多選並列
+        document.getElementById('mNote').innerText = r.note ? 
+            `📝 調查描述：${r.note}` : "📝 現場無詳細描述。";
+            
         document.getElementById('detailModal').classList.add('active');
     };
-    window.closeDetail = function() { document.getElementById('detailModal').classList.remove('active'); };
+
+    window.closeDetail = function() { 
+        document.getElementById('detailModal').classList.remove('active'); 
+    };
 </script>
 </body>
 </html>
