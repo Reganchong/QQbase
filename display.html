@@ -20,6 +20,7 @@
         font-size: 14px; font-weight: bold; }
         .main-layout { display: flex; height: calc(100vh - 58px); }
         
+        /* 左側大類別欄垂直滾動軸優化 */
         .sidebar { width: 140px; background: #1f2937; 
         display: flex; flex-direction: column; 
         border-right: 1px solid #374151; overflow-y: auto; 
@@ -49,7 +50,6 @@
         font-weight: bold; color: #ffbc0d; font-size: 14px; }
         .item-card .info-box .title { font-size: 11px; color: #9ca3af; 
         margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        
         .modal { display: none; position: fixed; top: 0; left: 0; 
         width: 100%; height: 100%; background: rgba(0,0,0,0.85); 
         align-items: center; justify-content: center; z-index: 100; }
@@ -82,6 +82,7 @@
     <input type="file" id="displayImport" accept=".survey" style="display:none;">
 
     <div class="main-layout">
+        <!-- 左欄 20 個殿區觸控選單 -->
         <div class="sidebar" id="sidebarMenu">
             <div class="category-btn" id="btn-SH" onclick="window.filterArea('SH')"><span class="text">三川殿<br>(SH)</span></div>
             <div class="category-btn" id="btn-FL" onclick="window.filterArea('FL')"><span class="text">前殿龍門<br>(FL)</span></div>
@@ -105,11 +106,14 @@
             <div class="category-btn" id="btn-WH" onclick="window.filterArea('WH')"><span class="text">文昌殿<br>(WH)</span></div>
             <div class="category-btn" id="btn-PL" onclick="window.filterArea('PL')"><span class="text">牌樓<br>(PL)</span></div>
         </div>
+        
+        <!-- 右欄商品展示網格 -->
         <div class="content-grid" id="contentGrid">
             <div style="grid-column:1/-1; text-align:center; color:#6b7280; padding-top:50px;">💡 請先點擊右上角導入普查打包檔案 (.survey)</div>
         </div>
     </div>
 
+    <!-- 商品放大細節視窗 -->
     <div class="modal" id="detailModal" onclick="window.closeDetail()">
         <div class="modal-container" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="window.closeDetail()">×</button>
@@ -132,7 +136,7 @@
 
     // --- 1. 萬能大解包與強制大寫對齊防呆 ---
     document.getElementById('displayImport').onchange = function(e) {
-        const file = e.target.files[0]; 
+        const file = e.target.files; 
         if (!file) return;
 
         const reader = new FileReader();
@@ -141,14 +145,14 @@
                 const parsed = JSON.parse(evt.target.result);
                 window.displayRecords = Array.isArray(parsed) ? parsed : [parsed];
                 
-                // 清洗欄位，強制將大寫英文字對齊
+                // 強制大寫清洗對齊
                 window.displayRecords.forEach(r => {
                     if (r.area) r.area = String(r.area).toUpperCase().trim();
                 });
 
-                alert(`🎉 展示數據載入成功！共導入 ${window.displayRecords.length} 筆普查紀錄。`);
+                alert(`🎉 展示數據載入成功！\n共成功解包導入 ${window.displayRecords.length} 筆普查紀錄。`);
                 
-                // 貼心更新：導入後自動跳到第一個有資料的殿區
+                // 貼心自動跳轉：導入後自動跳到第一個有資料的殿區
                 if (window.displayRecords.length > 0) {
                     window.currentSelectedArea = window.displayRecords[0].area;
                 }
@@ -162,37 +166,34 @@
     window.filterArea = function(areaCode) {
         window.currentSelectedArea = areaCode;
         
-        // 精準利用 ID 來抽換側邊欄按鈕的黃色 active 狀態
+        // 點亮當前黃色 active 按鈕
         const buttons = document.querySelectorAll('.category-btn');
         buttons.forEach(btn => btn.classList.remove('active'));
         
         const activeBtn = document.getElementById('btn-' + areaCode);
         if (activeBtn) activeBtn.classList.add('active');
 
-        // 過濾數據
+        // 過濾殿區
         const filtered = window.displayRecords.filter(r => r.area === areaCode);
         const grid = document.getElementById('contentGrid'); 
         if (!grid) return; grid.innerHTML = "";
 
         if (filtered.length === 0) {
             grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; ` +
-            `color:#6b7280; padding-top:60px; font-size:14px;">` +
-            `📋 論文區域代碼 [${areaCode}] 目前此數據包內無物件資料</div>`;
+            `color:#6b7280; padding-top:50px; font-size:14px;">` +
+            `📋 論文區域代碼 [${areaCode}] 目前在此檔案內無對應數據</div>`;
             return;
         }
 
-        // 開始高效率生產商品網格卡片
+        // 開始建立卡片網格
         filtered.forEach(r => {
             const card = document.createElement('div'); 
             card.className = 'item-card';
             card.onclick = () => window.openDetail(r);
             
-            // 💡 終極修復：直接將 prefix 寫死為真實龍山寺 "LS" 代號，排除變數報錯
+            // 已完全消滅變數報錯、相容無影像提示的卡片結構
             card.innerHTML = `
-                <div class="img-box">
-                    ${r.photo ? `<img src="${r.photo}">` : 
-                    '<span class="no-pic">📷 無影像</span>'}
-                </div>
+                <div class="img-box">${r.photo ? `<img src="${r.photo}">` : '<span class="no-pic">📷 無影像</span>'}</div>
                 <div class="info-box">
                     <div class="code">LS-${r.area}-${r.serial || '000'}</div>
                     <div class="title">方位：${r.direction || '？'} | 工藝：${r.craft}</div>
@@ -202,7 +203,7 @@
         });
     };
 
-    // --- 3. 觸控放大詳細視窗 ---
+    // --- 3. 觸控看大詳細彈窗 ---
     window.openDetail = function(r) {
         const imgEl = document.getElementById('mImg');
         imgEl.src = r.photo || "";
@@ -223,7 +224,7 @@
         document.getElementById('detailModal').classList.remove('active'); 
     };
 
-    // --- 🚀 關鍵修復：網頁加載完畢後，強制執行初始化，破除空白死結 ---
+    // --- 4. 網頁加載完畢後，強制執行初始化啟動 ---
     window.onload = function() {
         window.filterArea(window.currentSelectedArea);
     };
