@@ -20,7 +20,6 @@
         font-size: 14px; font-weight: bold; }
         .main-layout { display: flex; height: calc(100vh - 58px); }
         
-        /* 左側大類別欄垂直滾動軸優化 */
         .sidebar { width: 140px; background: #1f2937; 
         display: flex; flex-direction: column; 
         border-right: 1px solid #374151; overflow-y: auto; 
@@ -50,6 +49,7 @@
         font-weight: bold; color: #ffbc0d; font-size: 14px; }
         .item-card .info-box .title { font-size: 11px; color: #9ca3af; 
         margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
         .modal { display: none; position: fixed; top: 0; left: 0; 
         width: 100%; height: 100%; background: rgba(0,0,0,0.85); 
         align-items: center; justify-content: center; z-index: 100; }
@@ -82,38 +82,34 @@
     <input type="file" id="displayImport" accept=".survey" style="display:none;">
 
     <div class="main-layout">
-        <!-- 左欄 20 個殿區觸控菜單 -->
         <div class="sidebar" id="sidebarMenu">
-            <div class="category-btn active" onclick="window.filterArea('SH')"><span class="text">三川殿<br>(SH)</span></div>
-            <div class="category-btn" onclick="window.filterArea('FL')"><span class="text">前殿龍門<br>(FL)</span></div>
-            <div class="category-btn" onclick="window.filterArea('FR')"><span class="text">前殿虎門<br>(FR)</span></div>
-            <div class="category-btn" onclick="window.filterArea('LC')"><span class="text">左下山前廊<br>(LC)</span></div>
-            <div class="category-btn" onclick="window.filterArea('RC')"><span class="text">右下山前廊<br>(RC)</span></div>
-            <div class="category-btn" onclick="window.filterArea('XL')"><span class="text">左下山護室<br>(XL)</span></div>
-            <div class="category-btn" onclick="window.filterArea('XR')"><span class="text">右下山護室<br>(XR)</span></div>
-            <div class="category-btn" onclick="window.filterArea('GL')"><span class="text">左過水廊<br>(GL)</span></div>
-            <div class="category-btn" onclick="window.filterArea('GR')"><span class="text">右過水廊<br>(GR)</span></div>
-            <div class="category-btn" onclick="window.filterArea('TL')"><span class="text">左頂山護室<br>(TL)</span></div>
-            <div class="category-btn" onclick="window.filterArea('TR')"><span class="text">右頂山護室<br>(TR)</span></div>
-            <div class="category-btn" onclick="window.filterArea('BT')"><span class="text">鐘樓<br>(BT)</span></div>
-            <div class="category-btn" onclick="window.filterArea('DT')"><span class="text">鼓樓<br>(DT)</span></div>
-            <div class="category-btn" onclick="window.filterArea('YH')"><span class="text">後殿月老廳<br>(YH)</span></div>
-            <div class="category-btn" onclick="window.filterArea('HH')"><span class="text">後殿華佗廳<br>(HH)</span></div>
-            <div class="category-btn" onclick="window.filterArea('RL')"><span class="text">後殿龍門<br>(RL)</span></div>
-            <div class="category-btn" onclick="window.filterArea('RR')"><span class="text">後殿虎門<br>(RR)</span></div>
-            <div class="category-btn" onclick="window.filterArea('TH')"><span class="text">聖母殿<br>(TH)</span></div>
-            <div class="category-btn" onclick="window.filterArea('GH')"><span class="text">關帝殿<br>(GH)</span></div>
-            <div class="category-btn" onclick="window.filterArea('WH')"><span class="text">文昌殿<br>(WH)</span></div>
-            <div class="category-btn" onclick="window.filterArea('PL')"><span class="text">牌樓<br>(PL)</span></div>
+            <div class="category-btn" id="btn-SH" onclick="window.filterArea('SH')"><span class="text">三川殿<br>(SH)</span></div>
+            <div class="category-btn" id="btn-FL" onclick="window.filterArea('FL')"><span class="text">前殿龍門<br>(FL)</span></div>
+            <div class="category-btn" id="btn-FR" onclick="window.filterArea('FR')"><span class="text">前殿虎門<br>(FR)</span></div>
+            <div class="category-btn" id="btn-LC" onclick="window.filterArea('LC')"><span class="text">左下山前廊<br>(LC)</span></div>
+            <div class="category-btn" id="btn-RC" onclick="window.filterArea('RC')"><span class="text">右下山前廊<br>(RC)</span></div>
+            <div class="category-btn" id="btn-XL" onclick="window.filterArea('XL')"><span class="text">左下山護室<br>(XL)</span></div>
+            <div class="category-btn" id="btn-XR" onclick="window.filterArea('XR')"><span class="text">右下山護室<br>(XR)</span></div>
+            <div class="category-btn" id="btn-GL" onclick="window.filterArea('GL')"><span class="text">左過水廊<br>(GL)</span></div>
+            <div class="category-btn" id="btn-GR" onclick="window.filterArea('GR')"><span class="text">右過水廊<br>(GR)</span></div>
+            <div class="category-btn" id="btn-TL" onclick="window.filterArea('TL')"><span class="text">左頂山護室<br>(TL)</span></div>
+            <div class="category-btn" id="btn-TR" onclick="window.filterArea('TR')"><span class="text">右頂山護室<br>(TR)</span></div>
+            <div class="category-btn" id="btn-BT" onclick="window.filterArea('BT')"><span class="text">鐘樓<br>(BT)</span></div>
+            <div class="category-btn" id="btn-DT" onclick="window.filterArea('DT')"><span class="text">鼓樓<br>(DT)</span></div>
+            <div class="category-btn" id="btn-YH" onclick="window.filterArea('YH')"><span class="text">後殿月老廳<br>(YH)</span></div>
+            <div class="category-btn" id="btn-HH" onclick="window.filterArea('HH')"><span class="text">後殿華佗廳<br>(HH)</span></div>
+            <div class="category-btn" id="btn-RL" onclick="window.filterArea('RL')"><span class="text">後殿龍門<br>(RL)</span></div>
+            <div class="category-btn" id="btn-RR" onclick="window.filterArea('RR')"><span class="text">後殿虎門<br>(RR)</span></div>
+            <div class="category-btn" id="btn-TH" onclick="window.filterArea('TH')"><span class="text">聖母殿<br>(TH)</span></div>
+            <div class="category-btn" id="btn-GH" onclick="window.filterArea('GH')"><span class="text">關帝殿<br>(GH)</span></div>
+            <div class="category-btn" id="btn-WH" onclick="window.filterArea('WH')"><span class="text">文昌殿<br>(WH)</span></div>
+            <div class="category-btn" id="btn-PL" onclick="window.filterArea('PL')"><span class="text">牌樓<br>(PL)</span></div>
         </div>
-        
-        <!-- 右欄商品展示格網 -->
         <div class="content-grid" id="contentGrid">
             <div style="grid-column:1/-1; text-align:center; color:#6b7280; padding-top:50px;">💡 請先點擊右上角導入普查打包檔案 (.survey)</div>
         </div>
     </div>
 
-    <!-- 商品放大細節視窗 -->
     <div class="modal" id="detailModal" onclick="window.closeDetail()">
         <div class="modal-container" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="window.closeDetail()">×</button>
@@ -134,66 +130,89 @@
     window.displayRecords = [];
     window.currentSelectedArea = 'SH';
 
-    // 批量選取解析並導入檔案
+    // --- 1. 萬能大解包與強制大寫對齊防呆 ---
     document.getElementById('displayImport').onchange = function(e) {
-        const file = e.target.files; if (!file) return;
+        const file = e.target.files[0]; 
+        if (!file) return;
+
         const reader = new FileReader();
         reader.onload = function(evt) {
             try {
                 const parsed = JSON.parse(evt.target.result);
-                // 自動拆解解包大陣列
                 window.displayRecords = Array.isArray(parsed) ? parsed : [parsed];
-                alert(`🎉 展示數據導入成功！共載入 ${window.displayRecords.length} 筆普查紀錄。`);
+                
+                // 清洗欄位，強制將大寫英文字對齊
+                window.displayRecords.forEach(r => {
+                    if (r.area) r.area = String(r.area).toUpperCase().trim();
+                });
+
+                alert(`🎉 展示數據載入成功！共導入 ${window.displayRecords.length} 筆普查紀錄。`);
+                
+                // 貼心更新：導入後自動跳到第一個有資料的殿區
+                if (window.displayRecords.length > 0) {
+                    window.currentSelectedArea = window.displayRecords[0].area;
+                }
                 window.filterArea(window.currentSelectedArea);
-            } catch(err) { alert("檔案讀取或解包出錯！"); }
+            } catch(err) { alert("❌ 檔案解析失敗！"); }
         };
         reader.readAsText(file);
     };
 
-    // 篩選並渲染中間卡片
+    // --- 2. 麥當勞式點選大類別過濾渲染引擎 ---
     window.filterArea = function(areaCode) {
         window.currentSelectedArea = areaCode;
+        
+        // 精準利用 ID 來抽換側邊欄按鈕的黃色 active 狀態
         const buttons = document.querySelectorAll('.category-btn');
-        buttons.forEach(btn => {
-            if (btn.getAttribute('onclick').includes(`'${areaCode}'`)) { btn.classList.add('active'); } 
-            else { btn.classList.remove('active'); }
-        });
+        buttons.forEach(btn => btn.classList.remove('active'));
+        
+        const activeBtn = document.getElementById('btn-' + areaCode);
+        if (activeBtn) activeBtn.classList.add('active');
 
+        // 過濾數據
         const filtered = window.displayRecords.filter(r => r.area === areaCode);
-        const grid = document.getElementById('contentGrid'); if (!grid) return; grid.innerHTML = "";
+        const grid = document.getElementById('contentGrid'); 
+        if (!grid) return; grid.innerHTML = "";
 
         if (filtered.length === 0) {
-            grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#6b7280; padding-top:50px;">📋 該殿區目前尚無普查數據</div>`;
+            grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; ` +
+            `color:#6b7280; padding-top:60px; font-size:14px;">` +
+            `📋 論文區域代碼 [${areaCode}] 目前此數據包內無物件資料</div>`;
             return;
         }
 
+        // 開始高效率生產商品網格卡片
         filtered.forEach(r => {
-            const card = document.createElement('div'); card.className = 'item-card';
+            const card = document.createElement('div'); 
+            card.className = 'item-card';
             card.onclick = () => window.openDetail(r);
             
-            // 💡 修正防呆：移除找不到的 prefix 變數，直接鎖定 LS
+            // 💡 終極修復：直接將 prefix 寫死為真實龍山寺 "LS" 代號，排除變數報錯
             card.innerHTML = `
-                <div class="img-box">${r.photo ? `<img src="${r.photo}">` : '<span class="no-pic">📷 無影像</span>'}</div>
+                <div class="img-box">
+                    ${r.photo ? `<img src="${r.photo}">` : 
+                    '<span class="no-pic">📷 無影像</span>'}
+                </div>
                 <div class="info-box">
-                    <div class="code">LS-${r.area}-${r.serial}</div>
-                    <div class="title">方位：${r.direction} | 工藝：${r.craft}</div>
+                    <div class="code">LS-${r.area}-${r.serial || '000'}</div>
+                    <div class="title">方位：${r.direction || '？'} | 工藝：${r.craft}</div>
                 </div>
             `;
             grid.appendChild(card);
         });
     };
 
-    // 點擊觸控看大詳細
+    // --- 3. 觸控放大詳細視窗 ---
     window.openDetail = function(r) {
         const imgEl = document.getElementById('mImg');
         imgEl.src = r.photo || "";
         imgEl.style.display = r.photo ? "block" : "none";
         
-        document.getElementById('mCode').innerText = r.fullCode;
-        document.getElementById('mRoof').innerText = r.roofPos;
-        document.getElementById('mComp').innerText = r.compCode;
-        document.getElementById('mDir').innerText = r.direction;
-        document.getElementById('mCraft').innerText = r.craft; // 支援多選並列
+        document.getElementById('mCode').innerText = r.fullCode || "LS-ERROR";
+        document.getElementById('mRoof').innerText = r.roofPos || "？";
+        document.getElementById('mComp').innerText = r.compCode || "？";
+        document.getElementById('mDir').innerText = r.direction || "？";
+        document.getElementById('mCraft').innerText = r.craft; 
         document.getElementById('mNote').innerText = r.note ? 
             `📝 調查描述：${r.note}` : "📝 現場無詳細描述。";
             
@@ -202,6 +221,11 @@
 
     window.closeDetail = function() { 
         document.getElementById('detailModal').classList.remove('active'); 
+    };
+
+    // --- 🚀 關鍵修復：網頁加載完畢後，強制執行初始化，破除空白死結 ---
+    window.onload = function() {
+        window.filterArea(window.currentSelectedArea);
     };
 </script>
 </body>
