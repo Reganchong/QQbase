@@ -222,6 +222,44 @@
             </div>
         </div>
 
+        <div class="form-group" style="margin-top: 15px;">
+            <label>📷 調查影像 (選填)</label>
+            <input type="file" id="photo" accept="image/*">
+            <div class="preview-container" id="previewContainer">
+                <img id="imagePreview" src="" alt="預覽">
+            </div>
+        </div>
+
+        <!-- 🚀 完美接回：漏掉的題材內容備註說明的輸入欄位 -->
+        <div class="form-group" style="margin-top: 15px;">
+            <label>📝 題材內容 / 保存狀況備註</label>
+            <textarea id="note" rows="2" 
+            placeholder="請輸入細部觀察描述..."></textarea>
+        </div>
+
+        <!-- 🚀 完美接回：漏掉的返回第一步與暫存按鈕群組 -->
+        <div class="btn-group">
+            <button type="button" class="btn-nav" 
+            onclick="switchPage(1)">⬅️ 返回第一步</button>
+            <button type="button" class="btn-submit" 
+            onclick="saveToTemporaryList()">💾 暫存此筆普查數據</button>
+        </div>
+
+        <!-- 🚀 完美接回：漏掉的第二頁下方實時暫存列表與大打包下載按鈕 -->
+        <div class="history">
+            <div class="history-header" style="display:flex; 
+            justify-content:space-between; align-items:center;">
+                <h2>📝 本次連續登錄暫存區 (<span id="tempCount">0</span> 筆)</h2>
+                <button type="button" class="btn-export" 
+                onclick="downloadBulkPackFile()">📦 打包下載全部暫存</button>
+            </div>
+            <div id="tempDataList"></div>
+        </div>
+        
+        <a href="index.html" class="btn-home">🏠 結束登錄，回首頁</a>
+    </div> <!-- 完美閉合 page2 -->
+</div> <!-- 完美閉合 container 最外層大容器 -->
+
 
 
 <script>
