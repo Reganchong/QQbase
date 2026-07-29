@@ -4,244 +4,250 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>龍山寺傳統裝飾互動展示機</title>
+    <!-- 這裡稍後會置入第二部分的 CSS 樣式表 -->
     <style>
-        body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: #111827;
-    color: #f9fafb;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-}
-.top-bar {
-    background: #1f2937;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 3px solid #ffbc0d;
-}
-.top-bar h1 {
-    margin: 0;
-    font-size: 20px;
-    color: #ffbc0d;
-    flex-grow: 1;
-    text-align: center;
-}
-.btn-group {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-.btn-import {
-    background: #ffbc0d;
-    color: #111827;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 20px;
-    font-weight: bold;
-    cursor: pointer;
-}
-/* 🔄 重新整理按鈕獨有視覺樣式 */
-.btn-refresh {
-    background: #374151;
-    color: #ffbc0d;
-    padding: 8px 14px;
-    border: 1px solid #ffbc0d;
-    border-radius: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    display: none; /* 初始隱藏，待 JS 觸獲後方亮起 */
-    transition: all 0.2s;
-}
-.btn-refresh:active {
-    background: #4b5563;
-    transform: scale(0.95);
-}
-.btn-home {
-    color: #9ca3af;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: bold;
-    min-width: 80px;
-}
-.main-layout {
-    display: flex;
-    height: calc(100vh - 58px);
-}
-.sidebar {
-    width: 140px;
-    background: #1f2937;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid #374151;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
-.category-btn {
-    padding: 16px 8px;
-    text-align: center;
-    cursor: pointer;
-    border-bottom: 1px solid #374151;
-    transition: all 0.2s;
-    -webkit-user-select: none;
-    display: none; /* 🚀 初始全隱藏 */
-}
-.category-btn.active {
-    background: #ffbc0d;
-    color: #111827;
-    font-weight: bold;
-}
-.category-btn .text {
-    font-size: 12px;
-    display: block;
-    line-height: 1.4;
-}
-.content-grid {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 16px;
-    align-content: start;
-    transition: opacity 0.15s ease-in-out; /* 用於手動重整時的漸變效果 */
-}
-.item-card {
-    background: #1f2937;
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: pointer;
-    border: 2px solid transparent;
-    transition: all 0.2s;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-}
-.item-card:active { transform: scale(0.97); }
-.item-card .img-box {
-    width: 100%;
-    height: 120px;
-    background: #374151;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.item-card .img-box img { width: 100%; height: 100%; object-fit: cover; }
-.item-card .img-box .no-pic { color: #6b7280; font-size: 12px; }
-.item-card .info-box { padding: 12px; text-align: center; }
-.item-card .info-box .code { font-family: monospace; font-weight: bold; color: #ffbc0d; font-size: 14px; }
-.item-card .info-box .title {
-    font-size: 11px;
-    color: #9ca3af;
-    margin-top: 4px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.modal {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85);
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-}
-.modal.active { display: flex; }
-.modal-container {
-    background: #1f2937;
-    width: 90%; max-width: 500px;
-    border-radius: 16px; overflow: hidden;
-    border: 2px solid #ffbc0d; position: relative;
-}
-.modal-close {
-    position: absolute; top: 15px; right: 15px;
-    background: #ffbc0d; color: #111827;
-    border: none; width: 32px; height: 32px;
-    border-radius: 50%; font-weight: bold; font-size: 18px; cursor: pointer;
-}
-.modal-img { width: 100%; max-height: 250px; object-fit: cover; background: #111827; }
-.modal-body { padding: 20px; }
-.modal-title { font-size: 22px; color: #ffbc0d; font-family: monospace; margin: 0 0 15px 0; }
-.modal-meta {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-    font-size: 14px; margin-bottom: 15px;
-    border-bottom: 1px solid #374151; padding-bottom: 15px;
-}
-.meta-label { color: #9ca3af; }
-.meta-val { color: #f9fafb; font-weight: bold; }
-.modal-note { background: #111827; padding: 12px; border-radius: 8px; font-size: 14px; color: #cbd5e1; line-height: 1.5; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background-color: #111827;
+        color: #f9fafb;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    .top-bar {
+        background: #1f2937;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 3px solid #ffbc0d;
+    }
+    .top-bar h1 {
+        margin: 0;
+        font-size: 20px;
+        color: #ffbc0d;
+        flex-grow: 1;
+        text-align: center;
+    }
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    .btn-import {
+        background: #ffbc0d;
+        color: #111827;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    /* 🔄 重新整理按鈕專屬樣式 */
+    .btn-refresh {
+        background: #374151;
+        color: #ffbc0d;
+        padding: 8px 14px;
+        border: 1px solid #ffbc0d;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        display: none; /* 初始隱藏，待資料包解包完成才解除鎖定 */
+        transition: all 0.2s;
+    }
+    .btn-refresh:active {
+        background: #4b5563;
+        transform: scale(0.95);
+    }
+    .btn-home {
+        color: #9ca3af;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+        min-width: 80px;
+    }
+    .main-layout {
+        display: flex;
+        height: calc(100vh - 58px);
+    }
+    .sidebar {
+        width: 140px;
+        background: #1f2937;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #374151;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .category-btn {
+        padding: 16px 8px;
+        text-align: center;
+        cursor: pointer;
+        border-bottom: 1px solid #374151;
+        transition: all 0.2s;
+        -webkit-user-select: none;
+        display: none; /* 🚀 預設隱藏，避免畫面太空 */
+    }
+    .category-btn.active {
+        background: #ffbc0d;
+        color: #111827;
+        font-weight: bold;
+    }
+    .category-btn .text {
+        font-size: 12px;
+        display: block;
+        line-height: 1.4;
+    }
+    .content-grid {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 16px;
+        align-content: start;
+        transition: opacity 0.15s ease-in-out; /* 用於手動重整時的畫面淡入淡出特效 */
+    }
+    .item-card {
+        background: #1f2937;
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.2s;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+    .item-card:active { transform: scale(0.97); }
+    .item-card .img-box {
+        width: 100%;
+        height: 120px;
+        background: #374151;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .item-card .img-box img { width: 100%; height: 100%; object-fit: cover; }
+    .item-card .img-box .no-pic { color: #6b7280; font-size: 12px; }
+    .item-card .info-box { padding: 12px; text-align: center; }
+    .item-card .info-box .code { font-family: monospace; font-weight: bold; color: #ffbc0d; font-size: 14px; }
+    .item-card .info-box .title {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-top: 4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85);
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+    }
+    .modal.active { display: flex; }
+    .modal-container {
+        background: #1f2937;
+        width: 90%; max-width: 500px;
+        border-radius: 16px; overflow: hidden;
+        border: 2px solid #ffbc0d; position: relative;
+    }
+    .modal-close {
+        position: absolute; top: 15px; right: 15px;
+        background: #ffbc0d; color: #111827;
+        border: none; width: 32px; height: 32px;
+        border-radius: 50%; font-weight: bold; font-size: 18px; cursor: pointer;
+    }
+    .modal-img { width: 100%; max-height: 250px; object-fit: cover; background: #111827; }
+    .modal-body { padding: 20px; }
+    .modal-title { font-size: 22px; color: #ffbc0d; font-family: monospace; margin: 0 0 15px 0; }
+    .modal-meta {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        font-size: 14px; margin-bottom: 15px;
+        border-bottom: 1px solid #374151; padding-bottom: 15px;
+    }
+    .meta-label { color: #9ca3af; }
+    .meta-val { color: #f9fafb; font-weight: bold; }
+    .modal-note { background: #111827; padding: 12px; border-radius: 8px; font-size: 14px; color: #cbd5e1; line-height: 1.5; }
+</style>
 
-    </style>
 </head>
 <body>
+
+    <!-- 頂部功能列 -->
     <div class="top-bar">
-    <a href="index.html" class="btn-home">⬅ 離開展示</a>
-    <h1>🏛️ 龍山寺文資互動展示機</h1>
-    <div class="btn-group">
-        <!-- 🔄 重新整理按鈕：初始隱藏，導入成功後自動亮起 -->
-        <button type="button" id="btnRefresh" class="btn-refresh" onclick="window.refreshDisplay()">🔄 重新整理</button>
-        <button type="button" class="btn-import" onclick="document.getElementById('displayImport').click()">📂 導入數據包</button>
-    </div>
-</div>
-<!-- 隱藏的檔案上傳控制項 -->
-<input type="file" id="displayImport" accept=".survey" style="display:none;">
-
-<div class="main-layout">
-    <!-- 左欄 20 個官方學術殿區選單（初始由 CSS 隱藏，靠 JS 依據資料動態點亮） -->
-    <div class="sidebar" id="sidebarMenu">
-        <div class="category-btn" id="btn-SH" onclick="window.filterArea('SH')"><span class="text">三川殿<br>(SH)</span></div>
-        <div class="category-btn" id="btn-FL" onclick="window.filterArea('FL')"><span class="text">前殿龍門<br>(FL)</span></div>
-        <div class="category-btn" id="btn-FR" onclick="window.filterArea('FR')"><span class="text">前殿虎門<br>(FR)</span></div>
-        <div class="category-btn" id="btn-LC" onclick="window.filterArea('LC')"><span class="text">左下山前廊<br>(LC)</span></div>
-        <div class="category-btn" id="btn-RC" onclick="window.filterArea('RC')"><span class="text">右下山前廊<br>(RC)</span></div>
-        <div class="category-btn" id="btn-XL" onclick="window.filterArea('XL')"><span class="text">左下山護室<br>(XL)</span></div>
-        <div class="category-btn" id="btn-XR" onclick="window.filterArea('XR')"><span class="text">右下山護室<br>(XR)</span></div>
-        <div class="category-btn" id="btn-GL" onclick="window.filterArea('GL')"><span class="text">左過水廊<br>(GL)</span></div>
-        <div class="category-btn" id="btn-GR" onclick="window.filterArea('GR')"><span class="text">右過水廊<br>(GR)</span></div>
-        <div class="category-btn" id="btn-TL" onclick="window.filterArea('TL')"><span class="text">左頂山護室<br>(TL)</span></div>
-        <div class="category-btn" id="btn-TR" onclick="window.filterArea('TR')"><span class="text">右頂山護室<br>(TR)</span></div>
-        <div class="category-btn" id="btn-BT" onclick="window.filterArea('BT')"><span class="text">鐘樓<br>(BT)</span></div>
-        <div class="category-btn" id="btn-DT" onclick="window.filterArea('DT')"><span class="text">鼓樓<br>(DT)</span></div>
-        <div class="category-btn" id="btn-YH" onclick="window.filterArea('YH')"><span class="text">後殿月老廳<br>(YH)</span></div>
-        <div class="category-btn" id="btn-HH" onclick="window.filterArea('HH')"><span class="text">後殿華佗廳<br>(HH)</span></div>
-        <div class="category-btn" id="btn-RL" onclick="window.filterArea('RL')"><span class="text">後殿龍門<br>(RL)</span></div>
-        <div class="category-btn" id="btn-RR" onclick="window.filterArea('RR')"><span class="text">後殿虎門<br>(RR)</span></div>
-        <div class="category-btn" id="btn-TH" onclick="window.filterArea('TH')"><span class="text">聖母殿<br>(TH)</span></div>
-        <div class="category-btn" id="btn-GH" onclick="window.filterArea('GH')"><span class="text">關帝殿<br>(GH)</span></div>
-        <div class="category-btn" id="btn-WH" onclick="window.filterArea('WH')"><span class="text">文昌殿<br>(WH)</span></div>
-        <div class="category-btn" id="btn-PL" onclick="window.filterArea('PL')"><span class="text">牌樓<br>(PL)</span></div>
-    </div>
-    
-    <!-- 右欄 內容展示格 -->
-    <div class="content-grid" id="contentGrid">
-        <div style="grid-column:1/-1; text-align:center; color:#6b7280; padding-top:50px;">💡 請先點擊右上角導入普查打包檔案 (.survey)</div>
-    </div>
-</div>
-
-<!-- 商品詳情放大視窗（點擊深色背景或叉叉皆可關閉） -->
-<div class="modal" id="detailModal" onclick="window.closeDetail()">
-    <div class="modal-container" onclick="event.stopPropagation()">
-        <button class="modal-close" onclick="window.closeDetail()">×</button>
-        <img id="mImg" class="modal-img" src="">
-        <div class="modal-body">
-            <div id="mCode" class="modal-title"></div>
-            <div class="modal-meta">
-                <div><span class="meta-label">屋面部位:</span> <span id="mRoof" class="meta-val"></span></div>
-                <div><span class="meta-label">細部分類:</span> <span id="mComp" class="meta-val"></span></div>
-                <div><span class="meta-label">朝向方位:</span> <span id="mDir" class="meta-val"></span></div>
-                <div><span class="meta-label">形式工藝:</span> <span id="mCraft" class="meta-val"></span></div>
-            </div>
-            <div id="mNote" class="modal-note"></div>
+        <a href="index.html" class="btn-home">⬅ 離開展示</a>
+        <h1>🏛️ 龍山寺文資互動展示機</h1>
+        <div class="btn-group">
+            <!-- 🔄 重新整理按鈕：初始隱藏，導入成功後自動亮起 -->
+            <button type="button" id="btnRefresh" class="btn-refresh" onclick="window.refreshDisplay()">🔄 重新整理</button>
+            <button type="button" class="btn-import" onclick="document.getElementById('displayImport').click()">📂 導入數據包</button>
         </div>
     </div>
-</div>
+    
+    <!-- 隱藏的實體檔案上傳控制項 -->
+    <input type="file" id="displayImport" accept=".survey" style="display:none;">
 
-<script>
+    <!-- 主版面配置 -->
+    <div class="main-layout">
+        <!-- 左欄：20 個官方學術殿區選單（初始全隱藏，靠 JS 依據資料包動態點亮） -->
+        <div class="sidebar" id="sidebarMenu">
+            <div class="category-btn" id="btn-SH" onclick="window.filterArea('SH')"><span class="text">三川殿<br>(SH)</span></div>
+            <div class="category-btn" id="btn-FL" onclick="window.filterArea('FL')"><span class="text">前殿龍門<br>(FL)</span></div>
+            <div class="category-btn" id="btn-FR" onclick="window.filterArea('FR')"><span class="text">前殿虎門<br>(FR)</span></div>
+            <div class="category-btn" id="btn-LC" onclick="window.filterArea('LC')"><span class="text">左下山前廊<br>(LC)</span></div>
+            <div class="category-btn" id="btn-RC" onclick="window.filterArea('RC')"><span class="text">右下山前廊<br>(RC)</span></div>
+            <div class="category-btn" id="btn-XL" onclick="window.filterArea('XL')"><span class="text">左下山護室<br>(XL)</span></div>
+            <div class="category-btn" id="btn-XR" onclick="window.filterArea('XR')"><span class="text">右下山護室<br>(XR)</span></div>
+            <div class="category-btn" id="btn-GL" onclick="window.filterArea('GL')"><span class="text">左過水廊<br>(GL)</span></div>
+            <div class="category-btn" id="btn-GR" onclick="window.filterArea('GR')"><span class="text">右過水廊<br>(GR)</span></div>
+            <div class="category-btn" id="btn-TL" onclick="window.filterArea('TL')"><span class="text">左頂山護室<br>(TL)</span></div>
+            <div class="category-btn" id="btn-TR" onclick="window.filterArea('TR')"><span class="text">右頂山護室<br>(TR)</span></div>
+            <div class="category-btn" id="btn-BT" onclick="window.filterArea('BT')"><span class="text">鐘樓<br>(BT)</span></div>
+            <div class="category-btn" id="btn-DT" onclick="window.filterArea('DT')"><span class="text">鼓樓<br>(DT)</span></div>
+            <div class="category-btn" id="btn-YH" onclick="window.filterArea('YH')"><span class="text">後殿月老廳<br>(YH)</span></div>
+            <div class="category-btn" id="btn-HH" onclick="window.filterArea('HH')"><span class="text">後殿華佗廳<br>(HH)</span></div>
+            <div class="category-btn" id="btn-RL" onclick="window.filterArea('RL')"><span class="text">後殿龍門<br>(RL)</span></div>
+            <div class="category-btn" id="btn-RR" onclick="window.filterArea('RR')"><span class="text">後殿虎門<br>(RR)</span></div>
+            <div class="category-btn" id="btn-TH" onclick="window.filterArea('TH')"><span class="text">聖母殿<br>(TH)</span></div>
+            <div class="category-btn" id="btn-GH" onclick="window.filterArea('GH')"><span class="text">關帝殿<br>(GH)</span></div>
+            <div class="category-btn" id="btn-WH" onclick="window.filterArea('WH')"><span class="text">文昌殿<br>(WH)</span></div>
+            <div class="category-btn" id="btn-PL" onclick="window.filterArea('PL')"><span class="text">牌樓<br>(PL)</span></div>
+        </div>
+        
+        <!-- 右欄：內容卡片展示格 -->
+        <div class="content-grid" id="contentGrid">
+            <div style="grid-column:1/-1; text-align:center; color:#6b7280; padding-top:50px;">💡 請先點擊右上角導入普查打包檔案 (.survey)</div>
+        </div>
+    </div>
+
+    <!-- 全螢幕詳情放大視窗（點擊深色背景或叉叉皆可關閉） -->
+    <div class="modal" id="detailModal" onclick="window.closeDetail()">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="window.closeDetail()">×</button>
+            <img id="mImg" class="modal-img" src="">
+            <div class="modal-body">
+                <div id="mCode" class="modal-title"></div>
+                <div class="modal-meta">
+                    <div><span class="meta-label">屋面部位:</span> <span id="mRoof" class="meta-val"></span></div>
+                    <div><span class="meta-label">細部分類:</span> <span id="mComp" class="meta-val"></span></div>
+                    <div><span class="meta-label">朝向方位:</span> <span id="mDir" class="meta-val"></span></div>
+                    <div><span class="meta-label">形式工藝:</span> <span id="mCraft" class="meta-val"></span></div>
+                </div>
+                <div id="mNote" class="modal-note"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 這裡稍後會置入第三部分的 JavaScript 核心邏輯 -->
+    <script>
     window.displayRecords = [];
     window.currentSelectedArea = '';
 
-    // --- 1. 數據上傳解包監聽器 ---
+    // --- 1. 萬能大解包監聽器 ---
     document.getElementById('displayImport').onchange = function(e) {
         const file = e.target.files; 
         if (!file || file.length === 0) return;
@@ -252,41 +258,41 @@
                 const parsed = JSON.parse(evt.target.result);
                 window.displayRecords = Array.isArray(parsed) ? parsed : [parsed];
                 
-                // 大寫清洗對齊防呆
+                // 大寫清洗與去空格防呆
                 window.displayRecords.forEach(r => {
                     if (r.area) r.area = String(r.area).toUpperCase().trim();
                 });
 
                 alert(`🎉 展示數據導入成功！\n共成功解析顯示 ${window.displayRecords.length} 筆普查紀錄。`);
                 
-                // 🚀 自動重整核心：解決上傳後畫面卡住不顯示的問題
+                // 🚀 解包成功後立刻「自動重整」，打破剛上傳不顯示的死結
                 window.refreshDisplay(true);
                 
             } catch(err) { 
-                alert("❌ 檔案解析失敗！請確認檔案格式是否正確。"); 
+                alert("❌ 檔案解析失敗！請確認檔案內部是否為標準 JSON 格式。"); 
                 console.error(err);
             }
         };
         reader.readAsText(file);
     };
 
-    // --- 2. 核心重整與強制渲染機制 ---
+    // --- 🚀 2. 獨立重整與強制渲染核心核心機制 ---
     window.refreshDisplay = function(isAutoTrigger = false) {
         if (!window.displayRecords || window.displayRecords.length === 0) {
             if(!isAutoTrigger) alert("📋 目前尚未載入任何數據，請先導入 .survey 檔案。");
             return;
         }
 
-        // 亮起重整按鈕
+        // 解鎖顯示右上角的「重新整理」按鈕
         document.getElementById('btnRefresh').style.display = 'block';
 
-        // 重新檢索有資料的殿區
+        // 重新掃描目前資料包內擁有哪些殿區代碼
         const existingAreas = new Set();
         window.displayRecords.forEach(r => {
             if (r.area) existingAreas.add(r.area);
         });
 
-        // 動態重繪左側選單開關
+        // 動態刷新左側選單：只顯示有資料的殿區，其餘隱藏並清除選取狀態
         document.querySelectorAll('.category-btn').forEach(btn => {
             const areaId = btn.id.replace('btn-', '');
             if (existingAreas.has(areaId)) {
@@ -297,19 +303,19 @@
             }
         });
 
-        // 重新計算並強制導向可用殿區
+        // 重新檢索導向
         if (existingAreas.size > 0) {
             const areaArray = Array.from(existingAreas);
             
-            // 防呆：原選區遺失或首次載入時，自動抓取 Set 的第一個字串區域
+            // 【修復點】：若為首次導入或原選區在舊資料包中不存在，強制抓取 Set 第一個字串字首（如 "SH"）
             if (!window.currentSelectedArea || !existingAreas.has(window.currentSelectedArea)) {
                 window.currentSelectedArea = areaArray[0];
             }
             
-            // 執行資料過濾與網格重繪
+            // 強制呼叫過濾與網格卡片重繪
             window.filterArea(window.currentSelectedArea);
             
-            // 若為使用者手動點擊「重新整理」，則加入短暫淡入淡出動畫作為回饋
+            // 觸覺回饋：若是人工手動點擊「重新整理」，則加入網格短暫閃動淡入特效
             if(!isAutoTrigger) {
                 const grid = document.getElementById('contentGrid');
                 grid.style.opacity = '0.3';
@@ -321,11 +327,11 @@
         }
     };
 
-    // --- 3. 殿區卡片過濾與網格渲染 ---
+    // --- 3. 殿區卡片過濾與網格重繪 ---
     window.filterArea = function(areaCode) {
         window.currentSelectedArea = areaCode;
         
-        // 點亮黃色選取效果
+        // 高亮當前被選取的黃色按鈕
         document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
         const activeBtn = document.getElementById('btn-' + areaCode);
         if (activeBtn) activeBtn.classList.add('active');
@@ -338,7 +344,7 @@
             return;
         }
 
-        // 迴圈動態插入文資卡片
+        // 動態拼裝 DOM 網格卡片
         filtered.forEach(r => {
             const card = document.createElement('div'); card.className = 'item-card';
             card.onclick = () => window.openDetail(r);
@@ -353,7 +359,7 @@
         });
     };
 
-    // --- 4. 觸控放大詳細視窗控制 ---
+    // --- 4. 詳細資訊彈出視窗控制 ---
     window.openDetail = function(r) {
         const imgEl = document.getElementById('mImg');
         imgEl.src = r.photo || ""; 
@@ -373,15 +379,12 @@
         document.getElementById('detailModal').classList.remove('active'); 
     };
 
-    // --- 5. 系統底層初始安全鎖 ---
+    // --- 5. 初始載入安全防禦鎖 ---
     window.onload = function() {
         document.querySelectorAll('.category-btn').forEach(btn => btn.style.display = 'none');
-        document.getElementById('btnRefresh').style.display = 'none'; // 靜待檔案匯入後解鎖
+        document.getElementById('btnRefresh').style.display = 'none'; // 靜待檔案匯入後方才解鎖
     };
 </script>
 
 </body>
 </html>
-
-
-
