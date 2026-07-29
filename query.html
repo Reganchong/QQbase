@@ -2,52 +2,126 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, 
-    initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>普查系統 - 歷史數據查詢</title>
     <style>
-        body { font-family: -apple-system, sans-serif; 
-        background-color: #f5f5f7; color: #1d1d1f; 
-        margin: 0; padding: 15px; }
-        .container { max-width: 900px; margin: 0 auto; 
-        background: white; padding: 24px; border-radius: 16px; 
-        box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
-        h1 { font-size: 22px; text-align: center; 
-        margin-bottom: 20px; color: #1a365d; }
-        .history-header { display: flex; 
-        justify-content: space-between; align-items: center; 
-        margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; 
-        padding-bottom: 15px; }
-        .btn-submit { background-color: #2b6cb0; color: white; 
-        padding: 10px 18px; border: none; border-radius: 8px; 
-        font-weight: bold; cursor: pointer; }
-        .btn-export { background-color: #38a169; color: white; 
-        padding: 10px 18px; border: none; border-radius: 8px; 
-        font-weight: bold; cursor: pointer; margin-left: 8px; }
-        .btn-home { background-color: #1a365d; color: white; 
-        margin-top: 25px; width: 100%; display: block; 
-        text-align: center; text-decoration: none; 
-        padding: 15px 0; border-radius: 8px; font-weight: bold; }
-        .table-responsive { width: 100%; overflow-x: auto; 
-        margin-bottom: 30px; background: #fff; 
-        border-radius: 8px; border: 1px solid #cbd5e0; }
-        table { width: 100%; border-collapse: collapse; 
-        text-align: left; font-size: 13px; min-width: 650px; }
-        th { background-color: #edf2f7; color: #2d3748; 
-        font-weight: 700; padding: 10px; 
-        border-bottom: 2px solid #cbd5e0; }
-        td { padding: 10px; border-bottom: 1px solid #e2e8f0; 
-        color: #4a5568; word-break: break-all; }
-        tr:nth-child(even) { background-color: #f7fafc; }
-        .data-card { background: #f7fafc; padding: 15px; 
-        border-radius: 10px; margin-bottom: 12px; 
-        border-left: 6px solid #2b6cb0; font-size: 14px; 
-        position: relative; }
-        .data-card img { max-width: 150px; display: block; 
-        margin-top: 10px; border-radius: 6px; }
-        .delete-btn { position: absolute; top: 15px; right: 15px; 
-        color: #e53e3e; cursor: pointer; font-weight: bold; 
-        border: none; background: none; font-size: 15px; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        h1 {
+            font-size: 22px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #1a365d;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+        }
+        .btn-submit {
+            background-color: #2b6cb0;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-export {
+            background-color: #38a169;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+        .btn-home {
+            background-color: #1a365d;
+            color: white;
+            margin-top: 25px;
+            width: 100%;
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            padding: 15px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 30px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #cbd5e0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
+            min-width: 650px;
+        }
+        th {
+            background-color: #edf2f7;
+            color: #2d3748;
+            font-weight: 700;
+            padding: 10px;
+            border-bottom: 2px solid #cbd5e0;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+            word-break: break-all;
+        }
+        tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+        .data-card {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border-left: 6px solid #2b6cb0;
+            font-size: 14px;
+            position: relative;
+        }
+        .data-card img {
+            max-width: 150px;
+            display: block;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: #e53e3e;
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            background: none;
+            font-size: 15px;
+        }
     </style>
 </head>
 <body>
@@ -55,12 +129,16 @@
     <h1>📋 導入外部普查打包檔案與表格檢視</h1>
     
     <div class="history-header">
-        <button type="button" class="btn-submit" 
-        onclick="document.getElementById('importInput').click()">📂 選擇普查打包檔還原</button>
-        <button type="button" id="exportBtn" class="btn-export">🍏 匯出總統計 Excel</button>
+        <button type="button" class="btn-submit" onclick="document.getElementById('importInput').click()">
+            📂 選擇普查打包檔還原
+        </button>
+        <button type="button" id="exportBtn" class="btn-export">
+            🍏 匯出總統計 Excel
+        </button>
     </div>
     <input type="file" id="importInput" multiple accept=".survey" style="display:none;">
     
+    <!-- 📊 統計大表格區域 -->
     <div class="table-responsive">
         <table>
             <thead>
@@ -71,60 +149,77 @@
                     <th>部位</th>
                     <th>細部</th>
                     <th>流水號</th>
-                    <th>工藝形式 (複選結果)</th>
+                    <th>工藝形式 (學術排序)</th>
                     <th>時間</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
                 <tr>
                     <td colspan="8" style="text-align:center; color:#a0aec0; padding:30px 0;">
-                    📊 目前尚無數據，請點選上方按鈕導入檔案。
+                        📊 目前尚無數據，請點選上方按鈕導入檔案。
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
+    
     <h3 style="color:#4a5568; margin: 25px 0 10px 0; font-size:16px;">🔍 調查照片影像與備註詳情對照</h3>
     <div id="dataList"></div>
+    
     <a href="index.html" class="btn-home">🏠 返回目錄主選單</a>
 </div>
 <script>
     window.allRecordsSaved = [];
 
+    // 批量讀取解析 .survey 實體檔案 (自動相容單檔與多筆在一起的陣列大數據包)
     document.getElementById('importInput').onchange = function(e) {
-        const files = e.target.files;
+        const files = e.target.files; 
         if (!files || files.length === 0) return;
-        window.allRecordsSaved = []; let processedCount = 0;
-
+        
+        window.allRecordsSaved = []; 
+        let processedCount = 0;
+        
         for (let i = 0; i < files.length; i++) {
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
                     const parsed = JSON.parse(evt.target.result);
-                    if (Array.isArray(parsed)) {
-                        parsed.forEach(r => window.allRecordsSaved.push(r));
-                    } else { window.allRecordsSaved.push(parsed); }
-                } catch(err) {}
+                    // 核心關鍵：如果是陣列就展開釋放，如果是舊格式單檔就直接推入
+                    if (Array.isArray(parsed)) { 
+                        parsed.forEach(r => window.allRecordsSaved.push(r)); 
+                    } else { 
+                        window.allRecordsSaved.push(parsed); 
+                    }
+                } catch(err) {
+                    console.error("解析失敗", err);
+                }
                 processedCount++;
-                if (processedCount === files.length) { renderTableAndCards(); }
+                if (processedCount === files.length) { 
+                    renderTableAndCards(); 
+                }
             };
             reader.readAsText(files[i]);
         }
     };
 
+    // 實時將資料同時錄入統計大表格與下方對照卡片
     function renderTableAndCards() {
         const tableBody = document.getElementById('tableBody');
         const cardBox = document.getElementById('dataList');
         if (!tableBody || !cardBox) return;
-        tableBody.innerHTML = ""; cardBox.innerHTML = "";
+        
+        tableBody.innerHTML = ""; 
+        cardBox.innerHTML = "";
         
         if (window.allRecordsSaved.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#a0aec0; padding:20px 0;">📊 目前沒有數據。</td></tr>`;
             return;
         }
         
+        // 倒序排列，最新登記的普查資料會自動出現在最上方
         let reversed = [...window.allRecordsSaved].reverse();
         reversed.forEach((val) => {
+            // A. 建立表格列
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td style="font-weight:bold; color:#2b6cb0;">${val.fullCode}</td>
@@ -134,11 +229,12 @@
                 <td>${val.compCode}</td>
                 <td style="font-family:monospace;">${val.serial}</td>
                 <td style="font-weight:bold; color:#2f855a;">${val.craft}</td>
-                <td style="color:#718096; font-size:11px;">${val.timestamp}</td>
+                <td style="color:#718096; font-size:11px;">${val.timestamp || '？'}</td>
             `;
             tableBody.appendChild(tr);
 
-            const card = document.createElement('div');
+            // B. 建立卡片影像對照
+            const card = document.createElement('div'); 
             card.className = 'data-card';
             card.innerHTML = `
                 <button type="button" class="delete-btn" onclick="removeCardView('${val.fullCode}')">❌ 移除檢視</button>
@@ -151,26 +247,34 @@
         });
     }
 
+    // 移除當前畫面的檢視
     window.removeCardView = function(fCode) {
         window.allRecordsSaved = window.allRecordsSaved.filter(item => item.fullCode !== fCode);
         renderTableAndCards();
     };
 
+    // 大總編 Excel (CSV) 導出引擎
     document.getElementById('exportBtn').onclick = function() {
         if (window.allRecordsSaved.length === 0) { alert("目前畫面上沒有導入數據！"); return; }
-        let csv = "\uFEFF";
-        csv += "完整登錄編碼,建築區域,方位,屋面部位,細部分類,流水號,照片序號,工藝形式(多選結果),備註,登記時間\n";
+        
+        let csv = "\uFEFF"; 
+        csv += "完整登錄編碼,建築區域,方位,屋面部位,細部分類,流水號,照片序號,工藝形式,備註,登記時間\n";
+        
         window.allRecordsSaved.forEach(r => {
             const row = [
-                r.fullCode, r.area, r.direction, r.roofPos, r.compCode,
+                r.fullCode, r.area, r.direction, r.roofPos, r.compCode, 
                 r.serial, r.photoType, r.craft, r.note || '', r.timestamp
             ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
             csv += row + "\n";
         });
+        
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
+        const link = document.createElement("a"); 
+        link.href = URL.createObjectURL(blob);
         link.setAttribute("download", `龍山寺普查總匯報表_${new Date().toLocaleDateString()}.csv`);
-        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        document.body.appendChild(link); 
+        link.click(); 
+        document.body.removeChild(link);
     };
 </script>
 </body>
