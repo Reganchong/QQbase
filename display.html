@@ -2,78 +2,214 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, 
-    initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>龍山寺傳統裝飾互動展示機</title>
     <style>
-        body { font-family: -apple-system, sans-serif; 
-        background-color: #111827; color: #f9fafb; 
-        margin: 0; padding: 0; overflow: hidden; }
-        .top-bar { background: #1f2937; padding: 15px 20px; 
-        display: flex; justify-content: space-between; 
-        align-items: center; border-bottom: 3px solid #ffbc0d; }
-        .top-bar h1 { margin: 0; font-size: 20px; color: #ffbc0d; }
-        .btn-import { background: #ffbc0d; color: #111827; 
-        padding: 8px 16px; border: none; border-radius: 20px; 
-        font-weight: bold; cursor: pointer; }
-        .btn-home { color: #9ca3af; text-decoration: none; 
-        font-size: 14px; font-weight: bold; }
-        .main-layout { display: flex; height: calc(100vh - 58px); }
-        
-        /* 左側大類別欄垂直滾動軸優化 */
-        .sidebar { width: 140px; background: #1f2937; 
-        display: flex; flex-direction: column; 
-        border-right: 1px solid #374151; overflow-y: auto; 
-        -webkit-overflow-scrolling: touch; }
-        .category-btn { padding: 16px 8px; text-align: center; 
-        cursor: pointer; border-bottom: 1px solid #374151; 
-        transition: all 0.2s; -webkit-user-select: none; }
-        .category-btn.active { background: #ffbc0d; color: #111827; 
-        font-weight: bold; }
-        .category-btn .text { font-size: 12px; display: block; 
-        line-height: 1.4; }
-        
-        .content-grid { flex: 1; padding: 20px; overflow-y: auto; 
-        display: grid; grid-template-columns: repeat(auto-fill, 
-        minmax(160px, 1fr)); gap: 16px; align-content: start; }
-        .item-card { background: #1f2937; border-radius: 12px; 
-        overflow: hidden; cursor: pointer; border: 2px solid transparent; 
-        transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        .item-card:active { transform: scale(0.97); }
-        .item-card .img-box { width: 100%; height: 120px; 
-        background: #374151; overflow: hidden; display: flex; 
-        align-items: center; justify-content: center; }
-        .item-card .img-box img { width: 100%; height: 100%; object-fit: cover; }
-        .item-card .img-box .no-pic { color: #6b7280; font-size: 12px; }
-        .item-card .info-box { padding: 12px; text-align: center; }
-        .item-card .info-box .code { font-family: monospace; 
-        font-weight: bold; color: #ffbc0d; font-size: 14px; }
-        .item-card .info-box .title { font-size: 11px; color: #9ca3af; 
-        margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .modal { display: none; position: fixed; top: 0; left: 0; 
-        width: 100%; height: 100%; background: rgba(0,0,0,0.85); 
-        align-items: center; justify-content: center; z-index: 100; }
-        .modal.active { display: flex; }
-        .modal-container { background: #1f2937; width: 90%; 
-        max-width: 500px; border-radius: 16px; overflow: hidden; 
-        border: 2px solid #ffbc0d; position: relative; }
-        .modal-close { position: absolute; top: 15px; right: 15px; 
-        background: #ffbc0d; color: #111827; border: none; 
-        width: 32px; height: 32px; border-radius: 50%; 
-        font-weight: bold; font-size: 18px; cursor: pointer; }
-        .modal-img { width: 100%; max-height: 250px; object-fit: cover; background: #111827; }
-        .modal-body { padding: 20px; }
-        .modal-title { font-size: 22px; color: #ffbc0d; font-family: monospace; margin: 0 0 15px 0; }
-        .modal-meta { display: grid; grid-template-columns: 1fr 1fr; 
-        gap: 10px; font-size: 14px; margin-bottom: 15px; 
-        border-bottom: 1px solid #374151; padding-bottom: 15px; }
-        .meta-label { color: #9ca3af; }
-        .meta-val { color: #f9fafb; font-weight: bold; }
-        .modal-note { background: #111827; padding: 12px; 
-        border-radius: 8px; font-size: 14px; color: #cbd5e1; line-height: 1.5; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #111827;
+            color: #f9fafb;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .top-bar {
+            background: #1f2937;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #ffbc0d;
+        }
+        .top-bar h1 {
+            margin: 0;
+            font-size: 20px;
+            color: #ffbc0d;
+        }
+        .btn-import {
+            background: #ffbc0d;
+            color: #111827;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-home {
+            color: #9ca3af;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .main-layout {
+            display: flex;
+            height: calc(100vh - 58px);
+        }
+        .sidebar {
+            width: 140px;
+            background: #1f2937;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #374151;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .category-btn {
+            padding: 16px 8px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 1px solid #374151;
+            transition: all 0.2s;
+            -webkit-user-select: none;
+        }
+        .category-btn.active {
+            background: #ffbc0d;
+            color: #111827;
+            font-weight: bold;
+        }
+        .category-btn .text {
+            font-size: 12px;
+            display: block;
+            line-height: 1.4;
+        }
+        .content-grid {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+            align-content: start;
+        }
+        .item-card {
+            background: #1f2937;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .item-card:active {
+            transform: scale(0.97);
+        }
+        .item-card .img-box {
+            width: 100%;
+            height: 120px;
+            background: #374151;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .item-card .img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .item-card .img-box .no-pic {
+            color: #6b7280;
+            font-size: 12px;
+        }
+        .item-card .info-box {
+            padding: 12px;
+            text-align: center;
+        }
+        .item-card .info-box .code {
+            font-family: monospace;
+            font-weight: bold;
+            color: #ffbc0d;
+            font-size: 14px;
+        }
+        .item-card .info-box .title {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-container {
+            background: #1f2937;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid #ffbc0d;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ffbc0d;
+            color: #111827;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .modal-img {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
+            background: #111827;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .modal-title {
+            font-size: 22px;
+            color: #ffbc0d;
+            font-family: monospace;
+            margin: 0 0 15px 0;
+        }
+        .modal-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #374151;
+            padding-bottom: 15px;
+        }
+        .meta-label {
+            color: #9ca3af;
+        }
+        .meta-val {
+            color: #f9fafb;
+            font-weight: bold;
+        }
+        .modal-note {
+            background: #111827;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
+    <!-- 頂部控制列 -->
     <div class="top-bar">
         <a href="index.html" class="btn-home">⬅ 離開展示</a>
         <h1>🏛️ 龍山寺文資互動展示機</h1>
@@ -81,8 +217,9 @@
     </div>
     <input type="file" id="displayImport" accept=".survey" style="display:none;">
 
+    <!-- 主選單展示區 -->
     <div class="main-layout">
-        <!-- 左欄 20 個殿區觸控選單 -->
+        <!-- 左側側邊欄 -->
         <div class="sidebar" id="sidebarMenu">
             <div class="category-btn" id="btn-SH" onclick="window.filterArea('SH')"><span class="text">三川殿<br>(SH)</span></div>
             <div class="category-btn" id="btn-FL" onclick="window.filterArea('FL')"><span class="text">前殿龍門<br>(FL)</span></div>
@@ -107,13 +244,13 @@
             <div class="category-btn" id="btn-PL" onclick="window.filterArea('PL')"><span class="text">牌樓<br>(PL)</span></div>
         </div>
         
-        <!-- 右欄商品展示網格 -->
+        <!-- 中央網格區 -->
         <div class="content-grid" id="contentGrid">
             <div style="grid-column:1/-1; text-align:center; color:#6b7280; padding-top:50px;">💡 請先點擊右上角導入普查打包檔案 (.survey)</div>
         </div>
     </div>
 
-    <!-- 商品放大細節視窗 -->
+    <!-- 商品詳情彈窗 (精準拆行版) -->
     <div class="modal" id="detailModal" onclick="window.closeDetail()">
         <div class="modal-container" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="window.closeDetail()">×</button>
@@ -121,10 +258,22 @@
             <div class="modal-body">
                 <div id="mCode" class="modal-title"></div>
                 <div class="modal-meta">
-                    <div><span class="meta-label">屋面部位:</span> <span id="mRoof" class="meta-val"></span></div>
-                    <div><span class="meta-label">細部分類:</span> <span id="mComp" class="meta-val"></span></div>
-                    <div><span class="meta-label">朝向方位:</span> <span id="mDir" class="meta-val"></span></div>
-                    <div><span class="meta-label">形式工藝:</span> <span id="mCraft" class="meta-val"></span></div>
+                    <div>
+                        <span class="meta-label">屋面部位:</span> 
+                        <span id="mRoof" class="meta-val"></span>
+                    </div>
+                    <div>
+                        <span class="meta-label">細部分類:</span> 
+                        <span id="mComp" class="meta-val"></span>
+                    </div>
+                    <div>
+                        <span class="meta-label">朝向方位:</span> 
+                        <span id="mDir" class="meta-val"></span>
+                    </div>
+                    <div>
+                        <span class="meta-label">形式工藝:</span> 
+                        <span id="mCraft" class="meta-val"></span>
+                    </div>
                 </div>
                 <div id="mNote" class="modal-note"></div>
             </div>
@@ -134,7 +283,7 @@
     window.displayRecords = [];
     window.currentSelectedArea = 'SH';
 
-    // --- 1. 萬能大解包與強制大寫對齊防呆 ---
+    // 1. 萬能大解包與清洗
     document.getElementById('displayImport').onchange = function(e) {
         const file = e.target.files; 
         if (!file) return;
@@ -145,55 +294,54 @@
                 const parsed = JSON.parse(evt.target.result);
                 window.displayRecords = Array.isArray(parsed) ? parsed : [parsed];
                 
-                // 強制大寫清洗對齊
                 window.displayRecords.forEach(r => {
                     if (r.area) r.area = String(r.area).toUpperCase().trim();
                 });
 
                 alert(`🎉 展示數據載入成功！\n共成功解包導入 ${window.displayRecords.length} 筆普查紀錄。`);
                 
-                // 貼心自動跳轉：導入後自動跳到第一個有資料的殿區
                 if (window.displayRecords.length > 0) {
                     window.currentSelectedArea = window.displayRecords[0].area;
                 }
                 window.filterArea(window.currentSelectedArea);
-            } catch(err) { alert("❌ 檔案解析失敗！"); }
+            } catch(err) { 
+                alert("❌ 檔案解析失敗！"); 
+            }
         };
         reader.readAsText(file);
     };
 
-    // --- 2. 麥當勞式點選大類別過濾渲染引擎 ---
+    // 2. 麥當勞過濾渲染引擎
     window.filterArea = function(areaCode) {
         window.currentSelectedArea = areaCode;
         
-        // 點亮當前黃色 active 按鈕
         const buttons = document.querySelectorAll('.category-btn');
         buttons.forEach(btn => btn.classList.remove('active'));
         
         const activeBtn = document.getElementById('btn-' + areaCode);
         if (activeBtn) activeBtn.classList.add('active');
 
-        // 過濾殿區
         const filtered = window.displayRecords.filter(r => r.area === areaCode);
         const grid = document.getElementById('contentGrid'); 
-        if (!grid) return; grid.innerHTML = "";
+        if (!grid) return; 
+        grid.innerHTML = "";
 
         if (filtered.length === 0) {
             grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; ` +
-            `color:#6b7280; padding-top:50px; font-size:14px;">` +
-            `📋 論文區域代碼 [${areaCode}] 目前在此檔案內無對應數據</div>`;
+                `color:#6b7280; padding-top:50px; font-size:14px;">` +
+                `📋 區域代碼 [${areaCode}] 目前在此檔案內無普查數據</div>`;
             return;
         }
 
-        // 開始建立卡片網格
         filtered.forEach(r => {
             const card = document.createElement('div'); 
             card.className = 'item-card';
             card.onclick = () => window.openDetail(r);
             
-            // 已完全消滅變數報錯、相容無影像提示的卡片結構
             card.innerHTML = `
-                <div class="img-box">${r.photo ? `<img src="${r.photo}">` : '<span class="no-pic">📷 無影像</span>'}</div>
+                <div class="img-box">
+                    ${r.photo ? `<img src="${r.photo}">` : '<span class="no-pic">📷 無影像</span>'}
+                </div>
                 <div class="info-box">
                     <div class="code">LS-${r.area}-${r.serial || '000'}</div>
                     <div class="title">方位：${r.direction || '？'} | 工藝：${r.craft}</div>
@@ -203,7 +351,7 @@
         });
     };
 
-    // --- 3. 觸控看大詳細彈窗 ---
+    // 3. 彈窗細節
     window.openDetail = function(r) {
         const imgEl = document.getElementById('mImg');
         imgEl.src = r.photo || "";
@@ -224,7 +372,7 @@
         document.getElementById('detailModal').classList.remove('active'); 
     };
 
-    // --- 4. 網頁加載完畢後，強制執行初始化啟動 ---
+    // 4. 強制初始刷新
     window.onload = function() {
         window.filterArea(window.currentSelectedArea);
     };
