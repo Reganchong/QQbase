@@ -281,7 +281,7 @@
     window.displayRecords = [];
     window.currentSelectedArea = '';
 
-    // --- 1. 萬能大解包與「有資料才顯示殿區」控制核心 ---
+    // --- 1. 萬能大解包與「動態隱藏沒資料殿區」核心 ---
     document.getElementById('displayImport').onchange = function(e) {
         const file = e.target.files; 
         if (!file || file.length === 0) return;
@@ -297,25 +297,25 @@
                     if (r.area) r.area = String(r.area).toUpperCase().trim();
                 });
 
-                // 🚀 技術關鍵：掃描資料包內所有出現過的殿區代碼，打包成去重複的集合 (Set)
+                // 掃描資料包內所有出現過的殿區代碼
                 const existingAreas = new Set();
                 window.displayRecords.forEach(r => {
                     if (r.area) existingAreas.add(r.area);
                 });
 
-                // 🚀 實時控制：先隱藏全部按鈕，只有在現存集合內的殿區按鈕才顯示出來！
+                // 實時控制：先隱藏全部按鈕，只有在現存集合內的殿區按鈕才顯示出來
                 document.querySelectorAll('.category-btn').forEach(btn => {
                     const areaId = btn.id.replace('btn-', '');
                     if (existingAreas.has(areaId)) {
-                        btn.style.display = 'block'; // 有資料才顯示
+                        btn.style.display = 'block'; 
                     } else {
-                        btn.style.display = 'none';  // 沒資料則自動消失
+                        btn.style.display = 'none';  
                     }
                 });
 
                 alert(`🎉 展示數據導入成功！\n共成功解析顯示 ${window.displayRecords.length} 筆普查紀錄。`);
                 
-                // 智慧自動跳轉：自動抓取現存集合內的第一個殿區作為預設呈現
+                // 🚀 【終極修復點】：取陣列第一個字串元素 [0]，破除陣列比對死結！
                 if (existingAreas.size > 0) {
                     window.currentSelectedArea = Array.from(existingAreas)[0];
                     window.filterArea(window.currentSelectedArea);
@@ -383,3 +383,4 @@
 </script>
 </body>
 </html>
+
