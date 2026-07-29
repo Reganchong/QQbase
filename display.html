@@ -136,25 +136,29 @@
 
 
     <!-- 這裡稍後會置入第三部分的 JavaScript 核心邏輯 -->
-   <script>
+<script>
     window.displayRecords = [];
     window.currentSelectedArea = '';
 
-    // --- 🚀 精準修復：CSV 表格字串高速解讀模組 ---
+    // --- 🚀 完美修復版：CSV 表格字串高速解讀模組 ---
     function parseCSV(text) {
+        // 先將文字切成一行一行的陣列，並去除空白行
         const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
         if (lines.length === 0) return [];
 
-        // ✨ 重大修正點：抓取第一行 lines[0] 進行欄位拆分，根治不顯示與後台死結問題！
+        // ✨【核心重大修復】：必須針對 lines 的第一行元素 lines[0] 進行切割！並修正正規表示式
         const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+        console.log("成功解析出的 CSV 表頭欄位：", headers);
 
         const result = [];
+        // 從第二行 (i=1) 開始跑迴圈，讀取實際的資料列
         for (let i = 1; i < lines.length; i++) {
             const line = lines[i];
             const row = [];
             let insideQuote = false;
             let currentField = "";
 
+            // 精準拆分含雙引號的 CSV 欄位（防範時間、流水號等逗號干擾）
             for (let j = 0; j < line.length; j++) {
                 const char = line[j];
                 if (char === '"') {
@@ -168,10 +172,11 @@
             }
             row.push(currentField.trim());
 
+            // 對齊中文標題並組裝成物件
             const obj = {};
             headers.forEach((header, index) => {
                 let val = row[index] || "";
-                val = val.replace(/^"|"$/g, '').trim(); 
+                val = val.replace(/^"|"$/g, '').trim(); // 修正：精準移除欄位前後多餘的雙引號
                 obj[header] = val;
             });
             result.push(obj);
@@ -179,7 +184,7 @@
         return result;
     }
 
-    // --- 1. CSV 數據包導入解鎖器 ---
+    // --- 1. 檔案匯入監聽器 ---
     document.getElementById('displayImport').onchange = function(e) {
         const file = e.target.files; 
         if (!file || file.length === 0) return;
@@ -191,44 +196,48 @@
                 const parsedCSV = parseCSV(rawText);
 
                 if (parsedCSV.length === 0) {
-                    alert("❌ 導入失敗，這不是一個標準的普查數據檔案。");
+                    alert("❌ 檔案內容可能為空，解析失敗。");
                     return;
                 }
 
-                // 精準綁定您 Survey 檔案內的中文表頭欄位
+                // 2. 精準對齊您 survey 資料包的中文欄位名稱
                 window.displayRecords = parsedCSV.map(item => {
                     return {
-                        fullCode: item["完整登錄編碼"] || "LS-UNNAMED",
+                        fullCode: item["完整登錄編碼"] || "未填寫編碼",
                         area: String(item["建築區域"] || "").toUpperCase().trim(),
                         direction: item["方位"] || "？",
                         roofPos: item["屋面部位"] || "？",
                         compCode: item["細部分類"] || "？",
                         serial: item["流水號"] || "000",
                         photoSeq: item["照片序號"] || "",
-                        craft: item["工藝形式"] || "暫無填寫",
+                        craft: item["工藝形式"] || "？",
                         note: item["備註"] || "",
-                        photo: "" // 預設無相片
+                        photo: "" // 預設無影像，可串接本地路徑
                     };
                 });
 
+                console.log("最終處理好的結構陣列資料：", window.displayRecords);
                 alert(`🎉 導入成功！共解析出 ${window.displayRecords.length} 筆傳統裝飾紀錄。`);
-                window.refreshDisplay(true); // 強制重整渲染
+                
+                // 強制自動刷新並渲染
+                window.refreshDisplay(true);
                 
             } catch(err) { 
-                alert("❌ 資料包與解析核心衝突！"); 
-                console.error(err);
+                alert("❌ 檔案結構與解析器發生致命衝突！請按 F12 檢查 Console。"); 
+                console.error("上傳解析崩潰報告：", err);
             }
         };
         reader.readAsText(file);
     };
 
-    // --- 2. 萬能重整渲染機制 ---
+    // --- 2. 獨立重整與強制渲染核心 ---
     window.refreshDisplay = function(isAutoTrigger = false) {
         if (!window.displayRecords || window.displayRecords.length === 0) {
             if(!isAutoTrigger) alert("📋 目前尚未導入數據。");
             return;
         }
 
+        // 亮起重整按鈕
         document.getElementById('btnRefresh').style.display = 'block';
 
         const existingAreas = new Set();
@@ -236,14 +245,14 @@
             if (r.area) existingAreas.add(r.area);
         });
 
-        // 動態控制選單透明度活性 (有資料的殿區才點亮並賦予點擊功能)
+        // 動態重繪選單外觀控制 (有資料的殿區才亮起並具備點擊活性)
         document.querySelectorAll('.category-btn').forEach(btn => {
             const areaId = btn.id.replace('btn-', '');
             if (existingAreas.has(areaId)) {
                 btn.style.opacity = '1';
                 btn.style.pointerEvents = 'auto';
             } else {
-                btn.style.opacity = '0.25'; // 無資料的按鈕自動半透明化，防止誤點擊空白
+                btn.style.opacity = '0.25'; // 無資料的殿區按鈕呈現半透明灰化防呆
                 btn.classList.remove('active');
             }
         });
@@ -251,7 +260,7 @@
         if (existingAreas.size > 0) {
             const areaArray = Array.from(existingAreas);
             if (!window.currentSelectedArea || !existingAreas.has(window.currentSelectedArea)) {
-                window.currentSelectedArea = areaArray[0];
+                window.currentSelectedArea = areaArray[0]; // 修正：取出第一個字串，確保能順利過濾
             }
             
             window.filterArea(window.currentSelectedArea);
@@ -317,15 +326,15 @@
         document.getElementById('detailModal').classList.remove('active'); 
     };
 
-    // --- 5. 系統底層初始安全鎖 ---
+    // --- 5. 初始載入安全狀態鎖 ---
     window.onload = function() {
-        // 初始狀態：20 個殿區選單文字清晰可見，但呈現半透明未啟動效果
         document.querySelectorAll('.category-btn').forEach(btn => {
             btn.style.opacity = '0.35';
         });
         document.getElementById('btnRefresh').style.display = 'none'; 
     };
 </script>
+
 
 
 
