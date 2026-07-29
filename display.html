@@ -184,52 +184,146 @@
         return result;
     }
 
-    // --- 1. 檔案匯入監聽器 ---
-    document.getElementById('displayImport').onchange = function(e) {
-        const file = e.target.files; 
-        if (!file || file.length === 0) return;
+ // --- 1. .survey 檔案匯入監聽器 ---
+document.getElementById('displayImport').onchange = function(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-            try {
-                const rawText = evt.target.result;
-                const parsedCSV = parseCSV(rawText);
+    const reader = new FileReader();
 
-                if (parsedCSV.length === 0) {
-                    alert("❌ 檔案內容可能為空，解析失敗。");
-                    return;
+    reader.onload = function(evt) {
+        try {
+            const rawText = String(evt.target.result || "").trim();
+
+            if (!rawText) {
+                alert("❌ 檔案內容為空。");
+                return;
+            }
+
+            let records = [];
+
+            // ==========================================
+            // ① 優先判斷 JSON .survey
+            // ==========================================
+            if (rawText.startsWith("[") || rawText.startsWith("{")) {
+                const parsedJSON = JSON.parse(rawText);
+
+                // 支援：
+                // [ {...}, {...} ]
+                // 或 { records: [...] }
+                if (Array.isArray(parsedJSON)) {
+                    records = parsedJSON;
+                } else if (Array.isArray(parsedJSON.records)) {
+                    records = parsedJSON.records;
+                } else {
+                    throw new Error("JSON 中找不到資料陣列。");
                 }
 
-                // 2. 精準對齊您 survey 資料包的中文欄位名稱
-                window.displayRecords = parsedCSV.map(item => {
-                    return {
-                        fullCode: item["完整登錄編碼"] || "未填寫編碼",
-                        area: String(item["建築區域"] || "").toUpperCase().trim(),
-                        direction: item["方位"] || "？",
-                        roofPos: item["屋面部位"] || "？",
-                        compCode: item["細部分類"] || "？",
-                        serial: item["流水號"] || "000",
-                        photoSeq: item["照片序號"] || "",
-                        craft: item["工藝形式"] || "？",
-                        note: item["備註"] || "",
-                        photo: "" // 預設無影像，可串接本地路徑
-                    };
-                });
-
-                console.log("最終處理好的結構陣列資料：", window.displayRecords);
-                alert(`🎉 導入成功！共解析出 ${window.displayRecords.length} 筆傳統裝飾紀錄。`);
-                
-                // 強制自動刷新並渲染
-                window.refreshDisplay(true);
-                
-            } catch(err) { 
-                alert("❌ 檔案結構與解析器發生致命衝突！請按 F12 檢查 Console。"); 
-                console.error("上傳解析崩潰報告：", err);
+            // ==========================================
+            // ② 非 JSON 時，退回 CSV 解析
+            // ==========================================
+            } else {
+                records = parseCSV(rawText);
             }
-        };
-        reader.readAsText(file);
+
+            if (!Array.isArray(records) || records.length === 0) {
+                alert("❌ 檔案中沒有可用的普查資料。");
+                return;
+            }
+
+            // ==========================================
+            // ③ 統一資料結構
+            // 同時支援 JSON 與舊版中文 CSV
+            // ==========================================
+            window.displayRecords = records.map(item => {
+
+                return {
+                    fullCode:
+                        item.fullCode ||
+                        item["完整登錄編碼"] ||
+                        "未填寫編碼",
+
+                    area:
+                        String(
+                            item.area ||
+                            item["建築區域"] ||
+                            ""
+                        ).toUpperCase().trim(),
+
+                    direction:
+                        item.direction ||
+                        item["方位"] ||
+                        "？",
+
+                    roofPos:
+                        item.roofPos ||
+                        item["屋面部位"] ||
+                        "？",
+
+                    compCode:
+                        item.compCode ||
+                        item["細部分類"] ||
+                        "？",
+
+                    serial:
+                        item.serial ||
+                        item["流水號"] ||
+                        "000",
+
+                    photoSeq:
+                        item.photoType ||
+                        item.photoSeq ||
+                        item["照片序號"] ||
+                        "",
+
+                    craft:
+                        item.craft ||
+                        item["工藝形式"] ||
+                        "？",
+
+                    note:
+                        item.note ||
+                        item["備註"] ||
+                        "",
+
+                    photo:
+                        item.photo || ""
+                };
+            });
+
+            console.log(
+                "🎉 .survey 匯入成功：",
+                window.displayRecords
+            );
+
+            alert(
+                `🎉 導入成功！共解析出 ${window.displayRecords.length} 筆傳統裝飾紀錄。`
+            );
+
+            // 自動刷新畫面
+            window.currentSelectedArea = "";
+            window.refreshDisplay(true);
+
+        } catch (err) {
+
+            console.error("❌ .survey 解析失敗：", err);
+
+            alert(
+                "❌ 無法解析此 .survey 檔案。\n\n" +
+                "錯誤：" + err.message
+            );
+        }
+
+        // 允許重新選擇同一個檔案
+        e.target.value = "";
     };
 
+    reader.onerror = function() {
+        alert("❌ 檔案讀取失敗。");
+    };
+
+    reader.readAsText(file, "UTF-8");
+};
     // --- 2. 獨立重整與強制渲染核心 ---
     window.refreshDisplay = function(isAutoTrigger = false) {
         if (!window.displayRecords || window.displayRecords.length === 0) {
