@@ -6,277 +6,237 @@
     <title>龍山寺傳統裝飾互動展示機</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #111827;
-            color: #f9fafb;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        .top-bar {
-            background: #1f2937;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid #ffbc0d;
-        }
-        .top-bar h1 {
-            margin: 0;
-            font-size: 20px;
-            color: #ffbc0d;
-        }
-        .btn-import {
-            background: #ffbc0d;
-            color: #111827;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .btn-home {
-            color: #9ca3af;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .main-layout {
-            display: flex;
-            height: calc(100vh - 58px);
-        }
-        .sidebar {
-            width: 140px;
-            background: #1f2937;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid #374151;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .category-btn {
-            padding: 16px 8px;
-            text-align: center;
-            cursor: pointer;
-            border-bottom: 1px solid #374151;
-            transition: all 0.2s;
-            -webkit-user-select: none;
-            display: none; /* 🚀 初始先全域隱藏，等檔案導入有資料才亮起 */
-        }
-        .category-btn.active {
-            background: #ffbc0d;
-            color: #111827;
-            font-weight: bold;
-        }
-        .category-btn .text {
-            font-size: 12px;
-            display: block;
-            line-height: 1.4;
-        }
-        .content-grid {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 16px;
-            align-content: start;
-        }
-        .item-card {
-            background: #1f2937;
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-        .item-card:active {
-            transform: scale(0.97);
-        }
-        .item-card .img-box {
-            width: 100%;
-            height: 120px;
-            background: #374151;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .item-card .img-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .item-card .img-box .no-pic {
-            color: #6b7280;
-            font-size: 12px;
-        }
-        .item-card .info-box {
-            padding: 12px;
-            text-align: center;
-        }
-        .item-card .info-box .code {
-            font-family: monospace;
-            font-weight: bold;
-            color: #ffbc0d;
-            font-size: 14px;
-        }
-        .item-card .info-box .title {
-            font-size: 11px;
-            color: #9ca3af;
-            margin-top: 4px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-        }
-        .modal.active {
-            display: flex;
-        }
-        .modal-container {
-            background: #1f2937;
-            width: 90%;
-            max-width: 500px;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 2px solid #ffbc0d;
-            position: relative;
-        }
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #ffbc0d;
-            color: #111827;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            font-weight: bold;
-            font-size: 18px;
-            cursor: pointer;
-        }
-        .modal-img {
-            width: 100%;
-            max-height: 250px;
-            object-fit: cover;
-            background: #111827;
-        }
-        .modal-body {
-            padding: 20px;
-        }
-        .modal-title {
-            font-size: 22px;
-            color: #ffbc0d;
-            font-family: monospace;
-            margin: 0 0 15px 0;
-        }
-        .modal-meta {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 14px;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #374151;
-            padding-bottom: 15px;
-        }
-        .meta-label {
-            color: #9ca3af;
-        }
-        .meta-val {
-            color: #f9fafb;
-            font-weight: bold;
-        }
-        .modal-note {
-            background: #111827;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #cbd5e1;
-            line-height: 1.5;
-        }
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #111827;
+    color: #f9fafb;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+.top-bar {
+    background: #1f2937;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #ffbc0d;
+}
+.top-bar h1 {
+    margin: 0;
+    font-size: 20px;
+    color: #ffbc0d;
+    flex-grow: 1;
+    text-align: center;
+}
+.btn-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.btn-import {
+    background: #ffbc0d;
+    color: #111827;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+/* 🔄 重新整理按鈕獨有視覺樣式 */
+.btn-refresh {
+    background: #374151;
+    color: #ffbc0d;
+    padding: 8px 14px;
+    border: 1px solid #ffbc0d;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: none; /* 初始隱藏，待 JS 觸獲後方亮起 */
+    transition: all 0.2s;
+}
+.btn-refresh:active {
+    background: #4b5563;
+    transform: scale(0.95);
+}
+.btn-home {
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    min-width: 80px;
+}
+.main-layout {
+    display: flex;
+    height: calc(100vh - 58px);
+}
+.sidebar {
+    width: 140px;
+    background: #1f2937;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #374151;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.category-btn {
+    padding: 16px 8px;
+    text-align: center;
+    cursor: pointer;
+    border-bottom: 1px solid #374151;
+    transition: all 0.2s;
+    -webkit-user-select: none;
+    display: none; /* 🚀 初始全隱藏 */
+}
+.category-btn.active {
+    background: #ffbc0d;
+    color: #111827;
+    font-weight: bold;
+}
+.category-btn .text {
+    font-size: 12px;
+    display: block;
+    line-height: 1.4;
+}
+.content-grid {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    align-content: start;
+    transition: opacity 0.15s ease-in-out; /* 用於手動重整時的漸變效果 */
+}
+.item-card {
+    background: #1f2937;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+.item-card:active { transform: scale(0.97); }
+.item-card .img-box {
+    width: 100%;
+    height: 120px;
+    background: #374151;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.item-card .img-box img { width: 100%; height: 100%; object-fit: cover; }
+.item-card .img-box .no-pic { color: #6b7280; font-size: 12px; }
+.item-card .info-box { padding: 12px; text-align: center; }
+.item-card .info-box .code { font-family: monospace; font-weight: bold; color: #ffbc0d; font-size: 14px; }
+.item-card .info-box .title {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+.modal.active { display: flex; }
+.modal-container {
+    background: #1f2937;
+    width: 90%; max-width: 500px;
+    border-radius: 16px; overflow: hidden;
+    border: 2px solid #ffbc0d; position: relative;
+}
+.modal-close {
+    position: absolute; top: 15px; right: 15px;
+    background: #ffbc0d; color: #111827;
+    border: none; width: 32px; height: 32px;
+    border-radius: 50%; font-weight: bold; font-size: 18px; cursor: pointer;
+}
+.modal-img { width: 100%; max-height: 250px; object-fit: cover; background: #111827; }
+.modal-body { padding: 20px; }
+.modal-title { font-size: 22px; color: #ffbc0d; font-family: monospace; margin: 0 0 15px 0; }
+.modal-meta {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    font-size: 14px; margin-bottom: 15px;
+    border-bottom: 1px solid #374151; padding-bottom: 15px;
+}
+.meta-label { color: #9ca3af; }
+.meta-val { color: #f9fafb; font-weight: bold; }
+.modal-note { background: #111827; padding: 12px; border-radius: 8px; font-size: 14px; color: #cbd5e1; line-height: 1.5; }
+
     </style>
 </head>
 <body>
     <div class="top-bar">
-        <a href="index.html" class="btn-home">⬅ 離開展示</a>
-        <h1>🏛️ 龍山寺文資互動展示機</h1>
+    <a href="index.html" class="btn-home">⬅ 離開展示</a>
+    <h1>🏛️ 龍山寺文資互動展示機</h1>
+    <div class="btn-group">
+        <!-- 🔄 重新整理按鈕：初始隱藏，導入成功後自動亮起 -->
+        <button type="button" id="btnRefresh" class="btn-refresh" onclick="window.refreshDisplay()">🔄 重新整理</button>
         <button type="button" class="btn-import" onclick="document.getElementById('displayImport').click()">📂 導入數據包</button>
     </div>
-    <input type="file" id="displayImport" accept=".survey" style="display:none;">
+</div>
+<!-- 隱藏的檔案上傳控制項 -->
+<input type="file" id="displayImport" accept=".survey" style="display:none;">
 
-    <div class="main-layout">
-        <!-- 左欄 20 個官方學術殿區選單 -->
-        <div class="sidebar" id="sidebarMenu">
-            <div class="category-btn" id="btn-SH" onclick="window.filterArea('SH')"><span class="text">三川殿<br>(SH)</span></div>
-            <div class="category-btn" id="btn-FL" onclick="window.filterArea('FL')"><span class="text">前殿龍門<br>(FL)</span></div>
-            <div class="category-btn" id="btn-FR" onclick="window.filterArea('FR')"><span class="text">前殿虎門<br>(FR)</span></div>
-            <div class="category-btn" id="btn-LC" onclick="window.filterArea('LC')"><span class="text">左下山前廊<br>(LC)</span></div>
-            <div class="category-btn" id="btn-RC" onclick="window.filterArea('RC')"><span class="text">右下山前廊<br>(RC)</span></div>
-            <div class="category-btn" id="btn-XL" onclick="window.filterArea('XL')"><span class="text">左下山護室<br>(XL)</span></div>
-            <div class="category-btn" id="btn-XR" onclick="window.filterArea('XR')"><span class="text">右下山護室<br>(XR)</span></div>
-            <div class="category-btn" id="btn-GL" onclick="window.filterArea('GL')"><span class="text">左過水廊<br>(GL)</span></div>
-            <div class="category-btn" id="btn-GR" onclick="window.filterArea('GR')"><span class="text">右過水廊<br>(GR)</span></div>
-            <div class="category-btn" id="btn-TL" onclick="window.filterArea('TL')"><span class="text">左頂山護室<br>(TL)</span></div>
-            <div class="category-btn" id="btn-TR" onclick="window.filterArea('TR')"><span class="text">右頂山護室<br>(TR)</span></div>
-            <div class="category-btn" id="btn-BT" onclick="window.filterArea('BT')"><span class="text">鐘樓<br>(BT)</span></div>
-            <div class="category-btn" id="btn-DT" onclick="window.filterArea('DT')"><span class="text">鼓樓<br>(DT)</span></div>
-            <div class="category-btn" id="btn-YH" onclick="window.filterArea('YH')"><span class="text">後殿月老廳<br>(YH)</span></div>
-            <div class="category-btn" id="btn-HH" onclick="window.filterArea('HH')"><span class="text">後殿華佗廳<br>(HH)</span></div>
-            <div class="category-btn" id="btn-RL" onclick="window.filterArea('RL')"><span class="text">後殿龍門<br>(RL)</span></div>
-            <div class="category-btn" id="btn-RR" onclick="window.filterArea('RR')"><span class="text">後殿虎門<br>(RR)</span></div>
-            <div class="category-btn" id="btn-TH" onclick="window.filterArea('TH')"><span class="text">聖母殿<br>(TH)</span></div>
-            <div class="category-btn" id="btn-GH" onclick="window.filterArea('GH')"><span class="text">關帝殿<br>(GH)</span></div>
-            <div class="category-btn" id="btn-WH" onclick="window.filterArea('WH')"><span class="text">文昌殿<br>(WH)</span></div>
-            <div class="category-btn" id="btn-PL" onclick="window.filterArea('PL')"><span class="text">牌樓<br>(PL)</span></div>
-        </div>
-        
-        <div class="content-grid" id="contentGrid">
-            <div style="grid-column:1/-1; text-align:center; color:#6b7280; padding-top:50px;">💡 請先點擊右上角導入普查打包檔案 (.survey)</div>
-        </div>
+<div class="main-layout">
+    <!-- 左欄 20 個官方學術殿區選單（初始由 CSS 隱藏，靠 JS 依據資料動態點亮） -->
+    <div class="sidebar" id="sidebarMenu">
+        <div class="category-btn" id="btn-SH" onclick="window.filterArea('SH')"><span class="text">三川殿<br>(SH)</span></div>
+        <div class="category-btn" id="btn-FL" onclick="window.filterArea('FL')"><span class="text">前殿龍門<br>(FL)</span></div>
+        <div class="category-btn" id="btn-FR" onclick="window.filterArea('FR')"><span class="text">前殿虎門<br>(FR)</span></div>
+        <div class="category-btn" id="btn-LC" onclick="window.filterArea('LC')"><span class="text">左下山前廊<br>(LC)</span></div>
+        <div class="category-btn" id="btn-RC" onclick="window.filterArea('RC')"><span class="text">右下山前廊<br>(RC)</span></div>
+        <div class="category-btn" id="btn-XL" onclick="window.filterArea('XL')"><span class="text">左下山護室<br>(XL)</span></div>
+        <div class="category-btn" id="btn-XR" onclick="window.filterArea('XR')"><span class="text">右下山護室<br>(XR)</span></div>
+        <div class="category-btn" id="btn-GL" onclick="window.filterArea('GL')"><span class="text">左過水廊<br>(GL)</span></div>
+        <div class="category-btn" id="btn-GR" onclick="window.filterArea('GR')"><span class="text">右過水廊<br>(GR)</span></div>
+        <div class="category-btn" id="btn-TL" onclick="window.filterArea('TL')"><span class="text">左頂山護室<br>(TL)</span></div>
+        <div class="category-btn" id="btn-TR" onclick="window.filterArea('TR')"><span class="text">右頂山護室<br>(TR)</span></div>
+        <div class="category-btn" id="btn-BT" onclick="window.filterArea('BT')"><span class="text">鐘樓<br>(BT)</span></div>
+        <div class="category-btn" id="btn-DT" onclick="window.filterArea('DT')"><span class="text">鼓樓<br>(DT)</span></div>
+        <div class="category-btn" id="btn-YH" onclick="window.filterArea('YH')"><span class="text">後殿月老廳<br>(YH)</span></div>
+        <div class="category-btn" id="btn-HH" onclick="window.filterArea('HH')"><span class="text">後殿華佗廳<br>(HH)</span></div>
+        <div class="category-btn" id="btn-RL" onclick="window.filterArea('RL')"><span class="text">後殿龍門<br>(RL)</span></div>
+        <div class="category-btn" id="btn-RR" onclick="window.filterArea('RR')"><span class="text">後殿虎門<br>(RR)</span></div>
+        <div class="category-btn" id="btn-TH" onclick="window.filterArea('TH')"><span class="text">聖母殿<br>(TH)</span></div>
+        <div class="category-btn" id="btn-GH" onclick="window.filterArea('GH')"><span class="text">關帝殿<br>(GH)</span></div>
+        <div class="category-btn" id="btn-WH" onclick="window.filterArea('WH')"><span class="text">文昌殿<br>(WH)</span></div>
+        <div class="category-btn" id="btn-PL" onclick="window.filterArea('PL')"><span class="text">牌樓<br>(PL)</span></div>
     </div>
+    
+    <!-- 右欄 內容展示格 -->
+    <div class="content-grid" id="contentGrid">
+        <div style="grid-column:1/-1; text-align:center; color:#6b7280; padding-top:50px;">💡 請先點擊右上角導入普查打包檔案 (.survey)</div>
+    </div>
+</div>
 
-    <!-- 商品詳情放大視窗 (標籤垂直切碎，保證 100% 關在黑框格子內) -->
-    <div class="modal" id="detailModal" onclick="window.closeDetail()">
-        <div class="modal-container" onclick="event.stopPropagation()">
-            <button class="modal-close" onclick="window.closeDetail()">×</button>
-            <img id="mImg" class="modal-img" src="">
-            <div class="modal-body">
-                <div id="mCode" class="modal-title"></div>
-                <div class="modal-meta">
-                    <div>
-                        <span class="meta-label">屋面部位:</span> 
-                        <span id="mRoof" class="meta-val"></span>
-                    </div>
-                    <div>
-                        <span class="meta-label">細部分類:</span> 
-                        <span id="mComp" class="meta-val"></span>
-                    </div>
-                    <div>
-                        <span class="meta-label">朝向方位:</span> 
-                        <span id="mDir" class="meta-val"></span>
-                    </div>
-                    <div>
-                        <span class="meta-label">形式工藝:</span> 
-                        <span id="mCraft" class="meta-val"></span>
-                    </div>
-                </div>
-                <div id="mNote" class="modal-note"></div>
+<!-- 商品詳情放大視窗（點擊深色背景或叉叉皆可關閉） -->
+<div class="modal" id="detailModal" onclick="window.closeDetail()">
+    <div class="modal-container" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="window.closeDetail()">×</button>
+        <img id="mImg" class="modal-img" src="">
+        <div class="modal-body">
+            <div id="mCode" class="modal-title"></div>
+            <div class="modal-meta">
+                <div><span class="meta-label">屋面部位:</span> <span id="mRoof" class="meta-val"></span></div>
+                <div><span class="meta-label">細部分類:</span> <span id="mComp" class="meta-val"></span></div>
+                <div><span class="meta-label">朝向方位:</span> <span id="mDir" class="meta-val"></span></div>
+                <div><span class="meta-label">形式工藝:</span> <span id="mCraft" class="meta-val"></span></div>
             </div>
+            <div id="mNote" class="modal-note"></div>
         </div>
     </div>
+</div>
+
 <script>
     window.displayRecords = [];
     window.currentSelectedArea = '';
@@ -315,10 +275,9 @@
 
                 alert(`🎉 展示數據導入成功！\n共成功解析顯示 ${window.displayRecords.length} 筆普查紀錄。`);
                 
-                // 🚀【完美修正點】：取出 Set 中的第一個字串元素（如 "SH"），避免傳入整個陣列
+                // 🚀 【終極修復點】：取陣列第一個字串元素 [0]，破除陣列比對死結！
                 if (existingAreas.size > 0) {
-                    const areaArray = Array.from(existingAreas);
-                    window.currentSelectedArea = areaArray[0]; // 取得第一個區域代碼字串
+                    window.currentSelectedArea = Array.from(existingAreas)[0];
                     window.filterArea(window.currentSelectedArea);
                 } else {
                     document.getElementById('contentGrid').innerHTML = 
@@ -356,7 +315,7 @@
                 <div class="img-box">${r.photo ? `<img src="${r.photo}">` : '<span class="no-pic">📷 無影像</span>'}</div>
                 <div class="info-box">
                     <div class="code">LS-${r.area}-${r.serial || '000'}</div>
-                    <div class="title">方位：${r.direction || '？'} | 工藝：${r.craft || '？'}</div>
+                    <div class="title">方位：${r.direction || '？'} | 工藝：${r.craft}</div>
                 </div>
             `;
             grid.appendChild(card);
@@ -366,23 +325,16 @@
     // --- 3. 觸控放大詳細視窗 ---
     window.openDetail = function(r) {
         const imgEl = document.getElementById('mImg');
-        imgEl.src = r.photo || ""; 
-        imgEl.style.display = r.photo ? "block" : "none";
-        
-        document.getElementById('mCode').innerText = r.fullCode || `LS-${r.area}-${r.serial || '000'}`;
+        imgEl.src = r.photo || ""; imgEl.style.display = r.photo ? "block" : "none";
+        document.getElementById('mCode').innerText = r.fullCode || "LS-ERROR";
         document.getElementById('mRoof').innerText = r.roofPos || "？";
         document.getElementById('mComp').innerText = r.compCode || "？";
         document.getElementById('mDir').innerText = r.direction || "？";
-        document.getElementById('mCraft').innerText = r.craft || "？"; 
-        
-        // 帶入您設計的新版描述防呆
+        document.getElementById('mCraft').innerText = r.craft; 
         document.getElementById('mNote').innerText = r.note ? `📝 調查描述：${r.note}` : "📝 現場無詳細描述。";
         document.getElementById('detailModal').classList.add('active');
     };
-
-    window.closeDetail = function() { 
-        document.getElementById('detailModal').classList.remove('active'); 
-    };
+    window.closeDetail = function() { document.getElementById('detailModal').classList.remove('active'); };
 
     // --- 4. 初始載入（預設全隱藏，靜待使用者匯入檔案） ---
     window.onload = function() {
@@ -391,5 +343,6 @@
 </script>
 </body>
 </html>
+
 
 
