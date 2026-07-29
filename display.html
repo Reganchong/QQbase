@@ -241,7 +241,7 @@
     window.displayRecords = [];
     window.currentSelectedArea = '';
 
-    // --- 1. 萬能大解包與「動態隱藏沒資料殿區」核心 ---
+    // --- 1. 數據上傳解包監聽器 ---
     document.getElementById('displayImport').onchange = function(e) {
         const file = e.target.files; 
         if (!file || file.length === 0) return;
@@ -257,45 +257,75 @@
                     if (r.area) r.area = String(r.area).toUpperCase().trim();
                 });
 
-                // 掃描資料包內所有出現過的殿區代碼
-                const existingAreas = new Set();
-                window.displayRecords.forEach(r => {
-                    if (r.area) existingAreas.add(r.area);
-                });
-
-                // 實時控制：先隱藏全部按鈕，只有在現存集合內的殿區按鈕才顯示出來
-                document.querySelectorAll('.category-btn').forEach(btn => {
-                    const areaId = btn.id.replace('btn-', '');
-                    if (existingAreas.has(areaId)) {
-                        btn.style.display = 'block'; 
-                    } else {
-                        btn.style.display = 'none';  
-                    }
-                });
-
                 alert(`🎉 展示數據導入成功！\n共成功解析顯示 ${window.displayRecords.length} 筆普查紀錄。`);
                 
-                // 🚀 【終極修復點】：取陣列第一個字串元素 [0]，破除陣列比對死結！
-                if (existingAreas.size > 0) {
-                    window.currentSelectedArea = Array.from(existingAreas)[0];
-                    window.filterArea(window.currentSelectedArea);
-                } else {
-                    document.getElementById('contentGrid').innerHTML = 
-                        `<div style="grid-column:1/-1; text-align:center; color:#6b7280; padding-top:50px;">📋 此檔案不含任何有效的區域數據</div>`;
-                }
+                // 🚀 自動重整核心：解決上傳後畫面卡住不顯示的問題
+                window.refreshDisplay(true);
                 
             } catch(err) { 
-                alert("❌ 檔案解析失敗！"); 
+                alert("❌ 檔案解析失敗！請確認檔案格式是否正確。"); 
+                console.error(err);
             }
         };
         reader.readAsText(file);
     };
 
-    // --- 2. 麥當勞過濾與卡片網格渲染 ---
+    // --- 2. 核心重整與強制渲染機制 ---
+    window.refreshDisplay = function(isAutoTrigger = false) {
+        if (!window.displayRecords || window.displayRecords.length === 0) {
+            if(!isAutoTrigger) alert("📋 目前尚未載入任何數據，請先導入 .survey 檔案。");
+            return;
+        }
+
+        // 亮起重整按鈕
+        document.getElementById('btnRefresh').style.display = 'block';
+
+        // 重新檢索有資料的殿區
+        const existingAreas = new Set();
+        window.displayRecords.forEach(r => {
+            if (r.area) existingAreas.add(r.area);
+        });
+
+        // 動態重繪左側選單開關
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            const areaId = btn.id.replace('btn-', '');
+            if (existingAreas.has(areaId)) {
+                btn.style.display = 'block'; 
+            } else {
+                btn.style.display = 'none';  
+                btn.classList.remove('active');
+            }
+        });
+
+        // 重新計算並強制導向可用殿區
+        if (existingAreas.size > 0) {
+            const areaArray = Array.from(existingAreas);
+            
+            // 防呆：原選區遺失或首次載入時，自動抓取 Set 的第一個字串區域
+            if (!window.currentSelectedArea || !existingAreas.has(window.currentSelectedArea)) {
+                window.currentSelectedArea = areaArray[0];
+            }
+            
+            // 執行資料過濾與網格重繪
+            window.filterArea(window.currentSelectedArea);
+            
+            // 若為使用者手動點擊「重新整理」，則加入短暫淡入淡出動畫作為回饋
+            if(!isAutoTrigger) {
+                const grid = document.getElementById('contentGrid');
+                grid.style.opacity = '0.3';
+                setTimeout(() => grid.style.opacity = '1', 150);
+            }
+        } else {
+            document.getElementById('contentGrid').innerHTML = 
+                `<div style="grid-column:1/-1; text-align:center; color:#6b7280; padding-top:50px;">📋 此檔案不含任何有效的區域數據</div>`;
+        }
+    };
+
+    // --- 3. 殿區卡片過濾與網格渲染 ---
     window.filterArea = function(areaCode) {
         window.currentSelectedArea = areaCode;
         
-        // 點亮當前黃色按鈕
+        // 點亮黃色選取效果
         document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
         const activeBtn = document.getElementById('btn-' + areaCode);
         if (activeBtn) activeBtn.classList.add('active');
@@ -308,6 +338,7 @@
             return;
         }
 
+        // 迴圈動態插入文資卡片
         filtered.forEach(r => {
             const card = document.createElement('div'); card.className = 'item-card';
             card.onclick = () => window.openDetail(r);
@@ -315,32 +346,40 @@
                 <div class="img-box">${r.photo ? `<img src="${r.photo}">` : '<span class="no-pic">📷 無影像</span>'}</div>
                 <div class="info-box">
                     <div class="code">LS-${r.area}-${r.serial || '000'}</div>
-                    <div class="title">方位：${r.direction || '？'} | 工藝：${r.craft}</div>
+                    <div class="title">方位：${r.direction || '？'} | 工藝：${r.craft || '？'}</div>
                 </div>
             `;
             grid.appendChild(card);
         });
     };
 
-    // --- 3. 觸控放大詳細視窗 ---
+    // --- 4. 觸控放大詳細視窗控制 ---
     window.openDetail = function(r) {
         const imgEl = document.getElementById('mImg');
-        imgEl.src = r.photo || ""; imgEl.style.display = r.photo ? "block" : "none";
-        document.getElementById('mCode').innerText = r.fullCode || "LS-ERROR";
+        imgEl.src = r.photo || ""; 
+        imgEl.style.display = r.photo ? "block" : "none";
+        
+        document.getElementById('mCode').innerText = r.fullCode || `LS-${r.area}-${r.serial || '000'}`;
         document.getElementById('mRoof').innerText = r.roofPos || "？";
         document.getElementById('mComp').innerText = r.compCode || "？";
         document.getElementById('mDir').innerText = r.direction || "？";
-        document.getElementById('mCraft').innerText = r.craft; 
+        document.getElementById('mCraft').innerText = r.craft || "？"; 
+        
         document.getElementById('mNote').innerText = r.note ? `📝 調查描述：${r.note}` : "📝 現場無詳細描述。";
         document.getElementById('detailModal').classList.add('active');
     };
-    window.closeDetail = function() { document.getElementById('detailModal').classList.remove('active'); };
 
-    // --- 4. 初始載入（預設全隱藏，靜待使用者匯入檔案） ---
+    window.closeDetail = function() { 
+        document.getElementById('detailModal').classList.remove('active'); 
+    };
+
+    // --- 5. 系統底層初始安全鎖 ---
     window.onload = function() {
         document.querySelectorAll('.category-btn').forEach(btn => btn.style.display = 'none');
+        document.getElementById('btnRefresh').style.display = 'none'; // 靜待檔案匯入後解鎖
     };
 </script>
+
 </body>
 </html>
 
