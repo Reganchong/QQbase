@@ -315,9 +315,10 @@
 
                 alert(`🎉 展示數據導入成功！\n共成功解析顯示 ${window.displayRecords.length} 筆普查紀錄。`);
                 
-                // 🚀 【終極修復點】：取陣列第一個字串元素 [0]，破除陣列比對死結！
+                // 🚀【完美修正點】：取出 Set 中的第一個字串元素（如 "SH"），避免傳入整個陣列
                 if (existingAreas.size > 0) {
-                    window.currentSelectedArea = Array.from(existingAreas)[0];
+                    const areaArray = Array.from(existingAreas);
+                    window.currentSelectedArea = areaArray[0]; // 取得第一個區域代碼字串
                     window.filterArea(window.currentSelectedArea);
                 } else {
                     document.getElementById('contentGrid').innerHTML = 
@@ -355,7 +356,7 @@
                 <div class="img-box">${r.photo ? `<img src="${r.photo}">` : '<span class="no-pic">📷 無影像</span>'}</div>
                 <div class="info-box">
                     <div class="code">LS-${r.area}-${r.serial || '000'}</div>
-                    <div class="title">方位：${r.direction || '？'} | 工藝：${r.craft}</div>
+                    <div class="title">方位：${r.direction || '？'} | 工藝：${r.craft || '？'}</div>
                 </div>
             `;
             grid.appendChild(card);
@@ -365,16 +366,23 @@
     // --- 3. 觸控放大詳細視窗 ---
     window.openDetail = function(r) {
         const imgEl = document.getElementById('mImg');
-        imgEl.src = r.photo || ""; imgEl.style.display = r.photo ? "block" : "none";
-        document.getElementById('mCode').innerText = r.fullCode || "LS-ERROR";
+        imgEl.src = r.photo || ""; 
+        imgEl.style.display = r.photo ? "block" : "none";
+        
+        document.getElementById('mCode').innerText = r.fullCode || `LS-${r.area}-${r.serial || '000'}`;
         document.getElementById('mRoof').innerText = r.roofPos || "？";
         document.getElementById('mComp').innerText = r.compCode || "？";
         document.getElementById('mDir').innerText = r.direction || "？";
-        document.getElementById('mCraft').innerText = r.craft; 
+        document.getElementById('mCraft').innerText = r.craft || "？"; 
+        
+        // 帶入您設計的新版描述防呆
         document.getElementById('mNote').innerText = r.note ? `📝 調查描述：${r.note}` : "📝 現場無詳細描述。";
         document.getElementById('detailModal').classList.add('active');
     };
-    window.closeDetail = function() { document.getElementById('detailModal').classList.remove('active'); };
+
+    window.closeDetail = function() { 
+        document.getElementById('detailModal').classList.remove('active'); 
+    };
 
     // --- 4. 初始載入（預設全隱藏，靜待使用者匯入檔案） ---
     window.onload = function() {
@@ -383,4 +391,5 @@
 </script>
 </body>
 </html>
+
 
