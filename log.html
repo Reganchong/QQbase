@@ -1,482 +1,509 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="
-width=device-width,initial-scale=1.0">
-<title>數據登錄工具</title>
-<style>
- body{font-family:sans-serif;
- background:#f5f5f7;color:#1d1d1f;
- margin:0;padding:15px;}
- .container{max-width:800px;
- margin:0 auto;background:#fff;
- padding:24px;border-radius:16px;}
- h1{font-size:22px;text-align:center;
- color:#1a365d;}
- .code-preview-box{
- background:#ebf8ff;border:2px dashed
- #3182ce;padding:18px;
- border-radius:10px;text-align:center;}
- .code-preview-box label{font-size:13px;
- color:#2b6cb0;font-weight:bold;}
- .generated-code{font-family:monospace;
- font-size:24px;font-weight:bold;
- color:#2b6cb0;word-break:break-all;}
- .page{display:none;}
- .page.active{display:block;}
- .form-row{display:flex;gap:15px;
- margin-bottom:15px;}
- .form-row .form-group{flex:1;
- min-width:0;}
- label{display:block;font-weight:600;
- margin-bottom:6px;font-size:14px;
- color:#4a5568;}
- input[type="text"],select,textarea{
- width:100%;padding:12px;border:1px
- solid #cbd5e0;border-radius:8px;
- box-sizing:border-box;font-size:16px;}
- .checkbox-group{display:flex;
- flex-wrap:wrap;gap:12px;}
- .checkbox-label{display:flex;
- align-items:center;gap:8px;
- background:#f7fafc;padding:10px;
- border-radius:8px;border:1px solid
- #e2e8f0;font-size:14px;}
- .btn-group{display:flex;gap:12px;
- margin-top:20px;}
- button{flex:1;padding:15px;
- border:none;border-radius:8px;
- font-size:16px;font-weight:bold;
- cursor:pointer;}
- .btn-submit{background:#2b6cb0;
- color:#fff;}
- .btn-nav{background:#718096;
- color:#fff;}
- .btn-export{background:#38a169;
- color:#fff;}
- .btn-home{background:#1a365d;
- color:#fff;margin-top:20px;
- width:100%;display:block;
- text-align:center;padding:15px 0;
- border-radius:8px;font-weight:bold;
- text-decoration:none;
- box-sizing:border-box;}
- .preview-container{margin-top:10px;
- display:none;text-align:center;}
- .preview-container img{
- max-width:100%;max-height:200px;}
- .history{margin-top:30px;
- border-top:2px solid #e2e8f0;
- padding-top:20px;}
- .history h2{font-size:18px;
- margin:0 0 15px 0;color:#4a5568;}
- .data-card{background:#f7fafc;
- padding:15px;border-radius:10px;
- margin-bottom:12px;border-left:
- 6px solid #2b6cb0;position:relative;}
- .data-card img{max-width:150px;
- display:block;margin-top:10px;}
- .delete-btn{position:absolute;
- top:15px;right:15px;color:#e53e3e;
- font-weight:bold;border:none;
- background:none;font-size:15px;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>普查系統 - 數據登錄工具</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        h1 {
+            font-size: 22px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #1a365d;
+        }
+        .code-preview-box {
+            background-color: #ebf8ff;
+            border: 2px dashed #3182ce;
+            padding: 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .code-preview-box label {
+            font-size: 13px;
+            color: #2b6cb0;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .generated-code {
+            font-family: monospace;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2b6cb0;
+            word-break: break-all;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-row .form-group {
+            flex: 1;
+            min-width: 0;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: #fff;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 8px 0;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f7fafc;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-submit {
+            background-color: #2b6cb0;
+            color: white;
+        }
+        .btn-nav {
+            background-color: #718096;
+            color: white;
+        }
+        .btn-export {
+            background-color: #38a169;
+            color: white;
+        }
+        .btn-home {
+            background-color: #1a365d;
+            color: white;
+            margin-top: 20px;
+            width: 100%;
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            padding: 15px 0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-weight: bold;
+        }
+        .preview-container {
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+        .preview-container img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+        }
+        .history {
+            margin-top: 30px;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        .history h2 {
+            font-size: 18px;
+            margin: 0 0 15px 0;
+            color: #4a5568;
+        }
+        .data-card {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border-left: 6px solid #2b6cb0;
+            font-size: 14px;
+            position: relative;
+        }
+        .data-card img {
+            max-width: 150px;
+            display: block;
+            margin-top: 10px;
+            border-radius: 6px;
+        }
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: #e53e3e;
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            background: none;
+            font-size: 15px;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
- <h1>🏛️ 裝飾普查數據登錄</h1>
- <div class="code-preview-box">
-  <label>當前選擇的完整編號</label>
-  <div class="generated-code"
-  id="codePreview"></div>
- </div>
+    <h1>🏛️ 裝飾普查數據登錄</h1>
+    
+    <div class="code-preview-box">
+        <label>當前選擇的完整編號</label>
+        <div class="generated-code" id="codePreview"></div>
+    </div>
 
- <!-- 📄 第一步分頁 -->
- <div id="page1" class="page active">
-  <h3 style="color:#2b6cb0;">
-  第一步：選擇區域與方位</h3>
-  <div class="form-row">
-   <div class="form-group" style="
-   flex:0 0 80px;">
-    <label>寺廟</label>
-    <input type="text" id="prefix"
-    value="LS" disabled style="
-    background:#edf2f7;
-    text-align:center;">
-   </div>
-   <div class="form-group">
-    <label>建築區域 [殿區]</label>
-    <select id="area" onchange="
-    updateCodePreview()">
-     <option value="SH">三川殿</option>
-     <option value="FL">前殿龍門</option>
-     <option value="FR">前殿虎門</option>
-     <option value="LC">左下山前廊</option>
-     <option value="RC">右下山前廊</option>
-     <option value="XL">左下山護室</option>
-     <option value="XR">右下山護室</option>
-     <option value="GL">左過水廊</option>
-     <option value="GR">右過水廊</option>
-     <option value="TL">左頂山護室</option>
-     <option value="TR">右頂山護室</option>
-     <option value="BT">鐘樓</option>
-     <option value="DT">鼓樓</option>
-     <option value="YH">後殿月老廳</option>
-     <option value="HH">後殿華佗廳</option>
-     <option value="RL">後殿龍門</option>
-     <option value="RR">後殿虎門</option>
-     <option value="TH">天上聖母殿</option>
-     <option value="GH">關聖帝君殿</option>
-     <option value="WH">文昌帝君殿</option>
-     <option value="PL">牌樓</option>
-    </select>
-   </div>
-  </div>
-  <div class="form-row">
-   <div class="form-group">
-    <label>屋面朝向 [方位]</label>
-    <select id="direction" onchange="
-    updateCodePreview()">
-     <option value="W">西 (W)</option>
-     <option value="E">東 (E)</option>
-     <option value="S">南 (S)</option>
-     <option value="N">北 (N)</option>
-    </select>
-   </div>
-  </div>
-  <div class="btn-group">
-   <a href="index.html" class="btn-home"
-   style="margin:0;flex:1;">🏠 回目錄</a>
-   <button type="button" class="btn-submit"
-   onclick="switchPage(2)">下一步 ➡️</button>
-  </div>
- </div>
+    <!-- 📄 第一步分頁：大建築環境與方位朝向 -->
+    <div id="page1" class="page active">
+        <h3 style="color:#2b6cb0; margin-bottom:15px; border-left:4px solid #2b6cb0; padding-left:8px;">
+            第一步：選擇主要建築與朝向方位
+        </h3>
+        <div class="form-row">
+            <div class="form-group" style="flex: 0 0 80px;">
+                <label>寺廟代號</label>
+                <input type="text" id="prefix" value="LS" disabled 
+                       style="background-color: #edf2f7; text-align: center; font-weight: bold;">
+            </div>
+            <div class="form-group">
+                <label>建築區域 [殿區]</label>
+                <select id="area" onchange="updateCodePreview()">
+                    <option value="SH" selected>三川殿 (SH)</option>
+                    <option value="FL">前殿龍門 (FL)</option>
+                    <option value="FR">前殿虎門 (FR)</option>
+                    <option value="LC">左下山前廊 (LC)</option>
+                    <option value="RC">右下山前廊 (RC)</option>
+                    <option value="XL">左下山護室 (XL)</option>
+                    <option value="XR">右下山護室 (XR)</option>
+                    <option value="GL">左過水廊 (GL)</option>
+                    <option value="GR">右過水廊 (GR)</option>
+                    <option value="TL">左頂山護室 (TL)</option>
+                    <option value="TR">右頂山護室 (TR)</option>
+                    <option value="BT">鐘樓 (BT)</option>
+                    <option value="DT">鼓樓 (DT)</option>
+                    <option value="YH">後殿月老廳 (YH)</option>
+                    <option value="HH">後殿華佗廳 (HH)</option>
+                    <option value="RL">後殿龍門 (RL)</option>
+                    <option value="RR">後殿虎門 (RR)</option>
+                    <option value="TH">天上聖母殿 (TH)</option>
+                    <option value="GH">關聖帝君殿 (GH)</option>
+                    <option value="WH">文昌帝君殿 (WH)</option>
+                    <option value="PL">牌樓 (PL)</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>屋面朝向 [方位]</label>
+                <select id="direction" onchange="updateCodePreview()">
+                    <option value="W" selected>西 West (W)</option>
+                    <option value="E">東 East (E)</option>
+                    <option value="S">南 South (S)</option>
+                    <option value="N">北 North (N)</option>
+                </select>
+            </div>
+        </div>
+        <div class="btn-group">
+            <a href="index.html" class="btn-home" style="margin-top:0; width:auto; flex:1;">🏠 回目錄</a>
+            <button type="button" class="btn-submit" onclick="switchPage(2)">下一步 ➡️</button>
+        </div>
+    </div>
 
- <!-- 📄 第二步分頁 -->
- <div id="page2" class="page">
-  <h3 style="color:#2b6cb0;">
-  第二步：細部數據與影像</h3>
-  <div class="form-row">
-   <div class="form-group">
-    <label>屋面部位</label>
-    <select id="roofPos" onchange="
-    updateCodePreview()">
-     <option value="MR">正脊 (MR)</option>
-     <option value="DR">垂脊 (DR)</option>
-     <option value="HR">戧脊 (HR)</option>
-     <option value="ER">圍脊 (ER)</option>
-     <option value="AR">角脊 (AR)</option>
-     <option value="SR">燕尾 (SR)</option>
-     <option value="SD">水車堵 (SD)</option>
-     <option value="GD">山花 (GD)</option>
-     <option value="WD">牆堵 (WD)</option>
-    </select>
-   </div>
-   <div class="form-group">
-    <label>構件細部分類</label>
-    <select id="compCode" onchange="
-    updateCodePreview()">
-     <option value="01">上馬路 (01)</option>
-     <option value="02">下馬路 (02)</option>
-     <option value="03">三角堵 (03)</option>
-     <option value="04">四寸蓋 (04)</option>
-     <option value="05">印斗 (05)</option>
-     <option value="06">吐水 (06)</option>
-     <option value="07">圭角 (07)</option>
-     <option value="08">西施脊 (08)</option>
-     <option value="09">垂脊 (09)</option>
-     <option value="10">通風脊堵 (10)</option>
-     <option value="11">脊堵 (11)</option>
-     <option value="12">脊塞 (12)</option>
-     <option value="13">脊鎖 (13)</option>
-     <option value="14">脊獸 (14)</option>
-     <option value="15">規帶 (15)</option>
-     <option value="16">排頭 (16)</option>
-     <option value="17">燕尾 (17)</option>
-    </select>
-   </div>
-  </div>
-  <div class="form-row">
-   <div class="form-group">
-    <label>作品流水號</label>
-    <input type="text" id="serial"
-    value="001" oninput="
-    updateCodePreview()" required
-    style="font-family:monospace;">
-   </div>
-   <div class="form-group">
-    <label>照片型別+序號</label>
-    <input type="text" id="photoType"
-    value="O01" oninput="
-    updateCodePreview()" required
-    style="font-family:monospace;">
-   </div>
-  </div>
-  
-  <div class="form-group">
-   <label>工藝形式 [可複選]</label>
-   <div class="checkbox-group">
-    <label class="checkbox-label">
-    <input type="checkbox" name="craftBox"
-    value="CP" onchange="updateCodePreview()">
-    剪黏 (CP)</label>
-    <label class="checkbox-label">
-    <input type="checkbox" name="craftBox"
-    value="CS" onchange="updateCodePreview()">
-    泥塑 (CS)</label>
-    <label class="checkbox-label">
-    <input type="checkbox" name="craftBox"
-    value="JP" onchange="updateCodePreview()">
-    交趾陶 (JP)</label>
-   </div>
-  </div>
-  
-  <div class="form-group" style="
-  margin-top:15px;">
-   <label>📷 調查影像 (選填)</label>
-   <input type="file" id="photo"
-   accept="image/*">
-   <div class="preview-container"
-   id="previewContainer">
-    <img id="imagePreview" src="">
-   </div>
-  </div>
-  <div class="form-group" style="
-  margin-top:15px;">
-   <label>📝 題材內容 / 狀況備註</label>
-   <textarea id="note" rows="2"
-   placeholder="輸入觀察描述..."></textarea>
-  </div>
-  <div class="btn-group">
-   <button type="button" class="btn-nav"
-   onclick="switchPage(1)">⬅️ 上一步</button>
-   <button type="button" class="btn-submit"
-   onclick="saveToTemporaryList()">
-   💾 暫存此筆</button>
-  </div>
+    <!-- 📄 第二步分頁：詳細數據、工藝形式多選與大打包 -->
+    <div id="page2" class="page">
+        <h3 style="color:#2b6cb0; margin-bottom:15px; border-left:4px solid #2b6cb0; padding-left:8px;">
+            第二步：詳細普查數據與影像紀錄
+        </h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label>屋面部位</label>
+                <select id="roofPos" onchange="updateCodePreview()">
+                    <option value="MR" selected>正脊 (MR)</option>
+                    <option value="DR">垂脊 (DR)</option>
+                    <option value="HR">戧脊 (HR)</option>
+                    <option value="ER">圍脊 (ER)</option>
+                    <option value="AR">角脊 (AR)</option>
+                    <option value="SR">燕尾 (SR)</option>
+                    <option value="SD">水車堵 (SD)</option>
+                    <option value="GD">山花 (GD)</option>
+                    <option value="WD">牆堵 (WD)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>構件細部分類</label>
+                <select id="compCode" onchange="updateCodePreview()">
+                    <option value="01" selected>上馬路 (01)</option>
+                    <option value="02">下馬路 (02)</option>
+                    <option value="03">三角堵 (03)</option>
+                    <option value="04">四寸蓋 (04)</option>
+                    <option value="05">印斗 (05)</option>
+                    <option value="06">吐水 (06)</option>
+                    <option value="07">圭角 (07)</option>
+                    <option value="08">西施脊 (08)</option>
+                    <option value="09">垂脊 (09)</option>
+                    <option value="10">通風脊堵 (10)</option>
+                    <option value="11">脊堵 (11)</option>
+                    <option value="12">脊塞 (12)</option>
+                    <option value="13">脊鎖 (13)</option>
+                    <option value="14">脊獸 (14)</option>
+                    <option value="15">規帶 (15)</option>
+                    <option value="16">排頭 (16)</option>
+                    <option value="17">燕尾 (17)</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>作品流水號</label>
+                <input type="text" id="serial" value="001" oninput="updateCodePreview()" 
+                       required style="font-family: monospace;">
+            </div>
+            <div class="form-group">
+                <label>照片型別+序號</label>
+                <input type="text" id="photoType" value="O01" oninput="updateCodePreview()" 
+                       required style="font-family: monospace;">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>工藝形式 [可複選項目]</label>
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="craftBox" value="CP" onchange="updateCodePreview()"> 
+                    剪黏工藝 (CP)
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="craftBox" value="CS" onchange="updateCodePreview()"> 
+                    泥塑工藝 (CS)
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" name="craftBox" value="JP" onchange="updateCodePreview()"> 
+                    交趾陶工藝 (JP)
+                </label>
+            </div>
+        </div>
+        
+        <div class="form-group" style="margin-top: 15px;">
+            <label>📷 調查影像 (選填)</label>
+            <input type="file" id="photo" accept="image/*">
+            <div class="preview-container" id="previewContainer">
+                <img id="imagePreview" src="" alt="預覽">
+            </div>
+        </div>
+        <div class="form-group" style="margin-top: 15px;">
+            <label>📝 題材內容 / 保存狀況備註</label>
+            <textarea id="note" rows="2" placeholder="請輸入細部觀察描述..."></textarea>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn-nav" onclick="switchPage(1)">⬅️ 返回第一步</button>
+            <button type="button" class="btn-submit" onclick="saveToTemporaryList()">💾 暫存此筆普查數據</button>
+        </div>
 
-  <div class="history">
-   <div class="history-header" style="
-   display:flex;justify-content:
-   space-between;align-items:center;">
-    <h2>📝 暫存區 (<span id="
-    tempCount">0</span> 筆)</h2>
-    <button type="button" class="
-    btn-export" onclick="
-    downloadBulkPackFile()">
-    📦 打包下載全部</button>
-   </div>
-   <div id="tempDataList"></div>
-  </div>
-  <a href="index.html" class="btn-home">
-  🏠 結束登錄，回首頁</a>
- </div>
+        <div class="history">
+            <div class="history-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>📝 本次連續登錄暫存區 (<span id="tempCount">0</span> 筆)</h2>
+                <button type="button" class="btn-export" onclick="downloadBulkPackFile()">📦 打包下載全部暫存</button>
+            </div>
+            <div id="tempDataList"></div>
+        </div>
+        <a href="index.html" class="btn-home">🏠 結束登錄，回首頁</a>
+    </div>
 </div>
 <script>
- let base64Image = "";
- window.currentSessionRecords = [];
+    let base64Image = "";
+    window.currentSessionRecords = [];
 
- function switchPage(num) {
-  document.getElementById('page1')
-    .classList.remove('active');
-  document.getElementById('page2')
-    .classList.remove('active');
-  document.getElementById('page' + num)
-    .classList.add('active');
-  window.scrollTo({
-    top:0,behavior:'smooth'});
- }
+    // 分頁切換控制
+    function switchPage(num) {
+        document.getElementById('page1').classList.remove('active');
+        document.getElementById('page2').classList.remove('active');
+        document.getElementById('page' + num).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
- // 🚀 依學術規範嚴格排序工藝
- function getSelectedSortedCraftsString() {
-  const boxes = document.querySelectorAll(
-    'input[name="craftBox"]:checked');
-  let selected = [];
-  boxes.forEach(cb => selected.push(
-    cb.value));
-  const w = { "CP":1, "CS":2, "JP":3 };
-  selected.sort((a, b) => w[a] - w[b]);
-  return selected.join("-");
- }
+    // 🚀 核心：提取多選工藝形式，並強制依據固定順序（CP-CS-JP）以連字號串接
+    function getSelectedSortedCraftsString() {
+        const boxes = document.querySelectorAll('input[name="craftBox"]:checked');
+        let selected = [];
+        boxes.forEach(cb => selected.push(cb.value));
+        
+        // 依照文資論文規範權重進行排序
+        const orderWeight = { "CP": 1, "CS": 2, "JP": 3 };
+        selected.sort((a, b) => orderWeight[a] - orderWeight[b]);
+        
+        return selected.join("-");
+    }
 
- function updateCodePreview() {
-  const area = document.getElementById(
-    'area').value;
-  const dir = document.getElementById(
-    'direction').value;
-  const roof = document.getElementById(
-    'roofPos').value;
-  const comp = document.getElementById(
-    'compCode').value;
-  const ser = document.getElementById(
-    'serial').value.trim() || '？';
-  const pType = document.getElementById(
-    'photoType').value.trim() || '？';
-  const craftToken = 
-    getSelectedSortedCraftsString() || "？";
-  
-  document.getElementById('codePreview')
-  .innerText = "LS-" + area + "-" + dir 
-  + "-" + roof + "-" + comp + "-" + ser 
-  + "-" + pType + "-" + craftToken;
- }
+    // 跨分頁即時 Full Code 公式組裝連動
+    function updateCodePreview() {
+        const area = document.getElementById('area').value;
+        const dir = document.getElementById('direction').value;
+        const roof = document.getElementById('roofPos').value;
+        const comp = document.getElementById('compCode').value;
+        const ser = document.getElementById('serial').value.trim() || '？';
+        const pType = document.getElementById('photoType').value.trim() || '？';
+        const craftToken = getSelectedSortedCraftsString() || "？";
+        
+        // 完美對齊：寺廟-殿區-方位-部位-細部-流水號-型別-工藝組合
+        document.getElementById('codePreview').innerText = 
+            `LS-${area}-${dir}-${roof}-${comp}-${ser}-${pType}-${craftToken}`;
+    }
 
- function saveToTemporaryList() {
-  const ser = document.getElementById(
-    'serial').value.trim();
-  const pType = document.getElementById(
-    'photoType').value.trim();
-  if (!ser || !pType) { 
-    alert("❌ 請填寫必填欄位！"); 
-    return; 
-  }
-  const craftString = 
-    getSelectedSortedCraftsString();
-  if (!craftString) { 
-    alert("❌ 請至少勾選一種工藝！"); 
-    return; 
-  }
+    // 原地死鎖連續登記暫存工具
+    function saveToTemporaryList() {
+        const ser = document.getElementById('serial').value.trim();
+        const pType = document.getElementById('photoType').value.trim();
+        if (!ser || !pType) { alert("❌ 請填寫流水號與照片型別！"); return; }
+        
+        const craftString = getSelectedSortedCraftsString();
+        if (!craftString) { alert("❌ 請至少勾選一種工藝形式！"); return; }
 
-  const record = {
-   fullCode: document.getElementById(
-     'codePreview').innerText,
-   area: document.getElementById('area')
-     .value,
-   direction: document.getElementById(
-     'direction').value,
-   roofPos: document.getElementById(
-     'roofPos').value,
-   compCode: document.getElementById(
-     'compCode').value,
-   serial: ser, photoType: pType, 
-   craft: craftString,
-   note: document.getElementById('note')
-     .value, 
-   photo: base64Image,
-   timestamp: new Date().toLocaleString()
-  };
+        const record = {
+            fullCode: document.getElementById('codePreview').innerText,
+            area: document.getElementById('area').value,
+            direction: document.getElementById('direction').value,
+            roofPos: document.getElementById('roofPos').value,
+            compCode: document.getElementById('compCode').value,
+            serial: ser,
+            photoType: pType,
+            craft: craftString, // 儲存如 "CP-CS" 排序連字號字串
+            note: document.getElementById('note').value,
+            photo: base64Image,
+            timestamp: new Date().toLocaleString()
+        };
 
-  window.currentSessionRecords.push(
-    record);
-  document.getElementById('note')
-    .value = "";
-  document.getElementById('photo')
-    .value = "";
-  document.getElementById(
-    'previewContainer').style.display = 
-    'none';
-  base64Image = "";
-  document.querySelectorAll(
-    'input[name="craftBox"]').forEach(
-    cb => cb.checked = false);
-  
-  const val = parseInt(ser, 10);
-  if (!isNaN(val)) { 
-   document.getElementById('serial')
-   .value = String(val + 1)
-   .padStart(3, '0'); 
-  }
-  updateCodePreview(); refreshTempUIList();
- }
+        window.currentSessionRecords.push(record);
+        
+        // 完美原地留守：重置備註、相機、並自動取消所有工藝勾選
+        document.getElementById('note').value = "";
+        document.getElementById('photo').value = "";
+        document.getElementById('previewContainer').style.display = 'none';
+        base64Image = "";
+        document.querySelectorAll('input[name="craftBox"]').forEach(cb => cb.checked = false);
+        
+        // 流水號自動加一
+        const val = parseInt(ser, 10);
+        if (!isNaN(val)) { 
+            document.getElementById('serial').value = String(val + 1).padStart(3, '0'); 
+        }
+        
+        updateCodePreview();
+        refreshTempUIList();
+    }
 
- function refreshTempUIList() {
-  const box = document.getElementById(
-    'tempDataList');
-  document.getElementById('tempCount')
-    .innerText = 
-    window.currentSessionRecords.length;
-  if (!box) return; box.innerHTML = "";
-  let rev = [...window.currentSessionRecords]
-    .reverse();
-  rev.forEach((val, index) => {
-   const realIndex = 
-     window.currentSessionRecords.length 
-     - 1 - index;
-   const card = document.createElement(
-     'div'); 
-   card.className = 'data-card';
-   
-   let imgHtml = "";
-   if (val.photo) {
-    imgHtml = "<img src='" + val.photo 
-      + "'>";
-   }
-   
-   card.innerHTML = "<button type="
-    + "'button' class='delete-btn' "
-    + "onclick='removeTempCard("
-    + realIndex + ")'>❌ 刪除</button>"
-    + "<strong>🔍 暫存編碼：" 
-    + val.fullCode + "</strong><br>"
-    + "<span style='color:#718096;"
-    + "font-size:12px;'>🕒 時間：" 
-    + val.timestamp + " | 🎨 工藝：" 
-    + val.craft + "</span><br>"
-    + (val.note ? "<div style='margin"
-    + "-top:5px;background:#fff;"
-    + "padding:6px;border:1px solid "
-    + "#edf2f7;'>📝 備註：" + val.note 
-    + "</div>" : "") + imgHtml;
-   box.appendChild(card);
-  });
-  if (window.currentSessionRecords
-    .length === 0) { 
-   box.innerHTML = "<p style='color:"
-   + "#a0aec0;text-align:center;'>"
-   + "目前暫存區尚無數據</p>"; 
-  }
- }
+    // 實時刷新操作第二頁下方的暫存卡片清單
+    function refreshTempUIList() {
+        const box = document.getElementById('tempDataList');
+        document.getElementById('tempCount').innerText = window.currentSessionRecords.length;
+        if (!box) return; 
+        box.innerHTML = "";
+        
+        let reversed = [...window.currentSessionRecords].reverse();
+        reversed.forEach((val, index) => {
+            const realIndex = window.currentSessionRecords.length - 1 - index;
+            const card = document.createElement('div');
+            card.className = 'data-card';
+            card.innerHTML = `
+                <button type="button" class="delete-btn" onclick="removeTempCard(${realIndex})">❌ 刪除</button>
+                <strong>🔍 暫存編碼：${val.fullCode}</strong><br>
+                <span style="color:#718096; font-size:12px;">🕒 時間：${val.timestamp} | 🎨 工藝形式：${val.craft}</span><br>
+                ${val.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 備註：${val.note}</div>` : ''}
+                ${val.photo ? `<img src="${val.photo}">` : ''}
+            `;
+            box.appendChild(card);
+        });
+        
+        if (window.currentSessionRecords.length === 0) {
+            box.innerHTML = "<p style='color:#a0aec0; text-align:center;'>目前暫存區尚無數據</p>";
+        }
+    }
 
- function removeTempCard(index) {
-  if (!confirm("確定要移除嗎？")) return;
-  window.currentSessionRecords.splice(
-    index, 1);
-  refreshTempUIList();
- }
+    function removeTempCard(index) {
+        if (!confirm("確定要移除這筆暫存數據嗎？")) return;
+        window.currentSessionRecords.splice(index, 1);
+        refreshTempUIList();
+    }
 
- function downloadBulkPackFile() {
-  if (window.currentSessionRecords
-    .length === 0) { 
-   alert("❌ 暫存區無數據！"); return; 
-  }
-  const jsonStr = JSON.stringify(
-    window.currentSessionRecords, null, 2);
-  const blob = new Blob([jsonStr], 
-    { type: "application/json" });
-  const link = document.createElement(
-    "a"); 
-  link.href = URL.createObjectURL(blob);
-  const areaToken = document.getElementById(
-    'area').value;
-  link.setAttribute("download", "普查"
-   + "_" + areaToken + "_" + new Date()
-   .getTime() + ".survey");
-  document.body.appendChild(link); 
-  link.click(); 
-  document.body.removeChild(link);
-  alert("📦 批量打包下載成功！");
- }
+    // 一鍵打包下載生成唯一一個 .survey 檔案包
+    function downloadBulkPackFile() {
+        if (window.currentSessionRecords.length === 0) {
+            alert("❌ 目前暫存區空空如也，沒有數據可以打包！"); return;
+        }
+        const jsonStr = JSON.stringify(window.currentSessionRecords, null, 2);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        
+        const areaToken = document.getElementById('area').value;
+        const dateToken = new Date().toLocaleDateString().replace(/\//g, "-");
+        link.setAttribute("download", `龍山寺普查打包_${areaToken}_${dateToken}.survey`);
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        alert(`📦 打包成功！已將本次登錄的 ${window.currentSessionRecords.length} 筆學術連字號資料儲存！`);
+    }
 
- window.onload = function() {
-  updateCodePreview(); refreshTempUIList();
-  document.getElementById('photo')
-  .onchange = function(e) {
-   if (e.target.files && e.target.files) {
-    const rdr = new FileReader();
-    rdr.onload = function(evt) {
-     base64Image = evt.target.result;
-     document.getElementById(
-       'imagePreview').src = 
-       evt.target.result;
-     document.getElementById(
-       'previewContainer').style
-       .display = 'block';
+    // 初始載入與相機轉碼監聽
+    window.onload = function() {
+        updateCodePreview();
+        refreshTempUIList();
+        document.getElementById('photo').onchange = function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const rdr = new FileReader();
+                rdr.onload = function(evt) {
+                    base64Image = evt.target.result;
+                    document.getElementById('imagePreview').src = evt.target.result;
+                    document.getElementById('previewContainer').style.display = 'block';
+                };
+                rdr.readAsDataURL(e.target.files[0]);
+            }
+        };
     };
-    rdr.readAsDataURL(e.target.files);
-   }
-  };
- };
 </script>
 </body>
 </html>
