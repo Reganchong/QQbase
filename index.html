@@ -30,26 +30,35 @@
         學術型多頁安全存檔版
     </div>
 
+        <!-- 📄 升級後的選單網格：已完美融入雲端連線測試工具按鈕 -->
     <div class="menu-grid">
         <a href="log.html" class="menu-item">
             <h3>➕ 數據登錄工具</h3>
             <p>前往現場普查，20殿區、9部位、17細部鎖定，流水號自動+1，免網打包下載。</p>
         </a>
+        
         <a href="query.html" class="menu-item">
             <h3>🔍 導入與統計表格查詢</h3>
             <p>批次導入普查總包，即時產生學術規範大表格、檢視照片並導出 Excel 總表。</p>
         </a>
+        
         <a href="display.html" class="menu-item" style="background:#f0fdf4; border-color:#bbf7d0;">
             <h3>🖥️ 成果互動展示機 (麥當勞式)</h3>
             <p>將普查總包充填入觸控大導覽機，流暢分類點選物件與檢視大圖，適成果展示。</p>
         </a>
+
+        <!-- 🚀 成功新增：亮藍色外框的雲端資料庫連線功能測試按鈕 -->
+        <a href="test-cloud.html" class="menu-item" style="background:#f7fafc; border-color:#3182ce;">
+            <h3>📡 雲端連線狀態測試</h3>
+            <p>在批量同步前，可先點此進入極簡純文字寫入測試頁，快速自我排查網路與金鑰權限。</p>
+        </a>
+        
         <div class="menu-item sync-card" onclick="document.getElementById('syncInput').click()">
             <h3>🔄 點擊批量上傳同步至雲端</h3>
             <p>回到有穩定網路的地方，選取本機打包的實體檔案一次性批量倒進雲端庫。</p>
         </div>
     </div>
-    <input type="file" id="syncInput" multiple accept=".survey" style="display:none;">
-</div>
+
 
 <script type="module">
     import { initializeApp } from "https://gstatic.com";
