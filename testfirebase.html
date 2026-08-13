@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase 雲端寫入權限測試</title>
+    <style>
+        body {
+            font-family: -apple-system, sans-serif;
+            background-color: #f0f4f8;
+            color: #2d3748;
+            padding: 30px 15px;
+            margin: 0;
+        }
+        .test-box {
+            max-width: 450px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 2px solid #cbd5e0;
+        }
+        h2 {
+            font-size: 18px;
+            color: #1a365d;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #2b6cb0;
+        }
+        .status-log {
+            margin-top: 20px;
+            background: #edf2f7;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #4a5568;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<div class="test-box">
+    <h2>📡 Firebase 雲端寫入純文字測試</h2>
+    
+    <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:bold;">
+        請輸入隨意測試文字：
+    </label>
+    <input type="text" id="testInput" value="龍山寺網頁獨立連線測試一號">
+    
+    <button type="button" id="submitTestBtn">
+        🚀 點擊送出至 Google 雲端
+    </button>
+    
+    <div style="margin-top:15px; font-size:13px; font-weight:bold;">
+        連線與寫入狀態日誌：
+    </div>
+    <div class="status-log" id="statusLog">等待伺服器環境加載中...</div>
+</div>
+<script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
+
+<script>
+    const logEl = document.getElementById('statusLog');
+
+    window.onerror = function(message, source, lineno) {
+        logEl.style.color = "#e53e3e";
+        logEl.innerText = `🚨 網頁腳本卡死！\n原因：${message}\n行號：第 ${lineno} 行`;
+        return true;
+    };
+
+    const config = {
+        apiKey: "AIzaSyCcQwZq42FnlL5_V0HCQ1mjNZaulQrRh1w",
+        authDomain: "://firebaseapp.com",
+        projectId: "qqbase-39057",
+        storageBucket: "qqbase-39057.firebasestorage.app",
+        messagingSenderId: "173614464944",
+        appId: "1:173614464944:web:aeb38060c576cf495aa075",
+        measurementId: "G-KF50RT64YM"
+    };
+
+    let testCollection = null;
+
+    try {
+        if (typeof firebase === 'undefined') {
+            throw new Error("Google SDK 套件被阻擋載入！\n請務必推上 GitHub Pages 後以伺服器網址點開測試！");
+        }
+
+        const app = firebase.initializeApp(config);
+        const db = firebase.firestore(app);
+        testCollection = db.collection("survey_records");
+        
+        logEl.style.color = "#2f855a";
+        logEl.innerText = "✅ 【伺服器套件載入成功！】連線順暢！\n請點擊藍色按鈕測試寫入。";
+    } catch (err) {
+        logEl.style.color = "#e53e3e";
+        logEl.innerText = `❌ 初始化失敗：\n${err.message}`;
+    }
+
+    document.getElementById('submitTestBtn').onclick = async function() {
+        const textVal = document.getElementById('testInput').value.trim();
+        if (!textVal) { alert("請先輸入測試文字！"); return; }
+        
+        if (!navigator.onLine) {
+            logEl.style.color = "#dd6b20";
+            logEl.innerText = "🚨 目前電腦處於離線狀態！";
+            return;
+        }
+
+        logEl.style.color = "#4a5568";
+        logEl.innerText = "📡 正在嘗試透過 HTTPS 協議安全寫入 Google 雲端庫...";
+        
+        const testPayload = {
+            testMessage: textVal,
+            source: "GitHub Pages 網頁版測試",
+            timestamp: new Date().toLocaleString()
+        };
+
+        try {
+            const docRef = await testCollection.add(testPayload);
+            logEl.style.color = "#2f855a";
+            logEl.innerText = `🎉 【雲端網頁版寫入成功！】\n` +
+                `Google 唯一 Document ID：\n${docRef.id}\n\n` +
+                `成功上傳內容："${testPayload.testMessage}"`;
+        } catch (err) {
+            logEl.style.color = "#e53e3e";
+            logEl.innerText = `❌ 雲端寫入失敗！\n錯誤詳情：${err.message}`;
+        }
+    };
+</script>
+</body>
+</html>
