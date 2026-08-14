@@ -87,22 +87,22 @@
 <script src="https://gstatic.com"></script>
 <script src="https://gstatic.com"></script>
 
-<!-- 🚀 核心優化：全面與 index.html 格式看齊，改用現代官方最權威的 ESM 模組化架構，徹底打破 gstatic 舊版 CDN 封鎖死結 -->
+<!-- 🚀 終極修復點：將網址精準修正為帶有 www. 的 Google 官方權威安全網域，徹底破除 CORS 封鎖死結 -->
 <script type="module">
     const logEl = document.getElementById('statusLog');
 
-    // 🚀 全網頁防崩潰黑盒子紀錄器（100% 關在黑框格子內）
+    // 全網頁防崩潰黑盒子紀錄器（100% 關在黑框格子內）
     window.onerror = function(message, source, lineno) {
         logEl.style.color = "#e53e3e";
         logEl.innerText = `🚨 網頁腳本卡死！\n原因：${message}\n行號：第 ${lineno} 行`;
         return true;
     };
 
-    // 引入 Google Web 端現代模組化官方安全套件網址
+    // 💡 補上 www. 的標準 ESM 模組化官方套件網址
     import { initializeApp } 
-        from "https://gstatic.com";
+        from "https://www.gstatic.com";
     import { getFirestore, collection, addDoc } 
-        from "https://gstatic.com";
+        from "https://www.gstatic.com";
 
     // 您的網頁端 Web API Config 金鑰配置
     const config = {
@@ -118,7 +118,7 @@
     let testCollection = null;
 
     try {
-        // 初始化現代模組連線
+        // 初始化連線
         const app = initializeApp(config);
         const db = getFirestore(app);
         
@@ -148,7 +148,7 @@
         
         const testPayload = {
             testMessage: textVal,
-            source: "GitHub ESM 模組版測試網頁",
+            source: "GitHub ESM 正確網址測試",
             timestamp: new Date().toLocaleString()
         };
 
