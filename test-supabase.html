@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase 網頁端雲端儲存測試</title>
+    <style>
+        body {
+            font-family: -apple-system, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            padding: 30px 15px;
+            margin: 0;
+        }
+        .test-box {
+            max-width: 450px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #d1d5db;
+        }
+        h2 {
+            font-size: 18px;
+            color: #111827;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #059669;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #047857;
+        }
+        .status-log {
+            margin-top: 20px;
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #4b5563;
+            min-height: 50px;
+            white-space: pre-wrap;
+            border: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+
+<div class="test-box">
+    <h2>🟢 Supabase 網頁端即時寫入測試</h2>
+    
+    <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:bold;">
+        請輸入隨意測試文字：
+    </label>
+    <input type="text" id="testInput" value="龍山寺 Supabase 網頁即時測試成功">
+    
+    <button type="button" id="submitTestBtn">
+        🚀 點擊送出至雲端 SQL 資料庫
+    </button>
+    
+    <div style="margin-top:15px; font-size:13px; font-weight:bold;">
+        線上連線與入庫日誌：
+    </div>
+    <div class="status-log" id="statusLog">等待套件載入中...</div>
+</div>
+<!-- 🚀 關鍵：引用最通用合法的 jsDelivr 全球加速 CDN，徹底打破 Google SDK 被網管封鎖的死結 -->
+<script src="https://jsdelivr.net"></script>
+
+<script>
+    const logEl = document.getElementById('statusLog');
+
+    // 全網頁防崩潰黑盒子紀錄器
+    window.onerror = function(message, source, lineno) {
+        logEl.style.color = "#dc2626";
+        logEl.innerText = `🚨 網頁腳本卡死！\n原因：${message}\n行號：第 ${lineno} 行`;
+        return true;
+    };
+
+    // 💡 註冊免費 Supabase 帳戶後拿到的 2 個線上 API 連線欄位 (此處為示範，後續會教您替換)
+    const SUPABASE_URL = "https://supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxxx";
+
+    let supabaseClient = null;
+
+    try {
+        if (typeof supabase === 'undefined') {
+            throw new Error("Supabase CDN 套件下載失敗！\n請檢查您的網路或防毒軟體是否限制了 cdn.jsdelivr.net 網域！");
+        }
+
+        // 初始化 Supabase 網頁端線上客戶端
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        logEl.style.color = "#059669";
+        logEl.innerText = "✅ 【CDN 套件載入成功！】Supabase 初始化完畢！\n隨時可以點擊按鈕測試線上寫入。";
+    } catch (err) {
+        logEl.style.color = "#dc2626";
+        logEl.innerText = `❌ 初始化失敗：\n${err.message}`;
+    }
+
+    // 點擊事件觸發
+    document.getElementById('submitTestBtn').onclick = async function() {
+        const textVal = document.getElementById('testInput').value.trim();
+        if (!textVal) { alert("請先輸入測試文字！"); return; }
+        
+        if (!navigator.onLine) {
+            logEl.style.color = "#d97706";
+            logEl.innerText = "🚨 目前電腦處於離線狀態！";
+            return;
+        }
+
+        logEl.style.color = "#4b5563";
+        logEl.innerText = "📡 正在向 Supabase 線上資料庫發送 SQL 寫入請求...";
+        
+        // 打包與網頁 100% 對齊的 JSON 測試 payload
+        const testPayload = {
+            test_message: textVal,
+            source: "GitHub網頁版測試",
+            created_at: new Date().toISOString()
+        };
+
+        try {
+            // 🚀 核心：直接使用網頁端向線上名為 "survey_records" 的 SQL 資料表插入資料
+            const { data, error } = await supabaseClient
+                .from('survey_records')
+                .insert([testPayload])
+                .select();
+
+            if (error) throw error;
+
+            logEl.style.color = "#059669";
+            logEl.innerText = `🎉 【雲端網頁版寫入大成功！】\n` +
+                `已成功透過合法 HTTPS 通道寫入線上 PostgreSQL！\n` +
+                `成功上傳內容："${testPayload.test_message}"`;
+                
+        } catch (err) {
+            logEl.style.color = "#dc2626";
+            logEl.innerText = `❌ 雲端資料庫拒絕寫入！\n錯誤原因：${err.message}`;
+        }
+    };
+</script>
+</body>
+</html>
