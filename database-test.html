@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>龍山寺資料庫寫入測試</title>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f5f5f7;
+            padding: 30px 15px;
+        }
+
+        .box {
+            max-width: 500px;
+            margin: 50px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,.08);
+        }
+
+        h2 {
+            color: #1a365d;
+            text-align: center;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #insertBtn {
+            background: #2b6cb0;
+            color: white;
+        }
+
+        #readBtn {
+            background: #38a169;
+            color: white;
+        }
+
+        #logoutBtn {
+            background: #718096;
+            color: white;
+        }
+
+        #status {
+            margin-top: 18px;
+            padding: 12px;
+            background: #edf2f7;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+
+    <h2>🏛️ Supabase 資料庫測試</h2>
+
+    <button id="insertBtn">
+        ➕ 寫入第一筆測試作品
+    </button>
+
+    <button id="readBtn">
+        🔍 讀取測試作品
+    </button>
+
+    <button id="logoutBtn">
+        🚪 登出
+    </button>
+
+    <div id="status">
+        正在確認登入狀態……
+    </div>
+
+</div>
+
+
+<script type="module">
+
+import { createClient }
+from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+
+/* ==========================================
+   改成你 login.html 使用的同一組資料
+========================================== */
+
+const SUPABASE_URL =
+    "https://YOUR_PROJECT.supabase.co";
+
+const SUPABASE_KEY =
+    "YOUR_PUBLISHABLE_KEY";
+
+
+const supabase =
+    createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+const statusEl =
+    document.getElementById("status");
+
+
+/* ==========================================
+   1. 確認登入狀態
+========================================== */
+
+const {
+    data: { session },
+    error: sessionError
+} =
+await supabase.auth.getSession();
+
+
+if (sessionError || !session) {
+
+    statusEl.innerText =
+        "❌ 尚未登入。\n請先回 login.html 登入。";
+
+    setTimeout(() => {
+        window.location.href =
+            "login.html";
+    }, 1500);
+
+} else {
+
+    statusEl.innerText =
+        "✅ 已登入\n帳號：" +
+        session.user.email;
+}
+
+
+/* ==========================================
+   2. INSERT 測試
+========================================== */
+
+document.getElementById("insertBtn")
+.onclick = async function () {
+
+    statusEl.innerText =
+        "📡 正在寫入 survey_records……";
+
+
+    const testRecord = {
+
+        record_code:
+            "LS-SH-W-MR-11-001",
+
+        temple_code:
+            "LS",
+
+        area:
+            "SH",
+
+        direction:
+            "W",
+
+        roof_position:
+            "MR",
+
+        component_code:
+            "11",
+
+        serial:
+            "001",
+
+        crafts:
+            ["CP"],
+
+        title:
+            "資料庫連線測試作品",
+
+        note:
+            "此筆資料為系統建立初期的測試紀錄。"
+
+    };
+
+
+    const {
+        data,
+        error
+    } =
+    await supabase
+        .from("survey_records")
+        .insert(testRecord)
+        .select();
+
+
+    if (error) {
+
+        statusEl.innerText =
+            "❌ 寫入失敗\n\n" +
+            error.message;
+
+        console.error(error);
+
+        return;
+    }
+
+
+    statusEl.innerText =
+        "🎉 寫入成功！\n\n" +
+        JSON.stringify(
+            data,
+            null,
+            2
+        );
+
+};
+
+
+/* ==========================================
+   3. SELECT 測試
+========================================== */
+
+document.getElementById("readBtn")
+.onclick = async function () {
+
+    statusEl.innerText =
+        "📡 正在讀取資料……";
+
+
+    const {
+        data,
+        error
+    } =
+    await supabase
+        .from("survey_records")
+        .select("*")
+        .eq(
+            "record_code",
+            "LS-SH-W-MR-11-001"
+        );
+
+
+    if (error) {
+
+        statusEl.innerText =
+            "❌ 讀取失敗\n\n" +
+            error.message;
+
+        return;
+    }
+
+
+    statusEl.innerText =
+        "✅ 查詢完成\n\n" +
+        JSON.stringify(
+            data,
+            null,
+            2
+        );
+
+};
+
+
+/* ==========================================
+   4. LOGOUT
+========================================== */
+
+document.getElementById("logoutBtn")
+.onclick = async function () {
+
+    await supabase.auth.signOut();
+
+    window.location.href =
+        "login.html";
+
+};
+
+</script>
+
+</body>
+</html>
