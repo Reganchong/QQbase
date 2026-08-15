@@ -7,7 +7,7 @@ const SUPABASE_URL =
 // 可以放 publishable / anon key
 // 不可以放 service_role / secret key
 const SUPABASE_KEY =
-    "YOUR_PUBLISHABLE_KEY";
+    "sb_publishable_WIVgXV-WgBcveNX2yvLs8g_Y2tYDomD";
 
 export const supabase = createClient(
     SUPABASE_URL,
