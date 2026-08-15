@@ -1,158 +1,245 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>龍山寺資料庫寫入測試</title>
+<meta charset="UTF-8">
 
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: #f5f5f7;
-            padding: 30px 15px;
-        }
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-        .box {
-            max-width: 500px;
-            margin: 50px auto;
-            background: white;
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 4px 16px rgba(0,0,0,.08);
-        }
+<title>龍山寺 Supabase 資料庫測試</title>
 
-        h2 {
-            color: #1a365d;
-            text-align: center;
-        }
+<style>
 
-        button {
-            width: 100%;
-            padding: 14px;
-            margin-top: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+body {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
 
-        #insertBtn {
-            background: #2b6cb0;
-            color: white;
-        }
+    background: #f5f5f7;
 
-        #readBtn {
-            background: #38a169;
-            color: white;
-        }
+    margin: 0;
 
-        #logoutBtn {
-            background: #718096;
-            color: white;
-        }
+    padding: 30px 15px;
+}
 
-        #status {
-            margin-top: 18px;
-            padding: 12px;
-            background: #edf2f7;
-            border-radius: 8px;
-            font-family: monospace;
-            white-space: pre-wrap;
-            font-size: 13px;
-        }
-    </style>
+.box {
+
+    max-width: 520px;
+
+    margin: 50px auto;
+
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 4px 16px
+        rgba(0,0,0,.08);
+}
+
+h2 {
+
+    color: #1a365d;
+
+    text-align: center;
+}
+
+button {
+
+    width: 100%;
+
+    padding: 14px;
+
+    margin-top: 12px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+#insertBtn {
+
+    background: #2b6cb0;
+
+    color: white;
+}
+
+#readBtn {
+
+    background: #38a169;
+
+    color: white;
+}
+
+#loginBtn {
+
+    background: #dd6b20;
+
+    color: white;
+}
+
+#status {
+
+    margin-top: 18px;
+
+    padding: 12px;
+
+    background: #edf2f7;
+
+    border-radius: 8px;
+
+    font-family: monospace;
+
+    white-space: pre-wrap;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+</style>
+
 </head>
 
 <body>
 
 <div class="box">
 
-    <h2>🏛️ Supabase 資料庫測試</h2>
+<h2>
+🏛️ Supabase 資料庫測試
+</h2>
 
-    <button id="insertBtn">
-        ➕ 寫入第一筆測試作品
-    </button>
+<button id="insertBtn">
+➕ 寫入第一筆測試作品
+</button>
 
-    <button id="readBtn">
-        🔍 讀取測試作品
-    </button>
+<button id="readBtn">
+🔍 讀取測試作品
+</button>
 
-    <button id="logoutBtn">
-        🚪 登出
-    </button>
+<button id="loginBtn">
+🔐 回登入頁
+</button>
 
-    <div id="status">
-        正在確認登入狀態……
-    </div>
+<div id="status">
+正在確認登入狀態……
+</div>
 
 </div>
 
 
 <script type="module">
 
-import { supabase } from "./supabase-client.js";
-from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-
-
-/* ==========================================
-   改成你 login.html 使用的同一組資料
-========================================== */
-
-const SUPABASE_URL =
-    "https://YOUR_PROJECT.supabase.co";
-
-const SUPABASE_KEY =
-    "YOUR_PUBLISHABLE_KEY";
-
-
-const supabase =
-    createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
+import { supabase }
+from "./supabase-client.js";
 
 
 const statusEl =
-    document.getElementById("status");
+document.getElementById(
+    "status"
+);
 
 
-/* ==========================================
-   1. 確認登入狀態
-========================================== */
-
-const {
-    data: { session },
-    error: sessionError
-} =
-await supabase.auth.getSession();
+let currentSession =
+null;
 
 
-if (sessionError || !session) {
+/* ==================================
+   Session 檢查
+================================== */
+
+async function checkSession() {
+
+    const {
+        data: {
+            session
+        },
+
+        error
+
+    } =
+    await supabase.auth
+        .getSession();
+
+
+    if (error) {
+
+        statusEl.innerText =
+            "❌ Session 錯誤\n\n" +
+            error.message;
+
+        return false;
+    }
+
+
+    if (!session) {
+
+        statusEl.innerText =
+
+            "❌ 此頁目前沒有讀到登入 Session。\n\n" +
+
+            "目前網址：\n" +
+
+            window.location.href +
+
+            "\n\n請先進入 login.html 登入。";
+
+
+        return false;
+    }
+
+
+    currentSession =
+        session;
+
 
     statusEl.innerText =
-        "❌ 尚未登入。\n請先回 login.html 登入。";
 
-    setTimeout(() => {
-        window.location.href =
-            "login.html";
-    }, 1500);
+        "✅ 已保持登入\n\n" +
 
-} else {
+        "帳號：\n" +
 
-    statusEl.innerText =
-        "✅ 已登入\n帳號：" +
-        session.user.email;
+        session.user.email +
+
+        "\n\nUser ID：\n" +
+
+        session.user.id;
+
+
+    return true;
 }
 
 
-/* ==========================================
-   2. INSERT 測試
-========================================== */
+await checkSession();
 
-document.getElementById("insertBtn")
-.onclick = async function () {
+
+/* ==================================
+   INSERT
+================================== */
+
+document
+.getElementById("insertBtn")
+.onclick =
+async function () {
+
+
+    if (!(await checkSession())) {
+
+        return;
+
+    }
+
 
     statusEl.innerText =
         "📡 正在寫入 survey_records……";
@@ -188,7 +275,7 @@ document.getElementById("insertBtn")
             "資料庫連線測試作品",
 
         note:
-            "此筆資料為系統建立初期的測試紀錄。"
+            "此筆資料為 Supabase 系統測試紀錄。"
 
     };
 
@@ -198,16 +285,30 @@ document.getElementById("insertBtn")
         error
     } =
     await supabase
-        .from("survey_records")
-        .insert(testRecord)
+
+        .from(
+            "survey_records"
+        )
+
+        .insert(
+            testRecord
+        )
+
         .select();
 
 
     if (error) {
 
         statusEl.innerText =
+
             "❌ 寫入失敗\n\n" +
-            error.message;
+
+            "錯誤：\n" +
+            error.message +
+
+            "\n\nCode：\n" +
+            (error.code || "無");
+
 
         console.error(error);
 
@@ -216,7 +317,9 @@ document.getElementById("insertBtn")
 
 
     statusEl.innerText =
+
         "🎉 寫入成功！\n\n" +
+
         JSON.stringify(
             data,
             null,
@@ -226,12 +329,22 @@ document.getElementById("insertBtn")
 };
 
 
-/* ==========================================
-   3. SELECT 測試
-========================================== */
+/* ==================================
+   SELECT
+================================== */
 
-document.getElementById("readBtn")
-.onclick = async function () {
+document
+.getElementById("readBtn")
+.onclick =
+async function () {
+
+
+    if (!(await checkSession())) {
+
+        return;
+
+    }
+
 
     statusEl.innerText =
         "📡 正在讀取資料……";
@@ -242,8 +355,13 @@ document.getElementById("readBtn")
         error
     } =
     await supabase
-        .from("survey_records")
+
+        .from(
+            "survey_records"
+        )
+
         .select("*")
+
         .eq(
             "record_code",
             "LS-SH-W-MR-11-001"
@@ -253,7 +371,9 @@ document.getElementById("readBtn")
     if (error) {
 
         statusEl.innerText =
+
             "❌ 讀取失敗\n\n" +
+
             error.message;
 
         return;
@@ -261,7 +381,13 @@ document.getElementById("readBtn")
 
 
     statusEl.innerText =
-        "✅ 查詢完成\n\n" +
+
+        "✅ 查詢成功！\n\n" +
+
+        "找到：" +
+        data.length +
+        " 筆\n\n" +
+
         JSON.stringify(
             data,
             null,
@@ -271,17 +397,17 @@ document.getElementById("readBtn")
 };
 
 
-/* ==========================================
-   4. LOGOUT
-========================================== */
+/* ==================================
+   回登入
+================================== */
 
-document.getElementById("logoutBtn")
-.onclick = async function () {
-
-    await supabase.auth.signOut();
+document
+.getElementById("loginBtn")
+.onclick =
+function () {
 
     window.location.href =
-        "login.html";
+        "./login.html";
 
 };
 
