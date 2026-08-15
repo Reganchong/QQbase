@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>龍山寺普查系統 - 登入</title>
+
+    <title>艋舺龍山寺普查系統 - 登入</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             background: #f5f5f7;
@@ -27,25 +32,31 @@
             text-align: center;
             font-size: 22px;
             color: #1a365d;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 13px;
+            color: #718096;
             margin-bottom: 25px;
         }
 
         label {
             display: block;
-            margin-bottom: 6px;
             font-size: 14px;
             font-weight: 600;
             color: #4a5568;
+            margin-bottom: 6px;
         }
 
         input {
             width: 100%;
             padding: 12px;
-            box-sizing: border-box;
+            margin-bottom: 16px;
             border: 1px solid #cbd5e0;
             border-radius: 8px;
             font-size: 16px;
-            margin-bottom: 16px;
         }
 
         button {
@@ -72,6 +83,20 @@
             font-size: 13px;
             white-space: pre-wrap;
         }
+
+        .logged-user {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f0fff4;
+            color: #276749;
+            display: none;
+        }
+
+        .secondary-btn {
+            margin-top: 10px;
+            background: #718096;
+        }
     </style>
 </head>
 
@@ -79,28 +104,57 @@
 
 <div class="login-box">
 
-    <h1>🏛️ 艋舺龍山寺普查系統</h1>
+    <h1>🏛️ 艋舺龍山寺</h1>
 
-    <label>Email</label>
-    <input
-        type="email"
-        id="email"
-        placeholder="請輸入研究人員 Email"
+    <div class="subtitle">
+        屋面傳統裝飾普查系統
+    </div>
+
+    <div id="loginForm">
+
+        <label>Email</label>
+
+        <input
+            type="email"
+            id="email"
+            placeholder="研究人員 Email"
+            autocomplete="email"
+        >
+
+        <label>密碼</label>
+
+        <input
+            type="password"
+            id="password"
+            placeholder="請輸入密碼"
+            autocomplete="current-password"
+        >
+
+        <button id="loginBtn">
+            登入系統
+        </button>
+
+    </div>
+
+    <div id="loggedUser" class="logged-user"></div>
+
+    <button
+        id="enterBtn"
+        style="display:none;"
     >
+        進入普查系統
+    </button>
 
-    <label>密碼</label>
-    <input
-        type="password"
-        id="password"
-        placeholder="請輸入密碼"
+    <button
+        id="logoutBtn"
+        class="secondary-btn"
+        style="display:none;"
     >
-
-    <button id="loginBtn">
-        登入系統
+        登出
     </button>
 
     <div id="status">
-        尚未登入
+        正在確認登入狀態……
     </div>
 
 </div>
@@ -108,97 +162,189 @@
 
 <script type="module">
 
-    import { supabase } from "./supabase-client.js";
-    from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+import { supabase }
+from "./supabase-client.js";
 
 
-    // ==========================================
-    // 請替換成你自己的 Supabase 資料
-    // ==========================================
+const statusEl =
+    document.getElementById("status");
 
-    const SUPABASE_URL =
-        "https://kappwvkerqdsvpgzamnc.supabase.co";
+const loginForm =
+    document.getElementById("loginForm");
 
-    const SUPABASE_KEY =
-        "sb_publishable_WIVgXV-WgBcveNX2yvLs8g_Y2tYDomD";
+const loggedUser =
+    document.getElementById("loggedUser");
 
+const enterBtn =
+    document.getElementById("enterBtn");
 
-    const supabase =
-        createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY
-        );
+const logoutBtn =
+    document.getElementById("logoutBtn");
 
 
-    const statusEl =
-        document.getElementById("status");
+function showLoggedIn(user) {
+
+    loginForm.style.display =
+        "none";
+
+    loggedUser.style.display =
+        "block";
+
+    loggedUser.innerText =
+        "✅ 已登入\n" +
+        user.email;
+
+    enterBtn.style.display =
+        "block";
+
+    logoutBtn.style.display =
+        "block";
+
+    statusEl.innerText =
+        "Supabase Session 已成功保持。";
+}
 
 
-    document.getElementById("loginBtn")
-    .onclick = async function () {
+function showLoggedOut() {
 
-        const email =
-            document.getElementById("email")
-            .value.trim();
+    loginForm.style.display =
+        "block";
 
-        const password =
-            document.getElementById("password")
-            .value;
+    loggedUser.style.display =
+        "none";
+
+    enterBtn.style.display =
+        "none";
+
+    logoutBtn.style.display =
+        "none";
+
+    statusEl.innerText =
+        "尚未登入";
+}
 
 
-        if (!email || !password) {
+/* =====================================
+   開頁時檢查既有 Session
+===================================== */
 
-            statusEl.innerText =
-                "❌ 請輸入 Email 與密碼";
+const {
+    data: { session },
+    error
+} =
+await supabase.auth.getSession();
 
-            return;
-        }
 
+if (error) {
+
+    statusEl.innerText =
+        "❌ Session 檢查錯誤：\n" +
+        error.message;
+
+}
+else if (session) {
+
+    showLoggedIn(
+        session.user
+    );
+
+}
+else {
+
+    showLoggedOut();
+
+}
+
+
+/* =====================================
+   登入
+===================================== */
+
+document.getElementById("loginBtn")
+.onclick =
+async function () {
+
+    const email =
+        document
+        .getElementById("email")
+        .value
+        .trim();
+
+    const password =
+        document
+        .getElementById("password")
+        .value;
+
+
+    if (!email || !password) {
 
         statusEl.innerText =
-            "📡 正在登入 Supabase...";
+            "❌ 請輸入 Email 與密碼";
+
+        return;
+    }
 
 
-        const {
-            data,
-            error
-        } =
-        await supabase.auth.signInWithPassword({
+    statusEl.innerText =
+        "📡 正在登入 Supabase……";
 
-            email: email,
-            password: password
+
+    const {
+        data,
+        error
+    } =
+    await supabase.auth
+        .signInWithPassword({
+
+            email,
+            password
 
         });
 
 
-        if (error) {
-
-            statusEl.style.color = "#c53030";
-
-            statusEl.innerText =
-                "❌ 登入失敗\n\n" +
-                error.message;
-
-            return;
-        }
-
-
-        statusEl.style.color = "#2f855a";
+    if (error) {
 
         statusEl.innerText =
-            "✅ 登入成功\n\n" +
-            data.user.email;
+            "❌ 登入失敗：\n" +
+            error.message;
+
+        return;
+    }
 
 
-        // 登入成功後進首頁
-        setTimeout(() => {
+    showLoggedIn(
+        data.user
+    );
 
-            window.location.href =
-                "index.html";
+};
 
-        }, 800);
 
-    };
+/* =====================================
+   進入首頁
+===================================== */
+
+enterBtn.onclick =
+function () {
+
+    window.location.href =
+        "./index.html";
+
+};
+
+
+/* =====================================
+   登出
+===================================== */
+
+logoutBtn.onclick =
+async function () {
+
+    await supabase.auth
+        .signOut();
+
+    showLoggedOut();
+
+};
 
 </script>
 
