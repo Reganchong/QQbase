@@ -187,15 +187,43 @@
             background: none;
             font-size: 15px;
         }
+
+        .session-bar { display:flex; flex-wrap:wrap; gap:8px; justify-content:space-between; align-items:center; background:#f7fafc; border:1px solid #e2e8f0; border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; }
+        .session-ok { color:#276749; font-weight:700; }
+        .session-off { color:#c05621; font-weight:700; }
+        .session-bad { color:#c53030; font-weight:700; }
+        .sync-status { background:#fffaf0; border:1px solid #feebc8; border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:13px; line-height:1.5; }
+        .sync-status strong { color:#c05621; }
+        .sub-code { font-family:monospace; color:#718096; font-size:13px; margin-top:6px; word-break:break-all; }
+        .badge { display:inline-block; border-radius:999px; padding:3px 8px; font-size:11px; font-weight:700; margin-left:6px; }
+        .badge-pending { background:#fffaf0; color:#c05621; }
+        .badge-synced { background:#f0fff4; color:#276749; }
+        .badge-failed { background:#fff5f5; color:#c53030; }
+        .data-card.pending { border-left-color:#dd6b20; }
+        .data-card.synced { border-left-color:#38a169; }
+        .data-card.failed { border-left-color:#e53e3e; }
+        .btn-sync { background:#dd6b20; color:white; }
+        .small-note { color:#718096; font-size:12px; line-height:1.5; margin-top:6px; }
+        @media (max-width:620px) { .form-row,.btn-group { flex-direction:column; } .generated-code { font-size:18px; } }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>🏛️ 裝飾普查數據登錄</h1>
+
+    <div class="session-bar">
+        <span id="authStatus">正在確認登入狀態……</span>
+        <span id="networkStatus">網路狀態檢查中……</span>
+    </div>
+    <div class="sync-status">
+        <strong>雲端同步：</strong><span id="syncSummary">讀取本機待同步資料……</span>
+    </div>
     
     <div class="code-preview-box">
-        <label>當前選擇的完整編號</label>
-        <div class="generated-code" id="codePreview"></div>
+        <label>作品唯一編號</label>
+        <div class="generated-code" id="recordCodePreview"></div>
+        <div class="sub-code" id="photoCodePreview"></div>
+        <div class="sub-code" id="craftPreview"></div>
     </div>
 
     <!-- 📄 第一步分頁：大建築環境與方位朝向 -->
@@ -330,6 +358,7 @@
         <div class="form-group" style="margin-top: 15px;">
             <label>📷 調查影像 (選填)</label>
             <input type="file" id="photo" accept="image/*">
+            <div class="small-note">照片將直接上傳 Supabase Storage，不再轉成 Base64 寫入資料庫。</div>
             <div class="preview-container" id="previewContainer">
                 <img id="imagePreview" src="" alt="預覽">
             </div>
@@ -340,170 +369,414 @@
         </div>
         <div class="btn-group">
             <button type="button" class="btn-nav" onclick="switchPage(1)">⬅️ 返回第一步</button>
-            <button type="button" class="btn-submit" onclick="saveToTemporaryList()">💾 暫存此筆普查數據</button>
+            <button type="button" class="btn-submit" id="saveBtn" onclick="saveSurveyRecord()">💾 儲存此筆普查數據</button>
         </div>
 
         <div class="history">
-            <div class="history-header" style="display:flex; justify-content:space-between; align-items:center;">
-                <h2>📝 本次連續登錄暫存區 (<span id="tempCount">0</span> 筆)</h2>
-                <button type="button" class="btn-export" onclick="downloadBulkPackFile()">📦 打包下載全部暫存</button>
+            <div class="history-header" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; align-items:center;">
+                <h2>📝 本次登錄紀錄 (<span id="tempCount">0</span> 筆)</h2>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button type="button" class="btn-sync" onclick="syncPendingRecords()">☁️ 同步待上傳</button>
+                    <button type="button" class="btn-export" onclick="downloadBulkPackFile()">📦 匯出 .survey</button>
+                </div>
             </div>
             <div id="tempDataList"></div>
         </div>
         <a href="index.html" class="btn-home">🏠 結束登錄，回首頁</a>
     </div>
 </div>
-<script>
-    let base64Image = "";
-    window.currentSessionRecords = [];
 
-    // 分頁切換控制
-    function switchPage(num) {
-        document.getElementById('page1').classList.remove('active');
-        document.getElementById('page2').classList.remove('active');
-        document.getElementById('page' + num).classList.add('active');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-    // 🚀 核心：提取多選工藝形式，並強制依據固定順序（CP-CS-JP）以連字號串接
-    function getSelectedSortedCraftsString() {
-        const boxes = document.querySelectorAll('input[name="craftBox"]:checked');
-        let selected = [];
-        boxes.forEach(cb => selected.push(cb.value));
-        
-        // 依照文資論文規範權重進行排序
-        const orderWeight = { "CP": 1, "CS": 2, "JP": 3 };
-        selected.sort((a, b) => orderWeight[a] - orderWeight[b]);
-        
-        return selected.join("-");
-    }
+// 若你已改用新版 sb_publishable_... key，請把這裡換成 database-test.html 中成功使用的同一把 key。
+const SUPABASE_URL = "https://kappwvkerqdsvpgzamnc.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthcHB3dmtlcnFkc3ZwZ3phbW5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3NjUxNDgsImV4cCI6MjEwMjM0MTE0OH0.DlrTO0jeORbVVnuhb0DK5Ufqpsku_eGSrExwVsGqBeA";
+const BUCKET = "longshan-photos";
 
-    // 跨分頁即時 Full Code 公式組裝連動
-    function updateCodePreview() {
-        const area = document.getElementById('area').value;
-        const dir = document.getElementById('direction').value;
-        const roof = document.getElementById('roofPos').value;
-        const comp = document.getElementById('compCode').value;
-        const ser = document.getElementById('serial').value.trim() || '？';
-        const pType = document.getElementById('photoType').value.trim() || '？';
-        const craftToken = getSelectedSortedCraftsString() || "？";
-        
-        // 完美對齊：寺廟-殿區-方位-部位-細部-流水號-型別-工藝組合
-        document.getElementById('codePreview').innerText = 
-            `LS-${area}-${dir}-${roof}-${comp}-${ser}-${pType}-${craftToken}`;
-    }
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+});
 
-    // 原地死鎖連續登記暫存工具
-    function saveToTemporaryList() {
-        const ser = document.getElementById('serial').value.trim();
-        const pType = document.getElementById('photoType').value.trim();
-        if (!ser || !pType) { alert("❌ 請填寫流水號與照片型別！"); return; }
-        
-        const craftString = getSelectedSortedCraftsString();
-        if (!craftString) { alert("❌ 請至少勾選一種工藝形式！"); return; }
+window.currentSessionRecords = [];
+let selectedPhotoFile = null;
+let currentUser = null;
 
-        const record = {
-            fullCode: document.getElementById('codePreview').innerText,
-            area: document.getElementById('area').value,
-            direction: document.getElementById('direction').value,
-            roofPos: document.getElementById('roofPos').value,
-            compCode: document.getElementById('compCode').value,
-            serial: ser,
-            photoType: pType,
-            craft: craftString, // 儲存如 "CP-CS" 排序連字號字串
-            note: document.getElementById('note').value,
-            photo: base64Image,
-            timestamp: new Date().toLocaleString()
-        };
+// ===== IndexedDB 離線佇列 =====
+const DB_NAME = "longshan-survey-offline";
+const STORE_NAME = "pending_records";
 
-        window.currentSessionRecords.push(record);
-        
-        // 完美原地留守：重置備註、相機、並自動取消所有工藝勾選
-        document.getElementById('note').value = "";
-        document.getElementById('photo').value = "";
-        document.getElementById('previewContainer').style.display = 'none';
-        base64Image = "";
-        document.querySelectorAll('input[name="craftBox"]').forEach(cb => cb.checked = false);
-        
-        // 流水號自動加一
-        const val = parseInt(ser, 10);
-        if (!isNaN(val)) { 
-            document.getElementById('serial').value = String(val + 1).padStart(3, '0'); 
-        }
-        
-        updateCodePreview();
-        refreshTempUIList();
-    }
-
-    // 實時刷新操作第二頁下方的暫存卡片清單
-    function refreshTempUIList() {
-        const box = document.getElementById('tempDataList');
-        document.getElementById('tempCount').innerText = window.currentSessionRecords.length;
-        if (!box) return; 
-        box.innerHTML = "";
-        
-        let reversed = [...window.currentSessionRecords].reverse();
-        reversed.forEach((val, index) => {
-            const realIndex = window.currentSessionRecords.length - 1 - index;
-            const card = document.createElement('div');
-            card.className = 'data-card';
-            card.innerHTML = `
-                <button type="button" class="delete-btn" onclick="removeTempCard(${realIndex})">❌ 刪除</button>
-                <strong>🔍 暫存編碼：${val.fullCode}</strong><br>
-                <span style="color:#718096; font-size:12px;">🕒 時間：${val.timestamp} | 🎨 工藝形式：${val.craft}</span><br>
-                ${val.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 備註：${val.note}</div>` : ''}
-                ${val.photo ? `<img src="${val.photo}">` : ''}
-            `;
-            box.appendChild(card);
-        });
-        
-        if (window.currentSessionRecords.length === 0) {
-            box.innerHTML = "<p style='color:#a0aec0; text-align:center;'>目前暫存區尚無數據</p>";
-        }
-    }
-
-    function removeTempCard(index) {
-        if (!confirm("確定要移除這筆暫存數據嗎？")) return;
-        window.currentSessionRecords.splice(index, 1);
-        refreshTempUIList();
-    }
-
-    // 一鍵打包下載生成唯一一個 .survey 檔案包
-    function downloadBulkPackFile() {
-        if (window.currentSessionRecords.length === 0) {
-            alert("❌ 目前暫存區空空如也，沒有數據可以打包！"); return;
-        }
-        const jsonStr = JSON.stringify(window.currentSessionRecords, null, 2);
-        const blob = new Blob([jsonStr], { type: "application/json" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        
-        const areaToken = document.getElementById('area').value;
-        const dateToken = new Date().toLocaleDateString().replace(/\//g, "-");
-        link.setAttribute("download", `龍山寺普查打包_${areaToken}_${dateToken}.survey`);
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        alert(`📦 打包成功！已將本次登錄的 ${window.currentSessionRecords.length} 筆學術連字號資料儲存！`);
-    }
-
-    // 初始載入與相機轉碼監聽
-    window.onload = function() {
-        updateCodePreview();
-        refreshTempUIList();
-        document.getElementById('photo').onchange = function(e) {
-            if (e.target.files && e.target.files[0]) {
-                const rdr = new FileReader();
-                rdr.onload = function(evt) {
-                    base64Image = evt.target.result;
-                    document.getElementById('imagePreview').src = evt.target.result;
-                    document.getElementById('previewContainer').style.display = 'block';
-                };
-                rdr.readAsDataURL(e.target.files[0]);
+function openOfflineDB() {
+    return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME, { keyPath: "localId", autoIncrement: true });
             }
         };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+    });
+}
+
+async function queueAdd(item) {
+    const db = await openOfflineDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).add(item);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+    });
+}
+
+async function queueAll() {
+    const db = await openOfflineDB();
+    return new Promise((resolve, reject) => {
+        const req = db.transaction(STORE_NAME, "readonly").objectStore(STORE_NAME).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+    });
+}
+
+async function queueDelete(localId) {
+    const db = await openOfflineDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).delete(localId);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+    });
+}
+
+// ===== 編碼 =====
+function getSelectedCrafts() {
+    const fixedOrder = ["CP", "CS", "JP"];
+    const chosen = [...document.querySelectorAll('input[name="craftBox"]:checked')].map(x => x.value);
+    return fixedOrder.filter(x => chosen.includes(x));
+}
+
+function normalizedSerial() {
+    const raw = document.getElementById("serial").value.trim();
+    const n = parseInt(raw, 10);
+    return Number.isNaN(n) ? raw : String(n).padStart(3, "0");
+}
+
+function photoToken() {
+    return document.getElementById("photoType").value.trim().toUpperCase().replace(/\s+/g, "");
+}
+
+function recordCode() {
+    return `LS-${area.value}-${direction.value}-${roofPos.value}-${compCode.value}-${normalizedSerial()}`;
+}
+
+function photoCode() {
+    return photoToken() ? `${recordCode()}-${photoToken()}` : "";
+}
+
+window.updateCodePreview = function() {
+    const crafts = getSelectedCrafts();
+    recordCodePreview.textContent = recordCode();
+    photoCodePreview.textContent = photoCode() ? `照片編號：${photoCode()}` : "照片編號：尚未填寫";
+    craftPreview.textContent = crafts.length ? `工藝：${crafts.join("-")}` : "工藝：尚未選擇";
+};
+
+window.switchPage = function(num) {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById("page" + num).classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+// ===== Auth / Network =====
+async function refreshAuth() {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session?.user) {
+        currentUser = null;
+        authStatus.className = "session-bad";
+        authStatus.textContent = "❌ 尚未登入";
+        return false;
+    }
+    currentUser = session.user;
+    authStatus.className = "session-ok";
+    authStatus.textContent = `✅ 已登入：${session.user.email}`;
+    return true;
+}
+
+function refreshNetwork() {
+    if (navigator.onLine) {
+        networkStatus.className = "session-ok";
+        networkStatus.textContent = "🟢 線上";
+    } else {
+        networkStatus.className = "session-off";
+        networkStatus.textContent = "🟠 離線模式";
+    }
+}
+
+async function refreshSyncSummary() {
+    const pending = await queueAll();
+    syncSummary.textContent = pending.length ? `本機有 ${pending.length} 筆待同步資料。` : "目前沒有待同步資料。";
+}
+
+// ===== 照片 metadata =====
+function parsePhotoToken(token) {
+    const m = token.match(/^([A-Z]+)(\d+)$/);
+    return m ? { type: m[1], sequence: parseInt(m[2], 10) } : { type: token || null, sequence: null };
+}
+
+function extensionOf(file) {
+    const m = (file?.name || "").match(/\.([A-Za-z0-9]+)$/);
+    if (m) return m[1].toLowerCase();
+    return ((file?.type || "image/jpeg").split("/")[1] || "jpg").replace(/[^a-z0-9]/gi, "");
+}
+
+function collectEntry() {
+    const crafts = getSelectedCrafts();
+    const serial = normalizedSerial();
+    const pToken = photoToken();
+
+    if (!serial) throw new Error("請填寫作品流水號。");
+    if (!crafts.length) throw new Error("請至少勾選一種工藝形式。");
+    if (selectedPhotoFile && !pToken) throw new Error("已選照片時，請填寫照片型別＋序號，例如 O01。");
+
+    document.getElementById("serial").value = serial;
+    document.getElementById("photoType").value = pToken;
+
+    const code = recordCode();
+    return {
+        recordCode: code,
+        photoCode: selectedPhotoFile ? photoCode() : "",
+        photoToken: pToken,
+        record: {
+            record_code: code,
+            temple_code: "LS",
+            area: area.value,
+            direction: direction.value,
+            roof_position: roofPos.value,
+            component_code: compCode.value,
+            serial,
+            crafts,
+            note: note.value.trim() || null
+        },
+        photoFile: selectedPhotoFile || null,
+        createdAtLocal: new Date().toISOString()
     };
+}
+
+// ===== 雲端寫入 =====
+async function pushToCloud(entry) {
+    if (!(await refreshAuth())) throw new Error("登入已失效，請先回 login.html 登入。");
+
+    const { data: row, error: recordError } = await supabase
+        .from("survey_records")
+        .upsert(entry.record, { onConflict: "record_code" })
+        .select("id,record_code")
+        .single();
+
+    if (recordError) throw new Error(`作品資料寫入失敗：${recordError.message}`);
+
+    if (entry.photoFile) {
+        const ext = extensionOf(entry.photoFile);
+        const path = `${entry.record.area}/${entry.recordCode}/${entry.photoCode}.${ext}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from(BUCKET)
+            .upload(path, entry.photoFile, {
+                contentType: entry.photoFile.type || undefined,
+                cacheControl: "3600",
+                upsert: true
+            });
+
+        if (uploadError) throw new Error(`照片上傳失敗：${uploadError.message}`);
+
+        const parsed = parsePhotoToken(entry.photoToken);
+        const { error: photoError } = await supabase
+            .from("photos")
+            .upsert({
+                record_id: row.id,
+                photo_code: entry.photoCode,
+                photo_type: parsed.type,
+                sequence_no: parsed.sequence,
+                file_name: entry.photoFile.name,
+                storage_path: path,
+                is_representative: parsed.type === "O"
+            }, { onConflict: "photo_code" });
+
+        if (photoError) throw new Error(`照片資料表寫入失敗：${photoError.message}`);
+    }
+
+    return row;
+}
+
+// ===== 儲存按鈕 =====
+window.saveSurveyRecord = async function() {
+    let entry;
+    try { entry = collectEntry(); }
+    catch (err) { alert("❌ " + err.message); return; }
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = "⏳ 正在儲存……";
+
+    let status = "pending";
+    let statusText = "待同步";
+    let errorMessage = "";
+
+    try {
+        if (navigator.onLine) {
+            await pushToCloud(entry);
+            status = "synced";
+            statusText = "已同步雲端";
+        } else {
+            await queueAdd(entry);
+            statusText = "離線暫存，待同步";
+        }
+    } catch (err) {
+        console.error(err);
+        errorMessage = err.message;
+        try {
+            await queueAdd(entry);
+            statusText = "雲端失敗，已安全暫存在本機";
+        } catch (offlineErr) {
+            status = "failed";
+            statusText = "儲存失敗";
+            errorMessage += `；本機暫存亦失敗：${offlineErr.message}`;
+        }
+    }
+
+    window.currentSessionRecords.push({
+        recordCode: entry.recordCode,
+        photoCode: entry.photoCode,
+        crafts: entry.record.crafts,
+        note: entry.record.note,
+        photoName: entry.photoFile?.name || "",
+        createdAtLocal: entry.createdAtLocal,
+        status, statusText, errorMessage
+    });
+
+    if (status === "synced") alert(`✅ ${entry.recordCode}\n已成功儲存至 Supabase。`);
+    else if (status === "pending") alert(`🟠 ${entry.recordCode}\n${statusText}。`);
+    else alert(`❌ ${entry.recordCode}\n${errorMessage}`);
+
+    resetAfterSave();
+    refreshTempUIList();
+    await refreshSyncSummary();
+    saveBtn.disabled = false;
+    saveBtn.textContent = "💾 儲存此筆普查數據";
+};
+
+function resetAfterSave() {
+    note.value = "";
+    photo.value = "";
+    previewContainer.style.display = "none";
+    imagePreview.removeAttribute("src");
+    selectedPhotoFile = null;
+    document.querySelectorAll('input[name="craftBox"]').forEach(cb => cb.checked = false);
+
+    const n = parseInt(serial.value, 10);
+    if (!Number.isNaN(n)) serial.value = String(n + 1).padStart(3, "0");
+    updateCodePreview();
+}
+
+// ===== Pending 同步 =====
+window.syncPendingRecords = async function() {
+    if (!navigator.onLine) { alert("❌ 目前仍為離線狀態。"); return; }
+    if (!(await refreshAuth())) { alert("❌ 登入已失效，請重新登入。"); return; }
+
+    const pending = await queueAll();
+    if (!pending.length) { alert("✅ 沒有待同步資料。"); return; }
+
+    let ok = 0, fail = 0;
+    const errors = [];
+    for (const item of pending) {
+        try {
+            await pushToCloud(item);
+            await queueDelete(item.localId);
+            ok++;
+        } catch (err) {
+            fail++;
+            errors.push(`${item.recordCode}: ${err.message}`);
+        }
+    }
+    await refreshSyncSummary();
+    alert(`☁️ 同步完成\n成功：${ok}\n失敗：${fail}${errors.length ? "\n\n" + errors.slice(0,5).join("\n") : ""}`);
+};
+
+// ===== 本次紀錄清單 =====
+function esc(v) {
+    return String(v ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+
+function refreshTempUIList() {
+    tempCount.textContent = window.currentSessionRecords.length;
+    tempDataList.innerHTML = "";
+    if (!window.currentSessionRecords.length) {
+        tempDataList.innerHTML = "<p style='color:#a0aec0;text-align:center;'>本次尚無登錄紀錄</p>";
+        return;
+    }
+
+    [...window.currentSessionRecords].reverse().forEach((v, i) => {
+        const realIndex = window.currentSessionRecords.length - 1 - i;
+        const badge = v.status === "synced" ? "badge-synced" : v.status === "failed" ? "badge-failed" : "badge-pending";
+        const cardState = v.status === "synced" ? "synced" : v.status === "failed" ? "failed" : "pending";
+        const card = document.createElement("div");
+        card.className = `data-card ${cardState}`;
+        card.innerHTML = `
+            <button type="button" class="delete-btn">✕ 移除清單</button>
+            <strong>🔍 ${esc(v.recordCode)}</strong><span class="badge ${badge}">${esc(v.statusText)}</span><br>
+            <span style="color:#718096;font-size:12px;">🕒 ${new Date(v.createdAtLocal).toLocaleString()} ｜ 🎨 ${esc(v.crafts.join("-"))}</span>
+            ${v.photoCode ? `<br><span style="font-size:12px;">📷 ${esc(v.photoCode)} ${v.photoName ? "｜" + esc(v.photoName) : ""}</span>` : ""}
+            ${v.note ? `<div style="margin-top:5px;background:#fff;padding:6px;border:1px solid #edf2f7;">📝 ${esc(v.note)}</div>` : ""}
+            ${v.errorMessage ? `<div style="margin-top:5px;color:#c53030;font-size:12px;">${esc(v.errorMessage)}</div>` : ""}
+        `;
+        card.querySelector(".delete-btn").onclick = () => {
+            window.currentSessionRecords.splice(realIndex, 1);
+            refreshTempUIList();
+        };
+        tempDataList.appendChild(card);
+    });
+}
+
+// ===== .survey metadata 備份 =====
+window.downloadBulkPackFile = function() {
+    if (!window.currentSessionRecords.length) { alert("❌ 本次尚無資料可匯出。"); return; }
+    const pack = {
+        format: "longshan-survey-v2",
+        exportedAt: new Date().toISOString(),
+        warning: "此 .survey 保存普查 metadata，不嵌入原始影像；原始影像由 Supabase Storage 或現場原始檔保存。",
+        records: window.currentSessionRecords
+    };
+    const blob = new Blob([JSON.stringify(pack, null, 2)], { type:"application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `龍山寺普查_${area.value}_${new Date().toISOString().slice(0,10)}.survey`;
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+};
+
+// ===== 事件 =====
+[area, direction, roofPos, compCode, serial, photoType].forEach(el => {
+    el.addEventListener("input", updateCodePreview);
+    el.addEventListener("change", updateCodePreview);
+});
+document.querySelectorAll('input[name="craftBox"]').forEach(cb => cb.addEventListener("change", updateCodePreview));
+
+photo.addEventListener("change", e => {
+    selectedPhotoFile = e.target.files?.[0] || null;
+    if (!selectedPhotoFile) { previewContainer.style.display = "none"; return; }
+    const url = URL.createObjectURL(selectedPhotoFile);
+    imagePreview.src = url;
+    previewContainer.style.display = "block";
+    imagePreview.onload = () => URL.revokeObjectURL(url);
+});
+
+window.addEventListener("online", async () => { refreshNetwork(); await refreshAuth(); await refreshSyncSummary(); });
+window.addEventListener("offline", refreshNetwork);
+
+updateCodePreview();
+refreshNetwork();
+await refreshAuth();
+await refreshSyncSummary();
+refreshTempUIList();
 </script>
+
 </body>
 </html>
