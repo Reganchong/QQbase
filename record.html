@@ -71,6 +71,13 @@ textarea{min-height:95px;resize:vertical}
 .photo-grid,.repair-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
 .photo-card,.repair-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fbfaf8}
 .photo-card img{width:100%;height:150px;object-fit:cover;border-radius:8px;background:#eee}
+.photo-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.photo-actions button{padding:7px 9px;font-size:12px}
+.danger{background:#b84e4e;color:#fff}
+.photo-form{border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;background:#fbfaf8}
+.photo-form h2{font-size:17px;color:var(--green);margin:0 0 14px}
+.photo-preview{display:none;margin-top:10px}
+.photo-preview img{max-width:100%;max-height:260px;border-radius:8px}
 .small{font-size:12px;color:var(--sub)}
 .notice{padding:12px;border-radius:9px;background:#fbf4ef;color:#8d503b;margin-bottom:15px}
 .bottom-save{display:flex;justify-content:flex-end;gap:10px;padding:16px 22px;border-top:1px solid var(--border);background:#fbfaf8;position:sticky;bottom:0}
@@ -304,7 +311,94 @@ textarea{min-height:95px;resize:vertical}
 
 <!-- 6 -->
 <section class="panel" id="photos">
-<div class="notice">這裡顯示已登錄到 <strong>photos</strong> 表的影像。下一階段再加入「在完整調查表中新增／刪除照片」功能。</div>
+
+<div class="photo-form">
+<h2>新增／編輯影像紀錄</h2>
+
+<input id="editing_photo_id" type="hidden">
+<input id="editing_storage_path" type="hidden">
+
+<div class="grid">
+<label class="field">
+照片型別＋序號
+<input id="photo_token" type="text" placeholder="例如 O01、D01">
+</label>
+
+<label class="field">
+照片編號
+<input id="photo_code_preview" class="readonly" type="text" readonly>
+</label>
+
+<label class="field">
+照片類型
+<select id="photo_view_type">
+<option value=""></option>
+<option value="全景">全景</option>
+<option value="中景">中景</option>
+<option value="近景">近景</option>
+<option value="細節">細節</option>
+</select>
+</label>
+
+<label class="field">
+攝影者
+<input id="photo_photographer" type="text">
+</label>
+
+<label class="field">
+攝影時間
+<input id="photo_taken_at" type="datetime-local">
+</label>
+
+<label class="field">
+授權說明
+<input id="photo_copyright_note" type="text">
+</label>
+
+<label class="field full">
+影像內容
+<select id="photo_image_content">
+<option value=""></option>
+<option value="損壞全貌">損壞全貌</option>
+<option value="構造材料">構造材料</option>
+<option value="落款題記">落款題記</option>
+<option value="局部劣化">局部劣化</option>
+<option value="其他">其他</option>
+</select>
+</label>
+
+<label class="field full">
+損壞標示或位置說明
+<textarea id="photo_damage_location_note"></textarea>
+</label>
+
+<label class="field full">
+選擇影像檔
+<input id="photo_file" type="file" accept="image/*">
+</label>
+</div>
+
+<div class="checks" style="margin-top:12px">
+<label class="check">
+<input id="photo_is_representative" type="checkbox">
+設為代表照片
+</label>
+</div>
+
+<div class="photo-preview" id="photoPreviewBox">
+<img id="photoPreviewImg" alt="影像預覽">
+</div>
+
+<div class="toolbar" style="margin-top:14px">
+<button id="savePhotoBtn" class="primary" type="button">📷 儲存影像紀錄</button>
+<button id="cancelPhotoEditBtn" class="secondary" type="button">取消編輯</button>
+</div>
+
+<div class="small" style="margin-top:10px">
+新增照片時必須選擇影像檔；編輯既有照片時，可只修改欄位而不重新選檔。
+</div>
+</div>
+
 <div id="photoGrid" class="photo-grid"></div>
 </section>
 
@@ -462,21 +556,267 @@ async function loadCondition(){
 }
 
 async function loadPhotos(){
-    const box=$("photoGrid"); box.innerHTML="";
-    const {data,error}=await supabase.from("photos").select("*").eq("record_id",recordId).order("sequence_no");
-    if(error){box.innerHTML=`<div class="small">照片讀取失敗：${esc(error.message)}</div>`;return}
-    if(!data?.length){box.innerHTML='<div class="small">目前尚無照片紀錄。</div>';return}
+    const box=$("photoGrid");
+    box.innerHTML="";
+
+    const {data,error}=await supabase
+        .from("photos")
+        .select("*")
+        .eq("record_id",recordId)
+        .order("sequence_no",{ascending:true});
+
+    if(error){
+        box.innerHTML=`<div class="small">照片讀取失敗：${esc(error.message)}</div>`;
+        return;
+    }
+
+    if(!data?.length){
+        box.innerHTML='<div class="small">目前尚無照片紀錄。</div>';
+        return;
+    }
 
     for(const p of data){
-        const {data:signed}=await supabase.storage.from("longshan-photos").createSignedUrl(p.storage_path,3600);
-        const card=document.createElement("div"); card.className="photo-card";
+        const {data:signed,error:signedError}=await supabase.storage
+            .from("longshan-photos")
+            .createSignedUrl(p.storage_path,3600);
+
+        const card=document.createElement("div");
+        card.className="photo-card";
+
         card.innerHTML=`
-            ${signed?.signedUrl?`<img src="${esc(signed.signedUrl)}" alt="">`:""}
+            ${signed?.signedUrl
+                ? `<img src="${esc(signed.signedUrl)}" alt="${esc(p.photo_code)}">`
+                : `<div class="small">${signedError ? "影像連結失敗：" + esc(signedError.message) : "無法顯示影像"}</div>`
+            }
             <div class="record-code" style="font-size:12px;margin-top:8px">${esc(p.photo_code)}</div>
-            <div class="small">${esc(p.file_name||"")}<br>${esc(p.photo_type||"")} ${p.sequence_no??""}</div>`;
+            <div class="small">
+                ${p.is_representative ? "⭐ 代表照片<br>" : ""}
+                類型：${esc(p.photo_type||"—")}
+                ${p.sequence_no != null ? " " + esc(p.sequence_no) : ""}<br>
+                攝影者：${esc(p.photographer||"—")}<br>
+                攝影時間：${esc(p.taken_at ? new Date(p.taken_at).toLocaleString("zh-TW") : "—")}<br>
+                影像內容：${esc(p.image_content||"—")}<br>
+                檔名：${esc(p.file_name||"—")}
+            </div>
+            <div class="photo-actions">
+                <button class="secondary edit-photo-btn" type="button">✏️ 編輯</button>
+                <button class="danger delete-photo-btn" type="button">🗑️ 刪除</button>
+            </div>`;
+
+        card.querySelector(".edit-photo-btn").onclick=()=>beginPhotoEdit(p);
+        card.querySelector(".delete-photo-btn").onclick=()=>deletePhotoRecord(p);
+
         box.appendChild(card);
     }
 }
+
+
+function normalizePhotoToken(value){
+    return String(value||"").trim().toUpperCase().replace(/\s+/g,"");
+}
+
+function photoCodeFromToken(){
+    const token=normalizePhotoToken($("photo_token").value);
+    return token && currentRecord ? `${currentRecord.record_code}-${token}` : "";
+}
+
+function updatePhotoCodePreview(){
+    $("photo_token").value=normalizePhotoToken($("photo_token").value);
+    $("photo_code_preview").value=photoCodeFromToken();
+}
+
+function parsePhotoToken(token){
+    const m=normalizePhotoToken(token).match(/^([A-Z]+)(\d+)$/);
+    return m ? {type:m[1],sequence:Number(m[2])} : {type:normalizePhotoToken(token)||null,sequence:null};
+}
+
+function resetPhotoForm(){
+    $("editing_photo_id").value="";
+    $("editing_storage_path").value="";
+    $("photo_token").value="";
+    $("photo_code_preview").value="";
+    $("photo_view_type").value="";
+    $("photo_photographer").value="";
+    $("photo_taken_at").value="";
+    $("photo_copyright_note").value="";
+    $("photo_image_content").value="";
+    $("photo_damage_location_note").value="";
+    $("photo_file").value="";
+    $("photo_is_representative").checked=false;
+    $("photoPreviewBox").style.display="none";
+    $("photoPreviewImg").removeAttribute("src");
+    $("savePhotoBtn").textContent="📷 儲存影像紀錄";
+}
+
+function datetimeLocalValue(value){
+    if(!value) return "";
+    const d=new Date(value);
+    if(Number.isNaN(d.getTime())) return "";
+    const local=new Date(d.getTime()-d.getTimezoneOffset()*60000);
+    return local.toISOString().slice(0,16);
+}
+
+function beginPhotoEdit(p){
+    const suffix=String(p.photo_code||"").startsWith(currentRecord.record_code+"-")
+        ? p.photo_code.slice(currentRecord.record_code.length+1)
+        : "";
+
+    $("editing_photo_id").value=p.id;
+    $("editing_storage_path").value=p.storage_path||"";
+    $("photo_token").value=suffix;
+    $("photo_code_preview").value=p.photo_code||"";
+    $("photo_view_type").value=p.photo_type_display||"";
+    $("photo_photographer").value=p.photographer||"";
+    $("photo_taken_at").value=datetimeLocalValue(p.taken_at);
+    $("photo_copyright_note").value=p.copyright_note||"";
+    $("photo_image_content").value=p.image_content||"";
+    $("photo_damage_location_note").value=p.damage_location_note||"";
+    $("photo_is_representative").checked=!!p.is_representative;
+    $("photo_file").value="";
+    $("savePhotoBtn").textContent="💾 更新影像紀錄";
+
+    document.querySelector('.tab[data-panel="photos"]').click();
+    window.scrollTo({top:0,behavior:"smooth"});
+}
+
+async function savePhotoRecord(){
+    if(!currentRecord) return;
+
+    const editingId=$("editing_photo_id").value||null;
+    const oldStoragePath=$("editing_storage_path").value||null;
+    const token=normalizePhotoToken($("photo_token").value);
+    const photoCode=photoCodeFromToken();
+    const file=$("photo_file").files?.[0]||null;
+
+    if(!token){
+        alert("❌ 請填寫照片型別＋序號，例如 O01 或 D01。");
+        return;
+    }
+
+    if(!editingId && !file){
+        alert("❌ 新增照片時必須選擇影像檔。");
+        return;
+    }
+
+    $("savePhotoBtn").disabled=true;
+    $("savePhotoBtn").textContent="⏳ 正在儲存……";
+
+    try{
+        const parsed=parsePhotoToken(token);
+        let storagePath=oldStoragePath;
+        let fileName=null;
+
+        if(file){
+            if(!storagePath){
+                const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+                storagePath=`${currentRecord.area}/${currentRecord.record_code}/${photoCode}.${ext}`;
+            }
+
+            const {error:uploadError}=await supabase.storage
+                .from("longshan-photos")
+                .upload(storagePath,file,{
+                    upsert:true,
+                    contentType:file.type||undefined,
+                    cacheControl:"3600"
+                });
+
+            if(uploadError) throw new Error("影像上傳失敗："+uploadError.message);
+            fileName=file.name;
+        }
+
+        const representative=$("photo_is_representative").checked;
+
+        if(representative){
+            const {error:clearRepError}=await supabase
+                .from("photos")
+                .update({is_representative:false})
+                .eq("record_id",recordId);
+
+            if(clearRepError) throw new Error("代表照片更新失敗："+clearRepError.message);
+        }
+
+        const row={
+            record_id:recordId,
+            photo_code:photoCode,
+            photo_type:parsed.type,
+            sequence_no:parsed.sequence,
+            storage_path:storagePath,
+            photographer:val("photo_photographer"),
+            taken_at:$("photo_taken_at").value ? new Date($("photo_taken_at").value).toISOString() : null,
+            copyright_note:val("photo_copyright_note"),
+            image_content:val("photo_image_content"),
+            damage_location_note:val("photo_damage_location_note"),
+            is_representative:representative
+        };
+
+        if(fileName) row.file_name=fileName;
+
+        let result;
+        if(editingId){
+            result=await supabase.from("photos").update(row).eq("id",editingId);
+        }else{
+            result=await supabase.from("photos").insert(row);
+        }
+
+        if(result.error) throw new Error("照片資料寫入失敗："+result.error.message);
+
+        resetPhotoForm();
+        await loadPhotos();
+        alert(editingId ? "✅ 影像紀錄已更新。" : "✅ 影像紀錄已新增。");
+
+    }catch(err){
+        console.error(err);
+        alert("❌ "+err.message);
+    }finally{
+        $("savePhotoBtn").disabled=false;
+        if(!$("editing_photo_id").value) $("savePhotoBtn").textContent="📷 儲存影像紀錄";
+    }
+}
+
+async function deletePhotoRecord(p){
+    if(!confirm(`確定要刪除照片 ${p.photo_code} 嗎？\n\n此操作會同時刪除 Storage 原檔與 photos 資料表紀錄。`)){
+        return;
+    }
+
+    try{
+        const {error:storageError}=await supabase.storage
+            .from("longshan-photos")
+            .remove([p.storage_path]);
+
+        if(storageError) throw new Error("Storage 刪除失敗："+storageError.message);
+
+        const {error:dbError}=await supabase
+            .from("photos")
+            .delete()
+            .eq("id",p.id);
+
+        if(dbError) throw new Error("photos 資料列刪除失敗："+dbError.message);
+
+        await loadPhotos();
+        alert("✅ 照片已刪除。");
+
+    }catch(err){
+        console.error(err);
+        alert("❌ "+err.message);
+    }
+}
+
+$("photo_token").addEventListener("input",updatePhotoCodePreview);
+
+$("photo_file").addEventListener("change",()=>{
+    const file=$("photo_file").files?.[0];
+    if(!file){
+        $("photoPreviewBox").style.display="none";
+        return;
+    }
+    const url=URL.createObjectURL(file);
+    $("photoPreviewImg").src=url;
+    $("photoPreviewBox").style.display="block";
+    $("photoPreviewImg").onload=()=>URL.revokeObjectURL(url);
+});
+
+$("savePhotoBtn").onclick=savePhotoRecord;
+$("cancelPhotoEditBtn").onclick=resetPhotoForm;
 
 async function loadRepairs(){
     const box=$("repairList"); box.innerHTML="";
