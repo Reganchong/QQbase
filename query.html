@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>普查系統 - 歷史數據查詢</title>
+    <title>普查系統 - 雲端資料查詢</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -12,270 +12,752 @@
             margin: 0;
             padding: 15px;
         }
+
         .container {
-            max-width: 900px;
+            max-width: 1100px;
             margin: 0 auto;
             background: white;
             padding: 24px;
             border-radius: 16px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.08);
         }
+
         h1 {
             font-size: 22px;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
             color: #1a365d;
         }
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 15px;
-        }
-        .btn-submit {
-            background-color: #2b6cb0;
-            color: white;
-            padding: 10px 18px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .btn-export {
-            background-color: #38a169;
-            color: white;
-            padding: 10px 18px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-left: 8px;
-        }
-        .btn-home {
-            background-color: #1a365d;
-            color: white;
-            margin-top: 25px;
-            width: 100%;
-            display: block;
+
+        .subtitle {
             text-align: center;
-            text-decoration: none;
-            padding: 15px 0;
-            border-radius: 8px;
-            font-weight: bold;
+            color: #718096;
+            font-size: 13px;
+            margin-bottom: 20px;
         }
+
+        .top-status {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            background: #f7fafc;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            font-size: 12px;
+        }
+
+        .status-ok { color: #276749; font-weight: 700; }
+        .status-bad { color: #c53030; font-weight: 700; }
+
+        .filter-panel {
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 18px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #4a5568;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        button, .btn-link {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #2b6cb0;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #718096;
+            color: white;
+        }
+
+        .btn-export {
+            background: #38a169;
+            color: white;
+        }
+
+        .btn-home {
+            background: #1a365d;
+            color: white;
+        }
+
+        .summary-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            margin: 8px 0 14px;
+            color: #4a5568;
+            font-size: 13px;
+        }
+
         .table-responsive {
             width: 100%;
             overflow-x: auto;
-            margin-bottom: 30px;
-            background: #fff;
-            border-radius: 8px;
+            background: white;
             border: 1px solid #cbd5e0;
+            border-radius: 10px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            text-align: left;
+            min-width: 980px;
             font-size: 13px;
-            min-width: 650px;
         }
+
         th {
-            background-color: #edf2f7;
+            background: #edf2f7;
             color: #2d3748;
-            font-weight: 700;
             padding: 10px;
             border-bottom: 2px solid #cbd5e0;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 1;
         }
+
         td {
             padding: 10px;
             border-bottom: 1px solid #e2e8f0;
             color: #4a5568;
+            vertical-align: middle;
+        }
+
+        tr:nth-child(even) {
+            background: #f7fafc;
+        }
+
+        tr.record-row {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        tr.record-row:hover {
+            background: #ebf8ff;
+        }
+
+        .code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-weight: 700;
+            color: #2b6cb0;
             word-break: break-all;
         }
-        tr:nth-child(even) {
-            background-color: #f7fafc;
+
+        .craft-badge {
+            display: inline-block;
+            padding: 3px 7px;
+            border-radius: 999px;
+            background: #f0fff4;
+            color: #276749;
+            font-size: 11px;
+            font-weight: 700;
+            margin: 1px 2px 1px 0;
         }
-        .data-card {
-            background: #f7fafc;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            border-left: 6px solid #2b6cb0;
-            font-size: 14px;
-            position: relative;
+
+        .edit-btn {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 7px;
+            background: #2b6cb0;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 12px;
+            white-space: nowrap;
         }
-        .data-card img {
-            max-width: 150px;
-            display: block;
-            margin-top: 10px;
-            border-radius: 6px;
+
+        .empty, .loading, .error {
+            padding: 34px 16px;
+            text-align: center;
+            color: #a0aec0;
         }
-        .delete-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            color: #e53e3e;
-            cursor: pointer;
-            font-weight: bold;
-            border: none;
-            background: none;
-            font-size: 15px;
+
+        .error {
+            color: #c53030;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .pagination button {
+            background: #edf2f7;
+            color: #2d3748;
+        }
+
+        .pagination button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 850px) {
+            .filter-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 18px;
+            }
+
+            .action-row > * {
+                flex: 1;
+            }
         }
     </style>
 </head>
+
 <body>
 <div class="container">
-    <h1>📋 導入外部普查打包檔案與表格檢視</h1>
-    
-    <div class="history-header">
-        <button type="button" class="btn-submit" onclick="document.getElementById('importInput').click()">
-            📂 選擇普查打包檔還原
-        </button>
-        <button type="button" id="exportBtn" class="btn-export">
-            🍏 匯出總統計 Excel
-        </button>
+
+    <h1>📋 艋舺龍山寺普查資料庫</h1>
+    <div class="subtitle">直接查詢 Supabase 雲端資料，不需再手動導入 .survey</div>
+
+    <div class="top-status">
+        <span id="authStatus">正在確認登入狀態……</span>
+        <span id="dbStatus">等待讀取資料庫……</span>
     </div>
-    <input type="file" id="importInput" multiple accept=".survey" style="display:none;">
-    
-    <!-- 📊 統計大表格區域 -->
+
+    <div class="filter-panel">
+        <div class="filter-grid">
+            <div class="filter-group">
+                <label>關鍵字 / 作品編號</label>
+                <input type="text" id="keyword" placeholder="例如 LS-SH-W-MR-11-001">
+            </div>
+
+            <div class="filter-group">
+                <label>殿區</label>
+                <select id="areaFilter">
+                    <option value="">全部殿區</option>
+                    <option value="SH">三川殿 (SH)</option>
+                    <option value="FL">前殿龍門 (FL)</option>
+                    <option value="FR">前殿虎門 (FR)</option>
+                    <option value="LC">左下山前廊 (LC)</option>
+                    <option value="RC">右下山前廊 (RC)</option>
+                    <option value="XL">左下山護室 (XL)</option>
+                    <option value="XR">右下山護室 (XR)</option>
+                    <option value="GL">左過水廊 (GL)</option>
+                    <option value="GR">右過水廊 (GR)</option>
+                    <option value="TL">左頂山護室 (TL)</option>
+                    <option value="TR">右頂山護室 (TR)</option>
+                    <option value="BT">鐘樓 (BT)</option>
+                    <option value="DT">鼓樓 (DT)</option>
+                    <option value="YH">後殿月老廳 (YH)</option>
+                    <option value="HH">後殿華佗廳 (HH)</option>
+                    <option value="RL">後殿龍門 (RL)</option>
+                    <option value="RR">後殿虎門 (RR)</option>
+                    <option value="TH">天上聖母殿 (TH)</option>
+                    <option value="GH">關聖帝君殿 (GH)</option>
+                    <option value="WH">文昌帝君殿 (WH)</option>
+                    <option value="PL">牌樓 (PL)</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>方位</label>
+                <select id="directionFilter">
+                    <option value="">全部方位</option>
+                    <option value="E">東 (E)</option>
+                    <option value="W">西 (W)</option>
+                    <option value="S">南 (S)</option>
+                    <option value="N">北 (N)</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>屋面部位</label>
+                <select id="roofFilter">
+                    <option value="">全部部位</option>
+                    <option value="MR">正脊 (MR)</option>
+                    <option value="DR">垂脊 (DR)</option>
+                    <option value="HR">戧脊 (HR)</option>
+                    <option value="ER">圍脊 (ER)</option>
+                    <option value="AR">角脊 (AR)</option>
+                    <option value="SR">燕尾 (SR)</option>
+                    <option value="SD">水車堵 (SD)</option>
+                    <option value="GD">山花 (GD)</option>
+                    <option value="WD">牆堵 (WD)</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>構件細部</label>
+                <select id="componentFilter">
+                    <option value="">全部構件</option>
+                    <option value="01">上馬路 (01)</option>
+                    <option value="02">下馬路 (02)</option>
+                    <option value="03">三角堵 (03)</option>
+                    <option value="04">四寸蓋 (04)</option>
+                    <option value="05">印斗 (05)</option>
+                    <option value="06">吐水 (06)</option>
+                    <option value="07">圭角 (07)</option>
+                    <option value="08">西施脊 (08)</option>
+                    <option value="09">垂脊 (09)</option>
+                    <option value="10">通風脊堵 (10)</option>
+                    <option value="11">脊堵 (11)</option>
+                    <option value="12">脊塞 (12)</option>
+                    <option value="13">脊鎖 (13)</option>
+                    <option value="14">脊獸 (14)</option>
+                    <option value="15">規帶 (15)</option>
+                    <option value="16">排頭 (16)</option>
+                    <option value="17">燕尾 (17)</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>工藝形式</label>
+                <select id="craftFilter">
+                    <option value="">全部工藝</option>
+                    <option value="CP">剪黏 (CP)</option>
+                    <option value="CS">泥塑 (CS)</option>
+                    <option value="JP">交趾陶 (JP)</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>每頁筆數</label>
+                <select id="pageSize">
+                    <option value="25">25</option>
+                    <option value="50" selected>50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="action-row">
+            <button type="button" id="searchBtn" class="btn-primary">🔍 查詢</button>
+            <button type="button" id="clearBtn" class="btn-secondary">♻️ 清除條件</button>
+            <button type="button" id="exportBtn" class="btn-export">📊 匯出目前查詢 CSV</button>
+            <a href="index.html" class="btn-link btn-home">🏠 回目錄</a>
+        </div>
+    </div>
+
+    <div class="summary-bar">
+        <span id="resultSummary">尚未讀取資料</span>
+        <span>點擊資料列或「查看 / 編輯」即可進入完整調查表。</span>
+    </div>
+
     <div class="table-responsive">
         <table>
             <thead>
                 <tr>
-                    <th>完整編碼</th>
+                    <th>作品編號</th>
                     <th>殿區</th>
                     <th>方位</th>
-                    <th>部位</th>
-                    <th>細部</th>
+                    <th>屋面部位</th>
+                    <th>構件</th>
                     <th>流水號</th>
-                    <th>工藝形式 (學術排序)</th>
-                    <th>時間</th>
+                    <th>工藝形式</th>
+                    <th>題材名稱</th>
+                    <th>最後更新</th>
+                    <th>操作</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
                 <tr>
-                    <td colspan="8" style="text-align:center; color:#a0aec0; padding:30px 0;">
-                        📊 目前尚無數據，請點選上方按鈕導入檔案。
-                    </td>
+                    <td colspan="10" class="loading">正在讀取 Supabase 資料……</td>
                 </tr>
             </tbody>
         </table>
     </div>
-    
-    <h3 style="color:#4a5568; margin: 25px 0 10px 0; font-size:16px;">🔍 調查照片影像與備註詳情對照</h3>
-    <div id="dataList"></div>
-    
-    <a href="index.html" class="btn-home">🏠 返回目錄主選單</a>
-</div>
-<script>
-    window.allRecordsSaved = [];
 
-    // 批量讀取解析 .survey 實體檔案 (自動相容單檔與多筆在一起的陣列大數據包)
-    document.getElementById('importInput').onchange = function(e) {
-        const files = e.target.files; 
-        if (!files || files.length === 0) return;
-        
-        window.allRecordsSaved = []; 
-        let processedCount = 0;
-        
-        for (let i = 0; i < files.length; i++) {
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const parsed = JSON.parse(evt.target.result);
-                    // 核心關鍵：如果是陣列就展開釋放，如果是舊格式單檔就直接推入
-                    if (Array.isArray(parsed)) { 
-                        parsed.forEach(r => window.allRecordsSaved.push(r)); 
-                    } else { 
-                        window.allRecordsSaved.push(parsed); 
-                    }
-                } catch(err) {
-                    console.error("解析失敗", err);
-                }
-                processedCount++;
-                if (processedCount === files.length) { 
-                    renderTableAndCards(); 
-                }
-            };
-            reader.readAsText(files[i]);
+    <div class="pagination">
+        <button id="prevBtn">← 上一頁</button>
+        <span id="pageInfo">第 1 頁</span>
+        <button id="nextBtn">下一頁 →</button>
+    </div>
+</div>
+
+<script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+    const SUPABASE_URL = "https://kappwvkerqdsvpgzamnc.supabase.co";
+
+    // 請改成目前 login / database-test 已確認可用的 Publishable key。
+    // 不要使用 service_role / secret key。
+    const SUPABASE_KEY = "sb_publishable_WIVgXV-WgBcveNX2yvLs8g_Y2tYDomD";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
         }
+    });
+
+    const AREA_NAMES = {
+        SH: "三川殿", FL: "前殿龍門", FR: "前殿虎門",
+        LC: "左下山前廊", RC: "右下山前廊",
+        XL: "左下山護室", XR: "右下山護室",
+        GL: "左過水廊", GR: "右過水廊",
+        TL: "左頂山護室", TR: "右頂山護室",
+        BT: "鐘樓", DT: "鼓樓",
+        YH: "後殿月老廳", HH: "後殿華佗廳",
+        RL: "後殿龍門", RR: "後殿虎門",
+        TH: "天上聖母殿", GH: "關聖帝君殿",
+        WH: "文昌帝君殿", PL: "牌樓"
     };
 
-    // 實時將資料同時錄入統計大表格與下方對照卡片
-    function renderTableAndCards() {
-        const tableBody = document.getElementById('tableBody');
-        const cardBox = document.getElementById('dataList');
-        if (!tableBody || !cardBox) return;
-        
-        tableBody.innerHTML = ""; 
-        cardBox.innerHTML = "";
-        
-        if (window.allRecordsSaved.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#a0aec0; padding:20px 0;">📊 目前沒有數據。</td></tr>`;
-            return;
-        }
-        
-        // 倒序排列，最新登記的普查資料會自動出現在最上方
-        let reversed = [...window.allRecordsSaved].reverse();
-        reversed.forEach((val) => {
-            // A. 建立表格列
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td style="font-weight:bold; color:#2b6cb0;">${val.fullCode}</td>
-                <td>${val.area}</td>
-                <td>${val.direction}</td>
-                <td>${val.roofPos}</td>
-                <td>${val.compCode}</td>
-                <td style="font-family:monospace;">${val.serial}</td>
-                <td style="font-weight:bold; color:#2f855a;">${val.craft}</td>
-                <td style="color:#718096; font-size:11px;">${val.timestamp || '？'}</td>
-            `;
-            tableBody.appendChild(tr);
+    const DIRECTION_NAMES = {
+        E: "東", W: "西", S: "南", N: "北"
+    };
 
-            // B. 建立卡片影像對照
-            const card = document.createElement('div'); 
-            card.className = 'data-card';
-            card.innerHTML = `
-                <button type="button" class="delete-btn" onclick="removeCardView('${val.fullCode}')">❌ 移除檢視</button>
-                <strong>🔍 識別編碼：${val.fullCode}</strong><br>
-                <span style="color:#718096; font-size:12px;">🕒 時間：${val.timestamp} | 🎨 工藝形式：${val.craft}</span><br>
-                ${val.note ? `<div style="margin-top:5px; background:#fff; padding:6px; border:1px solid #edf2f7;">📝 詳細備註：${val.note}</div>` : ''}
-                ${val.photo ? `<img src="${val.photo}">` : ''}
-            `;
-            cardBox.appendChild(card);
+    const ROOF_NAMES = {
+        MR: "正脊", DR: "垂脊", HR: "戧脊",
+        ER: "圍脊", AR: "角脊", SR: "燕尾",
+        SD: "水車堵", GD: "山花", WD: "牆堵"
+    };
+
+    const COMPONENT_NAMES = {
+        "01": "上馬路", "02": "下馬路", "03": "三角堵",
+        "04": "四寸蓋", "05": "印斗", "06": "吐水",
+        "07": "圭角", "08": "西施脊", "09": "垂脊",
+        "10": "通風脊堵", "11": "脊堵", "12": "脊塞",
+        "13": "脊鎖", "14": "脊獸", "15": "規帶",
+        "16": "排頭", "17": "燕尾"
+    };
+
+    const CRAFT_NAMES = {
+        CP: "剪黏", CS: "泥塑", JP: "交趾陶"
+    };
+
+    let currentPage = 1;
+    let totalCount = 0;
+    let currentRows = [];
+    let isLoggedIn = false;
+
+    const tableBody = document.getElementById("tableBody");
+    const authStatus = document.getElementById("authStatus");
+    const dbStatus = document.getElementById("dbStatus");
+    const resultSummary = document.getElementById("resultSummary");
+    const pageInfo = document.getElementById("pageInfo");
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function localDate(value) {
+        if (!value) return "—";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return date.toLocaleString("zh-TW", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
         });
     }
 
-    // 移除當前畫面的檢視
-    window.removeCardView = function(fCode) {
-        window.allRecordsSaved = window.allRecordsSaved.filter(item => item.fullCode !== fCode);
-        renderTableAndCards();
+    async function checkSession() {
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error) {
+            authStatus.className = "status-bad";
+            authStatus.textContent = `❌ Session 錯誤：${error.message}`;
+            isLoggedIn = false;
+            return false;
+        }
+
+        if (!session?.user) {
+            authStatus.className = "status-bad";
+            authStatus.textContent = "❌ 尚未登入，請先回 login.html";
+            isLoggedIn = false;
+            return false;
+        }
+
+        authStatus.className = "status-ok";
+        authStatus.textContent = `✅ 已登入：${session.user.email}`;
+        isLoggedIn = true;
+        return true;
+    }
+
+    function buildQuery() {
+        const keyword = document.getElementById("keyword").value.trim();
+        const area = document.getElementById("areaFilter").value;
+        const direction = document.getElementById("directionFilter").value;
+        const roof = document.getElementById("roofFilter").value;
+        const component = document.getElementById("componentFilter").value;
+        const craft = document.getElementById("craftFilter").value;
+
+        let query = supabase
+            .from("survey_records")
+            .select("*", { count: "exact" });
+
+        if (keyword) {
+            const safeKeyword = keyword.replace(/[%(),]/g, "");
+            query = query.or(
+                `record_code.ilike.%${safeKeyword}%,title.ilike.%${safeKeyword}%,note.ilike.%${safeKeyword}%`
+            );
+        }
+
+        if (area) query = query.eq("area", area);
+        if (direction) query = query.eq("direction", direction);
+        if (roof) query = query.eq("roof_position", roof);
+        if (component) query = query.eq("component_code", component);
+
+        // crafts 是 text[]，contains(['CP']) 可查詢包含該工藝的作品。
+        if (craft) query = query.contains("crafts", [craft]);
+
+        return query;
+    }
+
+    async function loadRecords(resetPage = false) {
+        if (resetPage) currentPage = 1;
+
+        if (!await checkSession()) {
+            tableBody.innerHTML = `
+                <tr><td colspan="10" class="error">
+                    尚未登入。請先前往 <a href="login.html">login.html</a>。
+                </td></tr>`;
+            dbStatus.className = "status-bad";
+            dbStatus.textContent = "❌ 無法讀取資料庫";
+            return;
+        }
+
+        tableBody.innerHTML = `
+            <tr><td colspan="10" class="loading">📡 正在讀取 Supabase……</td></tr>`;
+        dbStatus.className = "";
+        dbStatus.textContent = "📡 正在查詢資料……";
+
+        const pageSize = parseInt(document.getElementById("pageSize").value, 10);
+        const from = (currentPage - 1) * pageSize;
+        const to = from + pageSize - 1;
+
+        const { data, error, count } = await buildQuery()
+            .order("updated_at", { ascending: false })
+            .range(from, to);
+
+        if (error) {
+            console.error(error);
+            tableBody.innerHTML = `
+                <tr><td colspan="10" class="error">
+                    ❌ 查詢失敗：${escapeHtml(error.message)}
+                </td></tr>`;
+            dbStatus.className = "status-bad";
+            dbStatus.textContent = "❌ Supabase 查詢失敗";
+            return;
+        }
+
+        currentRows = data || [];
+        totalCount = count || 0;
+
+        renderRows();
+
+        dbStatus.className = "status-ok";
+        dbStatus.textContent = `✅ 資料庫連線正常`;
+
+        const maxPage = Math.max(1, Math.ceil(totalCount / pageSize));
+        resultSummary.textContent =
+            `符合條件共 ${totalCount} 筆，目前顯示第 ${currentPage} / ${maxPage} 頁。`;
+
+        pageInfo.textContent = `第 ${currentPage} / ${maxPage} 頁`;
+        document.getElementById("prevBtn").disabled = currentPage <= 1;
+        document.getElementById("nextBtn").disabled = currentPage >= maxPage;
+    }
+
+    function renderRows() {
+        tableBody.innerHTML = "";
+
+        if (currentRows.length === 0) {
+            tableBody.innerHTML = `
+                <tr><td colspan="10" class="empty">📭 查無符合條件的普查資料。</td></tr>`;
+            return;
+        }
+
+        for (const row of currentRows) {
+            const crafts = Array.isArray(row.crafts) ? row.crafts : [];
+            const craftHtml = crafts.length
+                ? crafts.map(code =>
+                    `<span class="craft-badge">${escapeHtml(CRAFT_NAMES[code] || code)} (${escapeHtml(code)})</span>`
+                  ).join("")
+                : "—";
+
+            const editUrl = `record.html?id=${encodeURIComponent(row.id)}`;
+
+            const tr = document.createElement("tr");
+            tr.className = "record-row";
+            tr.innerHTML = `
+                <td class="code">${escapeHtml(row.record_code)}</td>
+                <td>${escapeHtml(AREA_NAMES[row.area] || row.area || "—")}<br><small>${escapeHtml(row.area || "")}</small></td>
+                <td>${escapeHtml(DIRECTION_NAMES[row.direction] || row.direction || "—")}</td>
+                <td>${escapeHtml(ROOF_NAMES[row.roof_position] || row.roof_position || "—")}</td>
+                <td>${escapeHtml(COMPONENT_NAMES[row.component_code] || row.component_code || "—")}</td>
+                <td style="font-family:monospace;">${escapeHtml(row.serial || "—")}</td>
+                <td>${craftHtml}</td>
+                <td>${escapeHtml(row.title || "—")}</td>
+                <td>${escapeHtml(localDate(row.updated_at))}</td>
+                <td><a class="edit-btn" href="${editUrl}">查看 / 編輯</a></td>
+            `;
+
+            tr.addEventListener("click", (event) => {
+                if (event.target.closest("a, button")) return;
+                window.location.href = editUrl;
+            });
+
+            tableBody.appendChild(tr);
+        }
+    }
+
+    function clearFilters() {
+        document.getElementById("keyword").value = "";
+        document.getElementById("areaFilter").value = "";
+        document.getElementById("directionFilter").value = "";
+        document.getElementById("roofFilter").value = "";
+        document.getElementById("componentFilter").value = "";
+        document.getElementById("craftFilter").value = "";
+        currentPage = 1;
+        loadRecords();
+    }
+
+    function csvCell(value) {
+        const text = String(value ?? "");
+        return `"${text.replaceAll('"', '""')}"`;
+    }
+
+    function exportCurrentQuery() {
+        if (currentRows.length === 0) {
+            alert("目前這一頁沒有可匯出的資料。");
+            return;
+        }
+
+        let csv = "\uFEFF";
+        csv += [
+            "作品編號",
+            "殿區代碼",
+            "殿區名稱",
+            "方位",
+            "屋面部位",
+            "構件代碼",
+            "構件名稱",
+            "流水號",
+            "工藝形式",
+            "題材名稱",
+            "備註",
+            "建立時間",
+            "更新時間"
+        ].map(csvCell).join(",") + "\n";
+
+        currentRows.forEach(row => {
+            const crafts = Array.isArray(row.crafts) ? row.crafts.join("-") : "";
+
+            csv += [
+                row.record_code,
+                row.area,
+                AREA_NAMES[row.area] || row.area,
+                row.direction,
+                row.roof_position,
+                row.component_code,
+                COMPONENT_NAMES[row.component_code] || row.component_code,
+                row.serial,
+                crafts,
+                row.title || "",
+                row.note || "",
+                row.created_at || "",
+                row.updated_at || ""
+            ].map(csvCell).join(",") + "\n";
+        });
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = `龍山寺普查查詢結果_${new Date().toISOString().slice(0, 10)}.csv`;
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("searchBtn").onclick = () => loadRecords(true);
+    document.getElementById("clearBtn").onclick = clearFilters;
+    document.getElementById("exportBtn").onclick = exportCurrentQuery;
+
+    document.getElementById("keyword").addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            loadRecords(true);
+        }
+    });
+
+    document.getElementById("pageSize").onchange = () => loadRecords(true);
+
+    document.getElementById("prevBtn").onclick = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            loadRecords();
+        }
     };
 
-    // 大總編 Excel (CSV) 導出引擎
-    document.getElementById('exportBtn').onclick = function() {
-        if (window.allRecordsSaved.length === 0) { alert("目前畫面上沒有導入數據！"); return; }
-        
-        let csv = "\uFEFF"; 
-        csv += "完整登錄編碼,建築區域,方位,屋面部位,細部分類,流水號,照片序號,工藝形式,備註,登記時間\n";
-        
-        window.allRecordsSaved.forEach(r => {
-            const row = [
-                r.fullCode, r.area, r.direction, r.roofPos, r.compCode, 
-                r.serial, r.photoType, r.craft, r.note || '', r.timestamp
-            ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
-            csv += row + "\n";
-        });
-        
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a"); 
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", `龍山寺普查總匯報表_${new Date().toLocaleDateString()}.csv`);
-        document.body.appendChild(link); 
-        link.click(); 
-        document.body.removeChild(link);
+    document.getElementById("nextBtn").onclick = () => {
+        const pageSize = parseInt(document.getElementById("pageSize").value, 10);
+        const maxPage = Math.max(1, Math.ceil(totalCount / pageSize));
+
+        if (currentPage < maxPage) {
+            currentPage++;
+            loadRecords();
+        }
     };
+
+    await loadRecords(true);
 </script>
 </body>
 </html>
