@@ -5,30 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>普查系統 - 數據登錄工具</title>
     <style>
+        :root {
+            --temple-orange: #c4785a;
+            --temple-gray: #7a7671;
+            --temple-green: #5c634b;
+            --bg-main: #f7f5f2;
+            --bg-card: #ffffff;
+            --bg-soft: #f1ede8;
+            --text-main: #2f2d2b;
+            --text-sub: #6b6762;
+            --border: #d7d0c8;
+            --success-bg: #eef2ea;
+            --warning-bg: #fbf4ef;
+        }
+        * { box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f5f5f7;
-            color: #1d1d1f;
+            background-color: var(--bg-main);
+            color: var(--text-main);
             margin: 0;
             padding: 15px;
         }
         .container {
             max-width: 800px;
             margin: 0 auto;
-            background: white;
+            background: var(--bg-card);
             padding: 24px;
+            border: 1px solid var(--border);
             border-radius: 16px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 16px rgba(92,99,75,0.08);
         }
         h1 {
             font-size: 22px;
             text-align: center;
             margin-bottom: 20px;
-            color: #1a365d;
+            color: var(--temple-green);
         }
         .code-preview-box {
-            background-color: #ebf8ff;
-            border: 2px dashed #3182ce;
+            background-color: var(--warning-bg);
+            border: 2px dashed var(--temple-orange);
             padding: 18px;
             border-radius: 10px;
             margin-bottom: 20px;
@@ -36,7 +51,7 @@
         }
         .code-preview-box label {
             font-size: 13px;
-            color: #2b6cb0;
+            color: var(--temple-orange);
             font-weight: bold;
             display: block;
             margin-bottom: 8px;
@@ -45,7 +60,7 @@
             font-family: monospace;
             font-size: 24px;
             font-weight: bold;
-            color: #2b6cb0;
+            color: var(--temple-orange);
             word-break: break-all;
         }
         .page {
@@ -68,12 +83,12 @@
             font-weight: 600;
             margin-bottom: 6px;
             font-size: 14px;
-            color: #4a5568;
+            color: var(--text-sub);
         }
         input[type="text"], select, textarea {
             width: 100%;
             padding: 12px;
-            border: 1px solid #cbd5e0;
+            border: 1px solid var(--border);
             border-radius: 8px;
             box-sizing: border-box;
             font-size: 16px;
@@ -89,10 +104,10 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            background: #f7fafc;
+            background: var(--bg-soft);
             padding: 10px 14px;
             border-radius: 8px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border);
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
@@ -117,19 +132,19 @@
             cursor: pointer;
         }
         .btn-submit {
-            background-color: #2b6cb0;
+            background-color: var(--temple-orange);
             color: white;
         }
         .btn-nav {
-            background-color: #718096;
+            background-color: var(--temple-gray);
             color: white;
         }
         .btn-export {
-            background-color: #38a169;
+            background-color: var(--temple-green);
             color: white;
         }
         .btn-home {
-            background-color: #1a365d;
+            background-color: var(--temple-green);
             color: white;
             margin-top: 20px;
             width: 100%;
@@ -153,20 +168,20 @@
         }
         .history {
             margin-top: 30px;
-            border-top: 2px solid #e2e8f0;
+            border-top: 2px solid var(--border);
             padding-top: 20px;
         }
         .history h2 {
             font-size: 18px;
             margin: 0 0 15px 0;
-            color: #4a5568;
+            color: var(--text-sub);
         }
         .data-card {
-            background: #f7fafc;
+            background: var(--bg-soft);
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 12px;
-            border-left: 6px solid #2b6cb0;
+            border-left: 6px solid var(--temple-orange);
             font-size: 14px;
             position: relative;
         }
@@ -188,24 +203,60 @@
             font-size: 15px;
         }
 
-        .session-bar { display:flex; flex-wrap:wrap; gap:8px; justify-content:space-between; align-items:center; background:#f7fafc; border:1px solid #e2e8f0; border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; }
-        .session-ok { color:#276749; font-weight:700; }
+        .session-bar { display:flex; flex-wrap:wrap; gap:8px; justify-content:space-between; align-items:center; background:var(--bg-soft); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:12px; }
+        .session-ok { color:var(--temple-green); font-weight:700; }
         .session-off { color:#c05621; font-weight:700; }
         .session-bad { color:#c53030; font-weight:700; }
         .sync-status { background:#fffaf0; border:1px solid #feebc8; border-radius:10px; padding:10px 12px; margin-bottom:16px; font-size:13px; line-height:1.5; }
         .sync-status strong { color:#c05621; }
-        .sub-code { font-family:monospace; color:#718096; font-size:13px; margin-top:6px; word-break:break-all; }
+        .sub-code { font-family:monospace; color:var(--temple-gray); font-size:13px; margin-top:6px; word-break:break-all; }
         .badge { display:inline-block; border-radius:999px; padding:3px 8px; font-size:11px; font-weight:700; margin-left:6px; }
         .badge-pending { background:#fffaf0; color:#c05621; }
         .badge-synced { background:#f0fff4; color:#276749; }
         .badge-failed { background:#fff5f5; color:#c53030; }
-        .data-card.pending { border-left-color:#dd6b20; }
-        .data-card.synced { border-left-color:#38a169; }
+        .data-card.pending { border-left-color:var(--temple-green); }
+        .data-card.synced { border-left-color:var(--temple-green); }
         .data-card.failed { border-left-color:#e53e3e; }
-        .btn-sync { background:#dd6b20; color:white; }
-        .small-note { color:#718096; font-size:12px; line-height:1.5; margin-top:6px; }
+        .btn-sync { background:var(--temple-green); color:white; }
+        .small-note { color:var(--temple-gray); font-size:12px; line-height:1.5; margin-top:6px; }
         @media (max-width:620px) { .form-row,.btn-group { flex-direction:column; } .generated-code { font-size:18px; } }
-    </style>
+    
+        .serial-control {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 8px;
+            align-items: center;
+        }
+        .serial-control input {
+            text-align: center;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .serial-nav-btn {
+            min-width: 88px;
+            padding: 11px 12px;
+            border: 0;
+            border-radius: 8px;
+            background: var(--temple-gray);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .serial-nav-btn.next { background: var(--temple-orange); }
+        .serial-nav-btn:hover { filter: brightness(.95); }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--temple-orange);
+            box-shadow: 0 0 0 3px rgba(196,120,90,.15);
+        }
+        @media (max-width: 520px) {
+            .serial-control { grid-template-columns: 1fr 1fr; }
+            .serial-control input { grid-column: 1 / -1; grid-row: 1; }
+        }
+
+</style>
 </head>
 <body>
 <div class="container">
@@ -228,7 +279,7 @@
 
     <!-- 📄 第一步分頁：大建築環境與方位朝向 -->
     <div id="page1" class="page active">
-        <h3 style="color:#2b6cb0; margin-bottom:15px; border-left:4px solid #2b6cb0; padding-left:8px;">
+        <h3 style="color:var(--temple-orange); margin-bottom:15px; border-left:4px solid var(--temple-orange); padding-left:8px;">
             第一步：選擇主要建築與朝向方位
         </h3>
         <div class="form-row">
@@ -283,7 +334,7 @@
 
     <!-- 📄 第二步分頁：詳細數據、工藝形式多選與大打包 -->
     <div id="page2" class="page">
-        <h3 style="color:#2b6cb0; margin-bottom:15px; border-left:4px solid #2b6cb0; padding-left:8px;">
+        <h3 style="color:var(--temple-orange); margin-bottom:15px; border-left:4px solid var(--temple-orange); padding-left:8px;">
             第二步：詳細普查數據與影像紀錄
         </h3>
         <div class="form-row">
@@ -327,8 +378,12 @@
         <div class="form-row">
             <div class="form-group">
                 <label>作品流水號</label>
-                <input type="text" id="serial" value="001" oninput="updateCodePreview()" 
-                       required style="font-family: monospace;">
+                <div class="serial-control">
+                    <button type="button" class="serial-nav-btn" onclick="changeSerial(-1)">← 上一個</button>
+                    <input type="text" id="serial" value="001" oninput="updateCodePreview()" required>
+                    <button type="button" class="serial-nav-btn next" onclick="changeSerial(1)">下一個 →</button>
+                </div>
+
             </div>
             <div class="form-group">
                 <label>照片型別+序號</label>
@@ -358,7 +413,7 @@
         <div class="form-group" style="margin-top: 15px;">
             <label>📷 調查影像 (選填)</label>
             <input type="file" id="photo" accept="image/*">
-            <div class="small-note">照片將直接上傳 Supabase Storage，不再轉成 Base64 寫入資料庫。</div>
+         
             <div class="preview-container" id="previewContainer">
                 <img id="imagePreview" src="" alt="預覽">
             </div>
@@ -670,11 +725,18 @@ function resetAfterSave() {
     imagePreview.removeAttribute("src");
     selectedPhotoFile = null;
     document.querySelectorAll('input[name="craftBox"]').forEach(cb => cb.checked = false);
-
-    const n = parseInt(serial.value, 10);
-    if (!Number.isNaN(n)) serial.value = String(n + 1).padStart(3, "0");
+    // 儲存後保留目前流水號，不自動跳號。
     updateCodePreview();
 }
+
+
+window.changeSerial = function(delta) {
+    let n = parseInt(serial.value, 10);
+    if (Number.isNaN(n)) n = 1;
+    n = Math.max(1, n + delta);
+    serial.value = String(n).padStart(3, "0");
+    updateCodePreview();
+};
 
 // ===== Pending 同步 =====
 window.syncPendingRecords = async function() {
@@ -722,7 +784,7 @@ function refreshTempUIList() {
         card.innerHTML = `
             <button type="button" class="delete-btn">✕ 移除清單</button>
             <strong>🔍 ${esc(v.recordCode)}</strong><span class="badge ${badge}">${esc(v.statusText)}</span><br>
-            <span style="color:#718096;font-size:12px;">🕒 ${new Date(v.createdAtLocal).toLocaleString()} ｜ 🎨 ${esc(v.crafts.join("-"))}</span>
+            <span style="color:var(--temple-gray);font-size:12px;">🕒 ${new Date(v.createdAtLocal).toLocaleString()} ｜ 🎨 ${esc(v.crafts.join("-"))}</span>
             ${v.photoCode ? `<br><span style="font-size:12px;">📷 ${esc(v.photoCode)} ${v.photoName ? "｜" + esc(v.photoName) : ""}</span>` : ""}
             ${v.note ? `<div style="margin-top:5px;background:#fff;padding:6px;border:1px solid #edf2f7;">📝 ${esc(v.note)}</div>` : ""}
             ${v.errorMessage ? `<div style="margin-top:5px;color:#c53030;font-size:12px;">${esc(v.errorMessage)}</div>` : ""}
