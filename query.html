@@ -258,7 +258,7 @@
         }
 
         .action-cell {
-            min-width: 245px;
+            min-width: 340px;
         }
 
         .row-actions {
@@ -267,7 +267,7 @@
             flex-wrap: wrap;
         }
 
-        .history-btn, .delete-record-btn {
+        .print-record-btn, .history-btn, .delete-record-btn {
             display: inline-block;
             border: 0;
             border-radius: 7px;
@@ -276,6 +276,13 @@
             font-size: 12px;
             cursor: pointer;
             white-space: nowrap;
+        }
+
+        .print-record-btn {
+            display: inline-block;
+            background: #c4785a;
+            color: white;
+            text-decoration: none;
         }
 
         .history-btn {
@@ -806,6 +813,7 @@
                 : "—";
 
             const editUrl = `record.html?id=${encodeURIComponent(row.id)}`;
+            const printUrl = `print-record.html?id=${encodeURIComponent(row.id)}`;
 
             const tr = document.createElement("tr");
             tr.className = "record-row";
@@ -822,6 +830,7 @@
                 <td class="action-cell">
                     <div class="row-actions">
                         <a class="edit-btn" href="${editUrl}">查看 / 編輯</a>
+                        <a class="print-record-btn" href="${printUrl}" target="_blank" rel="noopener">預覽 / 列印</a>
                         <button class="history-btn" type="button">修改紀錄</button>
                         <button class="delete-record-btn" type="button">刪除</button>
                     </div>
