@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>龍山寺普查系統 - 成員管理</title>
+<style>
+:root{
+  --orange:#c4785a;--gray:#7a7671;--green:#5c634b;
+  --bg:#f7f5f2;--card:#fff;--soft:#f1ede8;--border:#d7d0c8;
+  --text:#2f2d2b;--sub:#6b6762;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:18px;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.container{max-width:760px;margin:auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 5px 18px rgba(92,99,75,.08)}
+h1{color:var(--green);margin:0 0 6px;text-align:center;font-size:23px}
+.subtitle{text-align:center;color:var(--sub);font-size:13px;margin-bottom:20px}
+.status{padding:11px 12px;border-radius:9px;background:var(--soft);font-size:13px;margin-bottom:18px}
+label{font-size:13px;font-weight:700;color:var(--sub);display:block;margin:13px 0 6px}
+input{width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:15px}
+button,.btn{display:inline-block;border:0;border-radius:8px;padding:11px 15px;font-weight:700;cursor:pointer;text-decoration:none}
+.primary{background:var(--orange);color:white}.secondary{background:var(--gray);color:white}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.message{display:none;margin-top:16px;padding:12px;border-radius:9px;font-size:13px;line-height:1.55}
+.ok{display:block;background:#eef2ea;color:#46503d}.bad{display:block;background:#fbefed;color:#9b443b}
+.note{margin-top:20px;border-top:1px solid var(--border);padding-top:16px;color:var(--sub);font-size:12px;line-height:1.65}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>👥 研究人員帳號管理</h1>
+    <div class="subtitle">邀請新成員加入艋舺龍山寺普查系統</div>
+
+    <div id="status" class="status">正在確認登入狀態……</div>
+
+    <label for="name">姓名（選填）</label>
+    <input id="name" type="text" autocomplete="name" placeholder="例如：王小明">
+
+    <label for="email">Email</label>
+    <input id="email" type="email" autocomplete="email" placeholder="member@example.com">
+
+    <div class="actions">
+      <button id="inviteBtn" class="primary" type="button">📧 發送邀請</button>
+      <a class="btn secondary" href="index.html">← 回首頁</a>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <div class="note">
+      受邀者会收到 Supabase 邀请邮件。点击邮件中的确认链接后，
+      会进入 <strong>reset-password.html</strong> 设置自己的密码。
+      管理员 Secret key 不会出现在这个网页中。
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const SUPABASE_URL = "https://kappwvkerqdsvpgzamnc.supabase.co";
+const SUPABASE_KEY = "sb_publishable_WIVgXV-WgBcveNX2yvLs8g_Y2tYDomD"; // 换成目前 login.html 正在使用的 Publishable key
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth:{
+    persistSession:true,
+    autoRefreshToken:true,
+    detectSessionInUrl:true
+  }
+});
+
+const $ = id => document.getElementById(id);
+let loggedIn = false;
+
+function showMessage(text, ok=false){
+  $("message").textContent = text;
+  $("message").className = "message " + (ok ? "ok" : "bad");
+}
+
+async function checkSession(){
+  const {data:{session},error} = await supabase.auth.getSession();
+
+  if(error || !session){
+    loggedIn = false;
+    $("status").innerHTML = '❌ 尚未登入。请先前往 <a href="login.html">login.html</a>。';
+    $("inviteBtn").disabled = true;
+    return;
+  }
+
+  loggedIn = true;
+  $("status").textContent = "✅ 已登入：" + session.user.email;
+  $("inviteBtn").disabled = false;
+}
+
+$("inviteBtn").onclick = async () => {
+  if(!loggedIn) return;
+
+  const email = $("email").value.trim();
+  const name = $("name").value.trim();
+
+  if(!email){
+    showMessage("请输入要邀请的 Email。");
+    return;
+  }
+
+  $("inviteBtn").disabled = true;
+  $("inviteBtn").textContent = "⏳ 正在发送……";
+  $("message").className = "message";
+
+  try{
+    const {data,error} = await supabase.functions.invoke("invite-user", {
+      body:{ email, name }
+    });
+
+    if(error){
+      let detail = error.message;
+      try{
+        const context = error.context;
+        if(context){
+          const parsed = await context.json();
+          detail = parsed?.error || detail;
+        }
+      }catch{}
+      throw new Error(detail);
+    }
+
+    if(data?.error) throw new Error(data.error);
+
+    showMessage(data?.message || "邀请已发送。", true);
+    $("email").value = "";
+    $("name").value = "";
+  }catch(err){
+    showMessage("邀请失败：" + (err?.message || String(err)));
+  }finally{
+    $("inviteBtn").disabled = false;
+    $("inviteBtn").textContent = "📧 發送邀請";
+  }
+};
+
+await checkSession();
+</script>
+</body>
+</html>
