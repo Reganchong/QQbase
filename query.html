@@ -256,6 +256,149 @@
                 flex: 1;
             }
         }
+
+        .action-cell {
+            min-width: 245px;
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .history-btn, .delete-record-btn {
+            display: inline-block;
+            border: 0;
+            border-radius: 7px;
+            padding: 6px 10px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .history-btn {
+            background: #5c634b;
+            color: white;
+        }
+
+        .delete-record-btn {
+            background: #b8544d;
+            color: white;
+        }
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(20, 20, 20, .62);
+            padding: 18px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+        }
+
+        .modal-box {
+            width: min(760px, 96vw);
+            max-height: 88vh;
+            overflow: auto;
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #d7d0c8;
+            box-shadow: 0 18px 45px rgba(0,0,0,.22);
+            padding: 20px;
+        }
+
+        .modal-box h2 {
+            margin: 0 0 8px;
+            font-size: 19px;
+            color: #5c634b;
+        }
+
+        .modal-sub {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .modal-actions button {
+            flex: none;
+        }
+
+        .danger-confirm {
+            background: #b8544d;
+            color: white;
+        }
+
+        .history-list {
+            margin-top: 14px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .history-item {
+            border: 1px solid #e2e8f0;
+            border-left: 5px solid #7a7671;
+            border-radius: 9px;
+            padding: 11px 12px;
+            background: #fbfaf8;
+        }
+
+        .history-item.insert { border-left-color: #5c634b; }
+        .history-item.update { border-left-color: #c4785a; }
+        .history-item.delete { border-left-color: #b8544d; }
+
+        .history-head {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-action {
+            font-weight: 800;
+            font-size: 12px;
+        }
+
+        .history-meta {
+            color: #718096;
+            font-size: 11px;
+        }
+
+        .change-list {
+            margin-top: 7px;
+            font-size: 12px;
+            color: #4a5568;
+            line-height: 1.55;
+        }
+
+        .change-line {
+            border-top: 1px dashed #e2e8f0;
+            padding-top: 5px;
+            margin-top: 5px;
+            word-break: break-word;
+        }
+
+        .modal-loading {
+            padding: 28px 10px;
+            text-align: center;
+            color: #718096;
+        }
+
     </style>
 </head>
 
@@ -402,7 +545,7 @@
                     <th>工藝形式</th>
                     <th>題材名稱</th>
                     <th>最後更新</th>
-                    <th>操作</th>
+                    <th class="action-cell">操作</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -417,6 +560,38 @@
         <button id="prevBtn">← 上一頁</button>
         <span id="pageInfo">第 1 頁</span>
         <button id="nextBtn">下一頁 →</button>
+    </div>
+</div>
+
+<!-- 刪除確認 -->
+<div class="modal-backdrop" id="deleteModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="deleteTitle">
+        <h2 id="deleteTitle">⚠️ 確認刪除作品</h2>
+        <div class="modal-sub">
+            即將刪除作品 <strong id="deleteCode"></strong>。<br>
+            作品主檔、保存狀況、修繕紀錄與照片資料列將一併刪除；
+            Storage 中對應照片也會嘗試清除。<br><br>
+            <strong style="color:#b8544d;">此操作無法復原。</strong>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-secondary" id="cancelDeleteBtn">取消</button>
+            <button type="button" class="danger-confirm" id="confirmDeleteBtn">確定刪除</button>
+        </div>
+    </div>
+</div>
+
+<!-- 修改紀錄 -->
+<div class="modal-backdrop" id="historyModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+        <h2 id="historyTitle">🕘 資料修改紀錄</h2>
+        <div class="modal-sub">
+            作品：<strong id="historyCode"></strong><br>
+            系統會記錄新增、修改及刪除動作，以及操作帳號與時間。
+        </div>
+        <div id="historyList" class="history-list"></div>
+        <div class="modal-actions">
+            <button type="button" class="btn-secondary" id="closeHistoryBtn">關閉</button>
+        </div>
     </div>
 </div>
 
@@ -644,7 +819,13 @@
                 <td>${craftHtml}</td>
                 <td>${escapeHtml(row.title || "—")}</td>
                 <td>${escapeHtml(localDate(row.updated_at))}</td>
-                <td><a class="edit-btn" href="${editUrl}">查看 / 編輯</a></td>
+                <td class="action-cell">
+                    <div class="row-actions">
+                        <a class="edit-btn" href="${editUrl}">查看 / 編輯</a>
+                        <button class="history-btn" type="button">修改紀錄</button>
+                        <button class="delete-record-btn" type="button">刪除</button>
+                    </div>
+                </td>
             `;
 
             tr.addEventListener("click", (event) => {
@@ -652,9 +833,242 @@
                 window.location.href = editUrl;
             });
 
+            tr.querySelector(".history-btn").addEventListener("click", (event) => {
+                event.stopPropagation();
+                openHistory(row);
+            });
+
+            tr.querySelector(".delete-record-btn").addEventListener("click", (event) => {
+                event.stopPropagation();
+                openDeleteConfirm(row);
+            });
+
             tableBody.appendChild(tr);
         }
     }
+
+
+    let pendingDeleteRow = null;
+
+    const FIELD_LABELS = {
+        title: "題材名稱",
+        record_code: "作品編號",
+        area: "殿區",
+        direction: "方位",
+        roof_position: "屋面部位",
+        component_code: "構件",
+        serial: "流水號",
+        crafts: "工藝形式",
+        note: "備註",
+        subject_description: "題材內容",
+        period_range: "年代區間",
+        artifact_year: "文物紀年",
+        inspector: "檢視人員",
+        inspection_unit: "檢視單位",
+        inspection_date: "檢視日期",
+        author_signature: "作者／落款",
+        condition_level: "保存狀況分級",
+        condition_description: "保存狀況簡述",
+        is_representative: "代表照片",
+        photo_code: "照片編號",
+        photographer: "攝影者",
+        taken_at: "攝影時間",
+        storage_path: "影像路徑",
+        repair_year: "修繕年代",
+        artisan: "修繕匠師",
+        organization: "修繕單位",
+        current_status: "現存狀態"
+    };
+
+    function openModal(id) {
+        const el = document.getElementById(id);
+        el.classList.add("active");
+        el.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal(id) {
+        const el = document.getElementById(id);
+        el.classList.remove("active");
+        el.setAttribute("aria-hidden", "true");
+    }
+
+    function formatAuditValue(value) {
+        if (value === null || value === undefined || value === "") return "—";
+        if (Array.isArray(value)) return value.length ? value.join("、") : "—";
+        if (typeof value === "object") return JSON.stringify(value);
+        if (typeof value === "boolean") return value ? "是" : "否";
+        return String(value);
+    }
+
+    function getChanges(oldData, newData) {
+        const oldObj = oldData || {};
+        const newObj = newData || {};
+        const keys = new Set([...Object.keys(oldObj), ...Object.keys(newObj)]);
+        const ignored = new Set(["updated_at", "created_at"]);
+
+        const changes = [];
+        for (const key of keys) {
+            if (ignored.has(key)) continue;
+
+            const a = oldObj[key];
+            const b = newObj[key];
+
+            if (JSON.stringify(a) === JSON.stringify(b)) continue;
+
+            changes.push({
+                key,
+                label: FIELD_LABELS[key] || key,
+                before: a,
+                after: b
+            });
+        }
+        return changes;
+    }
+
+    async function openHistory(row) {
+        document.getElementById("historyCode").textContent = row.record_code;
+        document.getElementById("historyList").innerHTML =
+            '<div class="modal-loading">正在讀取修改紀錄……</div>';
+        openModal("historyModal");
+
+        const { data, error } = await supabase
+            .from("audit_logs")
+            .select("*")
+            .eq("record_id", row.id)
+            .order("created_at", { ascending: false })
+            .limit(200);
+
+        const box = document.getElementById("historyList");
+
+        if (error) {
+            box.innerHTML = `<div class="error">❌ 讀取修改紀錄失敗：${escapeHtml(error.message)}</div>`;
+            return;
+        }
+
+        if (!data?.length) {
+            box.innerHTML = '<div class="modal-loading">目前尚無修改紀錄。</div>';
+            return;
+        }
+
+        box.innerHTML = "";
+
+        data.forEach(log => {
+            const action = String(log.action || "").toUpperCase();
+            const actionText =
+                action === "INSERT" ? "新增" :
+                action === "UPDATE" ? "修改" :
+                action === "DELETE" ? "刪除" : action;
+
+            const item = document.createElement("div");
+            item.className = `history-item ${action.toLowerCase()}`;
+
+            const changes = getChanges(log.old_data, log.new_data);
+
+            let detail = "";
+            if (action === "UPDATE") {
+                detail = changes.length
+                    ? changes.slice(0, 30).map(change => `
+                        <div class="change-line">
+                            <strong>${escapeHtml(change.label)}</strong><br>
+                            ${escapeHtml(formatAuditValue(change.before))}
+                            → <strong>${escapeHtml(formatAuditValue(change.after))}</strong>
+                        </div>
+                    `).join("")
+                    : '<div class="change-line">資料列已更新。</div>';
+            } else if (action === "INSERT") {
+                detail = `<div class="change-line">建立 ${escapeHtml(log.table_name || "資料")}。</div>`;
+            } else if (action === "DELETE") {
+                detail = `<div class="change-line">刪除 ${escapeHtml(log.table_name || "資料")}。</div>`;
+            }
+
+            item.innerHTML = `
+                <div class="history-head">
+                    <span class="history-action">${escapeHtml(actionText)}｜${escapeHtml(log.table_name || "")}</span>
+                    <span class="history-meta">${escapeHtml(localDate(log.created_at))}</span>
+                </div>
+                <div class="history-meta" style="margin-top:4px;">
+                    操作帳號：${escapeHtml(log.actor_email || "無法取得")}
+                </div>
+                <div class="change-list">${detail}</div>
+            `;
+
+            box.appendChild(item);
+        });
+    }
+
+    function openDeleteConfirm(row) {
+        pendingDeleteRow = row;
+        document.getElementById("deleteCode").textContent = row.record_code;
+        document.getElementById("confirmDeleteBtn").disabled = false;
+        document.getElementById("confirmDeleteBtn").textContent = "確定刪除";
+        openModal("deleteModal");
+    }
+
+    async function deleteConfirmedRecord() {
+        if (!pendingDeleteRow) return;
+
+        const row = pendingDeleteRow;
+        const btn = document.getElementById("confirmDeleteBtn");
+
+        btn.disabled = true;
+        btn.textContent = "刪除中……";
+
+        try {
+            // SQL function 會在同一個 DB transaction 中刪除所有相關資料列，
+            // 並回傳需要從 Storage 清除的檔案路徑。
+            const { data: paths, error: deleteError } = await supabase
+                .rpc("delete_survey_record", { p_record_id: row.id });
+
+            if (deleteError) throw new Error(deleteError.message);
+
+            const storagePaths = Array.isArray(paths) ? paths.filter(Boolean) : [];
+
+            let storageWarning = "";
+            if (storagePaths.length) {
+                const { error: storageError } = await supabase.storage
+                    .from("longshan-photos")
+                    .remove(storagePaths);
+
+                if (storageError) {
+                    storageWarning =
+                        "\\n\\n⚠️ 資料庫已刪除，但部分 Storage 影像可能尚未清除：" +
+                        storageError.message;
+                }
+            }
+
+            closeModal("deleteModal");
+            pendingDeleteRow = null;
+
+            alert(`✅ ${row.record_code} 已刪除。${storageWarning}`);
+            await loadRecords();
+
+        } catch (error) {
+            console.error(error);
+            alert("❌ 刪除失敗：" + error.message);
+            btn.disabled = false;
+            btn.textContent = "確定刪除";
+        }
+    }
+
+    document.getElementById("cancelDeleteBtn").addEventListener("click", () => {
+        pendingDeleteRow = null;
+        closeModal("deleteModal");
+    });
+
+    document.getElementById("confirmDeleteBtn").addEventListener("click", deleteConfirmedRecord);
+    document.getElementById("closeHistoryBtn").addEventListener("click", () => closeModal("historyModal"));
+
+    document.getElementById("deleteModal").addEventListener("click", event => {
+        if (event.target.id === "deleteModal") {
+            pendingDeleteRow = null;
+            closeModal("deleteModal");
+        }
+    });
+
+    document.getElementById("historyModal").addEventListener("click", event => {
+        if (event.target.id === "historyModal") closeModal("historyModal");
+    });
+
 
     function clearFilters() {
         document.getElementById("keyword").value = "";
