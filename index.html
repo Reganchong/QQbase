@@ -3,126 +3,412 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>龍山寺裝飾普查系統 - 目錄</title>
+    <title>艋舺龍山寺屋面傳統裝飾普查系統</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background-color: #f5f5f7; 
-        color: #1d1d1f; margin: 0; padding: 15px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; 
-        padding: 24px; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
-        h1 { font-size: 22px; text-align: center; margin-bottom: 5px; color: #1a365d; }
-        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 30px 0; }
-        @media (min-width: 600px) { .menu-grid { grid-template-columns: 1fr 1fr; } 
-        .sync-card { grid-column: span 2; } }
-        .menu-item { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 12px; 
-        padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; 
-        text-decoration: none; display: block; }
-        .menu-item:hover { background: #edf2f7; transform: translateY(-1px); }
-        .menu-item h3 { margin: 0 0 8px 0; color: #2b6cb0; font-size: 18px; }
-        .menu-item p { margin: 0; color: #718096; font-size: 13px; }
-        .sync-card { background: #fffaf0; border-color: #feebc8; }
-        .sync-card h3 { color: #dd6b20; }
+        :root {
+            --temple-orange: #c4785a;
+            --temple-gray: #7a7671;
+            --temple-green: #5c634b;
+            --bg-main: #f7f5f2;
+            --bg-card: #ffffff;
+            --bg-soft: #f1ede8;
+            --text-main: #2f2d2b;
+            --text-sub: #6b6762;
+            --border: #d7d0c8;
+            --success-bg: #eef2ea;
+            --warning-bg: #fbf4ef;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 18px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 28px 24px 22px;
+            box-shadow: 0 5px 18px rgba(92, 99, 75, 0.08);
+        }
+
+        h1 {
+            margin: 0;
+            text-align: center;
+            color: var(--temple-green);
+            font-size: 25px;
+            line-height: 1.4;
+        }
+
+        .subtitle {
+            margin-top: 8px;
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 14px;
+        }
+
+        .auth-panel {
+            margin-top: 22px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: var(--bg-soft);
+        }
+
+        .auth-left { min-width: 0; }
+
+        #authStatus {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-sub);
+            word-break: break-word;
+        }
+
+        #networkStatus {
+            margin-top: 3px;
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .auth-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .small-btn {
+            display: inline-block;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .login-btn {
+            background: var(--temple-orange);
+            color: #fff;
+        }
+
+        .logout-btn {
+            background: var(--temple-gray);
+            color: #fff;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 22px;
+        }
+
+        .menu-item {
+            min-height: 190px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-top: 5px solid var(--temple-green);
+            border-radius: 14px;
+            padding: 22px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 18px rgba(92, 99, 75, 0.10);
+            border-color: #bdb5ad;
+        }
+
+        .menu-item.orange { border-top-color: var(--temple-orange); }
+        .menu-item.gray { border-top-color: var(--temple-gray); }
+
+        .menu-item h2 {
+            margin: 0 0 10px;
+            color: var(--temple-green);
+            font-size: 19px;
+        }
+
+        .menu-item.orange h2 { color: var(--temple-orange); }
+
+        .menu-item p {
+            margin: 0;
+            color: var(--text-sub);
+            font-size: 13px;
+            line-height: 1.65;
+        }
+
+        .menu-tag {
+            margin-top: 18px;
+            display: inline-block;
+            align-self: flex-start;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--success-bg);
+            color: var(--temple-green);
+        }
+
+        .menu-item.orange .menu-tag {
+            background: var(--warning-bg);
+            color: var(--temple-orange);
+        }
+
+        .section-title {
+            margin: 28px 2px 12px;
+            color: var(--temple-green);
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .workflow {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+        }
+
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            align-items: stretch;
+        }
+
+        .step {
+            text-align: center;
+            padding: 12px 8px;
+            border-radius: 10px;
+            background: var(--bg-soft);
+            color: var(--text-sub);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .step strong {
+            display: block;
+            color: var(--temple-green);
+            font-size: 13px;
+            margin-bottom: 3px;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 11px;
+            margin: 22px 0 5px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 700px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .workflow-grid { grid-template-columns: 1fr 1fr; }
+            h1 { font-size: 21px; }
+            .hero { padding: 22px 18px; }
+        }
+
+        @media (max-width: 430px) {
+            .workflow-grid { grid-template-columns: 1fr; }
+            .auth-panel { align-items: stretch; }
+            .auth-actions { width: 100%; }
+            .auth-actions .small-btn {
+                flex: 1;
+                text-align: center;
+            }
+        }
     </style>
 </head>
+
 <body>
 <div class="container">
-    <h1>🏛️ 𨿅舺龍山寺屋面傳統裝飾普查系統</h1>
-    <div style="text-align: center; color: #718096; font-size: 14px; margin-bottom: 15px;">
-        學術型多頁安全存檔版
-    </div>
 
-        <!-- 📄 升級後的選單網格：已完美融入雲端連線測試工具按鈕 -->
-    <div class="menu-grid">
-        <a href="log.html" class="menu-item">
-            <h3>➕ 數據登錄工具</h3>
-            <p>前往現場普查，20殿區、9部位、17細部鎖定，流水號自動+1，免網打包下載。</p>
-        </a>
-        
-        <a href="query.html" class="menu-item">
-            <h3>🔍 導入與統計表格查詢</h3>
-            <p>批次導入普查總包，即時產生學術規範大表格、檢視照片並導出 Excel 總表。</p>
-        </a>
-        
-        <a href="display.html" class="menu-item" style="background:#f0fdf4; border-color:#bbf7d0;">
-            <h3>🖥️ 成果互動展示</h3>
-            <p>將普查總包充填入觸控大導覽機，流暢分類點選物件與檢視大圖，適成果展示。</p>
-        </a>
+    <div class="hero">
+        <h1>🏛️ 艋舺龍山寺屋面傳統裝飾普查系統</h1>
+        <div class="subtitle">屋面裝飾調查・影像保存・資料管理・研究檢索</div>
 
-        <!-- 🚀 成功新增：亮藍色外框的雲端資料庫連線功能測試按鈕 -->
-        <a href="test-supabase.html" class="menu-item" style="background:#f7fafc; border-color:#3182ce;">
-            <h3>📡 雲端連線狀態測試</h3>
-            <p>在批量同步前，可先點此進入極簡純文字寫入測試頁，快速自我排查網路與金鑰權限。</p>
-        </a>
-        <a href="login.html" class="menu-item" style="background:#f7fafc; border-color:#3182ce;">
-            <h3>📡 登录測試</h3>
-            <p>登录</p>
-        </a>
-        <a href="reset-pasword.html" class="menu-item" style="background:#f7fafc; border-color:#3182ce;">
-            <h3>密码更改</h3>
-            <p>密码重置测试</p>
-        </a>
-        <a href="database-test.html" class="menu-item" style="background:#f7fafc; border-color:#3182ce;">
-            <h3>database-test</h3>
-            <p>登录测试</p>
-        </a>
-        <div class="menu-item sync-card" onclick="document.getElementById('syncInput').click()">
-            <h3>🔄 點擊批量上傳同步至雲端</h3>
-            <p>回到有穩定網路的地方，選取本機打包的實體檔案一次性批量倒進雲端庫。</p>
+        <div class="auth-panel">
+            <div class="auth-left">
+                <div id="authStatus">正在確認研究人員登入狀態……</div>
+                <div id="networkStatus">正在確認網路狀態……</div>
+            </div>
+
+            <div class="auth-actions">
+                <a id="loginBtn" href="login.html" class="small-btn login-btn">🔐 研究人員登入</a>
+                <button id="logoutBtn" type="button" class="small-btn logout-btn" style="display:none;">登出</button>
+            </div>
         </div>
     </div>
 
+    <div class="menu-grid">
+
+        <a href="log.html" class="menu-item orange">
+            <div>
+                <h2>➕ 現場調查登錄</h2>
+                <p>
+                    建立作品編號、選擇殿區與屋面位置、記錄工藝形式與調查影像。
+                    有網路時直接寫入 Supabase；斷網時可先暫存，待恢復連線後同步。
+                </p>
+            </div>
+            <span class="menu-tag">田野調查</span>
+        </a>
+
+        <a href="query.html" class="menu-item">
+            <div>
+                <h2>🔍 資料庫查詢與編輯</h2>
+                <p>
+                    直接查詢雲端普查資料，依作品編號、殿區、方位、屋面部位、
+                    構件與工藝形式進行篩選，並進入完整作品調查表補充或修改資料。
+                </p>
+            </div>
+            <span class="menu-tag">研究管理</span>
+        </a>
+
+        <a href="display.html" class="menu-item gray">
+            <div>
+                <h2>🖥️ 普查成果展示</h2>
+                <p>
+                    以圖像與分類方式呈現普查成果，供成果發表、觸控展示與一般瀏覽使用。
+                    後續將改為直接讀取雲端資料庫。
+                </p>
+            </div>
+            <span class="menu-tag">成果展示</span>
+        </a>
+
+        <a href="reset-password.html" class="menu-item gray">
+            <div>
+                <h2>🔑 帳號與密碼</h2>
+                <p>
+                    供研究人員處理密碼設定或重設流程。一般資料操作不需進入此頁。
+                </p>
+            </div>
+            <span class="menu-tag">系統帳號</span>
+        </a>
+
+    </div>
+
+    <div class="section-title">系統工作流程</div>
+
+    <div class="workflow">
+        <div class="workflow-grid">
+            <div class="step">
+                <strong>1. 建立作品</strong>
+                log.html
+            </div>
+            <div class="step">
+                <strong>2. 雲端保存</strong>
+                Supabase
+            </div>
+            <div class="step">
+                <strong>3. 查詢補登</strong>
+                query / record
+            </div>
+            <div class="step">
+                <strong>4. 成果展示</strong>
+                display.html
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        艋舺龍山寺屋面傳統裝飾普查系統<br>
+        研究資料以作品編碼、調查表與影像資料建立對應關係
+    </div>
+
+</div>
 
 <script type="module">
-    import { initializeApp } from "https://gstatic.com";
-    import { getFirestore, collection, addDoc } from "https://gstatic.com";
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-    const config = {
-        apiKey: "AIzaSyCcQwZq42FnlL5_V0HCQ1mjNZaulQrRh1w",
-        authDomain: "://firebaseapp.com",
-        projectId: "qqbase-39057",
-        storageBucket: "qqbase-39057.firebasestorage.app",
-        messagingSenderId: "173614464944",
-        appId: "1:173614464944:web:aeb38060c576cf495aa075",
-        measurementId: "G-KF50RT64YM"
-    };
+    const SUPABASE_URL = "https://kappwvkerqdsvpgzamnc.supabase.co";
 
-    let cloudCollection = null;
-    try {
-        const app = initializeApp(config);
-        cloudCollection = collection(getFirestore(app), "survey_records");
-    } catch(err) { console.error(err); }
+    // 請換成目前 login.html 已確認可正常使用的 Publishable key。
+    // 不要使用 service_role / secret key。
+    const SUPABASE_KEY = "YOUR_PUBLISHABLE_KEY";
 
-    document.getElementById('syncInput').onchange = function(e) {
-        const files = e.target.files;
-        if (!files || files.length === 0) return;
-        if (!navigator.onLine || !cloudCollection) {
-            alert("🚨 同步失敗：請連上穩定網路再進行同步！"); return;
+    const supabase = createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY,
+        {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
+            }
+        }
+    );
+
+    const authStatus = document.getElementById("authStatus");
+    const networkStatus = document.getElementById("networkStatus");
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    function updateNetworkStatus() {
+        if (navigator.onLine) {
+            networkStatus.textContent = "🟢 網路連線正常";
+        } else {
+            networkStatus.textContent = "🟠 目前離線；現場登錄頁仍可使用本機暫存";
+        }
+    }
+
+    async function updateAuthStatus() {
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error) {
+            authStatus.textContent = "❌ 無法確認登入狀態：" + error.message;
+            loginBtn.style.display = "inline-block";
+            logoutBtn.style.display = "none";
+            return;
         }
 
-        alert(`📡 正在解析選取的 ${files.length} 個普查包，準備同步至 Google 雲端...`);
-        let success = 0, processed = 0;
-
-        for (let i = 0; i < files.length; i++) {
-            const reader = new FileReader();
-            reader.onload = async function(evt) {
-                try {
-                    const parsed = JSON.parse(evt.target.result);
-                    // 🚀 相容清洗：拆解大打包陣列，逐一送入 Firebase
-                    const records = Array.isArray(parsed) ? parsed : [parsed];
-                    
-                    for(let r of records) {
-                        await addDoc(cloudCollection, r);
-                        success++;
-                    }
-                } catch(err) { console.error(err); }
-                processed++;
-                if (processed === files.length) {
-                    alert(`🎉 雲端批量同步成功！共成功釋放並同步上傳了 ${success} 筆普查物件！`);
-                    document.getElementById('syncInput').value = "";
-                }
-            };
-            reader.readAsText(files[i]);
+        if (session?.user) {
+            authStatus.textContent = "✅ 已登入研究人員：" + session.user.email;
+            loginBtn.style.display = "none";
+            logoutBtn.style.display = "inline-block";
+        } else {
+            authStatus.textContent = "尚未登入研究人員帳號";
+            loginBtn.style.display = "inline-block";
+            logoutBtn.style.display = "none";
         }
+    }
+
+    logoutBtn.onclick = async function () {
+        const { error } = await supabase.auth.signOut();
+
+        if (error) {
+            alert("❌ 登出失敗：" + error.message);
+            return;
+        }
+
+        await updateAuthStatus();
     };
+
+    window.addEventListener("online", updateNetworkStatus);
+    window.addEventListener("offline", updateNetworkStatus);
+
+    updateNetworkStatus();
+    await updateAuthStatus();
 </script>
+
 </body>
 </html>
