@@ -1,436 +1,590 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>龍山寺傳統裝飾互動展示機</title>
-    <!-- 這裡稍後會置入第二部分的 CSS 樣式表 -->
-    <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>艋舺龍山寺傳統裝飾普查成果展示</title>
 
-    body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: #111827;
-    color: #f9fafb;
-    margin: 0; padding: 0; overflow: hidden;
+<style>
+:root{
+    --orange:#c4785a;
+    --gray:#7a7671;
+    --green:#5c634b;
+    --bg:#252824;
+    --panel:#30342e;
+    --panel2:#3a3d37;
+    --text:#f5f2ed;
+    --sub:#c8c3bc;
+    --line:#54584f;
 }
-.top-bar {
-    background: #1f2937; padding: 15px 20px;
-    display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 3px solid #ffbc0d;
+*{box-sizing:border-box}
+body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);color:var(--text);
+    margin:0;overflow:hidden;
 }
-.top-bar h1 { margin: 0; font-size: 20px; color: #ffbc0d; flex-grow: 1; text-align: center; }
-.btn-group { display: flex; gap: 10px; align-items: center; }
-.btn-import { background: #ffbc0d; color: #111827; padding: 8px 16px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; }
-.btn-refresh {
-    background: #374151; color: #ffbc0d; padding: 8px 14px; border: 1px solid #ffbc0d;
-    border-radius: 20px; font-weight: bold; cursor: pointer; display: none; transition: all 0.2s;
+.top-bar{
+    min-height:66px;padding:12px 18px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:var(--panel);
+    border-bottom:4px solid var(--orange);
 }
-.btn-refresh:active { background: #4b5563; transform: scale(0.95); }
-.btn-home { color: #9ca3af; text-decoration: none; font-size: 14px; font-weight: bold; min-width: 80px; }
-.main-layout { display: flex; height: calc(100vh - 58px); }
-.sidebar { width: 140px; background: #1f2937; display: flex; flex-direction: column; border-right: 1px solid #374151; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.top-bar h1{
+    flex:1;text-align:center;margin:0;
+    font-size:20px;color:#fff;letter-spacing:.5px;
+}
+.btn-home,.top-btn{
+    text-decoration:none;border:1px solid var(--line);
+    border-radius:9px;padding:9px 12px;
+    background:var(--panel2);color:var(--text);
+    font-size:13px;font-weight:700;cursor:pointer;
+}
+.top-btn{border-color:var(--orange);color:#fff;background:var(--orange)}
+.top-actions{display:flex;gap:8px;align-items:center}
+.status{
+    font-size:11px;color:var(--sub);white-space:nowrap
+}
 
-/* 🚀 修正：移除預設 display:none，改採 opacity 過渡控制，保證左選單有文字、不穿幫 */
-.category-btn {
-    padding: 16px 8px; text-align: center; cursor: pointer;
-    border-bottom: 1px solid #374151; transition: all 0.2s; -webkit-user-select: none;
-    color: #9ca3af;
+.main-layout{
+    display:flex;height:calc(100vh - 66px);
 }
-.category-btn.active { background: #ffbc0d; color: #111827; font-weight: bold; opacity: 1 !important; }
-.category-btn .text { font-size: 12px; display: block; line-height: 1.4; }
-.content-grid { flex: 1; padding: 20px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; align-content: start; transition: opacity 0.15s ease-in-out; }
-.item-card { background: #1f2937; border-radius: 12px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-.item-card:active { transform: scale(0.97); }
-.item-card .img-box { width: 100%; height: 120px; background: #374151; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-.item-card .img-box img { width: 100%; height: 100%; object-fit: cover; }
-.item-card .img-box .no-pic { color: #6b7280; font-size: 12px; }
-.item-card .info-box { padding: 12px; text-align: center; }
+.sidebar{
+    width:150px;flex:0 0 150px;
+    background:var(--panel);
+    border-right:1px solid var(--line);
+    overflow-y:auto;
+}
+.category-btn{
+    padding:14px 8px;text-align:center;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;color:#bdb9b2;
+    transition:.18s;
+    user-select:none;
+}
+.category-btn:hover{background:#383c36}
+.category-btn.active{
+    background:var(--orange);color:white;font-weight:800;
+}
+.category-btn.disabled{
+    opacity:.25;pointer-events:none;
+}
+.category-btn .text{font-size:12px;line-height:1.45}
+.category-count{
+    display:inline-block;margin-top:4px;
+    min-width:24px;padding:2px 6px;border-radius:999px;
+    background:rgba(255,255,255,.1);font-size:10px
+}
+.category-btn.active .category-count{background:rgba(255,255,255,.25)}
 
-/* 🚀 修正：防止您 Survey 檔案中超長的二十多碼登錄編碼把卡片寬度撐爆 */
-.item-card .info-box .code { font-family: monospace; font-weight: bold; color: #ffbc0d; font-size: 13px; word-break: break-all; }
-.item-card .info-box .title { font-size: 11px; color: #9ca3af; margin-top: 4px; }
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 100; }
-.modal.active { display: flex; }
-.modal-container { background: #1f2937; width: 90%; max-width: 500px; border-radius: 16px; overflow: hidden; border: 2px solid #ffbc0d; position: relative; }
-.modal-close { position: absolute; top: 15px; right: 15px; background: #ffbc0d; color: #111827; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold; font-size: 18px; cursor: pointer; z-index: 10; }
-.modal-img { width: 100%; max-height: 250px; object-fit: cover; background: #111827; }
-.modal-body { padding: 20px; }
-.modal-title { font-size: 18px; color: #ffbc0d; font-family: monospace; margin: 0 0 15px 0; word-break: break-all; }
-.modal-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px; margin-bottom: 15px; border-bottom: 1px solid #374151; padding-bottom: 15px; }
-.meta-label { color: #9ca3af; }
-.meta-val { color: #f9fafb; font-weight: bold; }
-.modal-note { background: #111827; padding: 12px; border-radius: 8px; font-size: 14px; color: #cbd5e1; line-height: 1.5; }
+.content-wrap{
+    flex:1;min-width:0;display:flex;flex-direction:column;
+}
+.content-head{
+    padding:12px 18px;background:#292c28;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.area-title{font-size:15px;font-weight:800;color:#fff}
+.result-count{font-size:12px;color:var(--sub)}
+.content-grid{
+    flex:1;padding:18px;overflow-y:auto;
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+    gap:16px;align-content:start;
+}
+.item-card{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:13px;overflow:hidden;cursor:pointer;
+    box-shadow:0 4px 10px rgba(0,0,0,.18);
+    transition:.18s;
+}
+.item-card:hover{
+    transform:translateY(-2px);
+    border-color:var(--orange);
+}
+.img-box{
+    width:100%;height:150px;background:#20231f;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+.img-box img{width:100%;height:100%;object-fit:cover}
+.no-pic{color:#777d72;font-size:12px}
+.info-box{padding:12px}
+.code{
+    color:#e3a187;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-weight:800;font-size:13px;word-break:break-all
+}
+.title{font-size:12px;color:#fff;margin-top:6px;font-weight:700}
+.meta{font-size:11px;color:var(--sub);margin-top:6px;line-height:1.5}
+.crafts{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.craft{
+    padding:3px 7px;border-radius:999px;
+    font-size:10px;font-weight:800;
+    background:#454b40;color:#dce3d6
+}
+.empty{
+    grid-column:1/-1;text-align:center;color:#8c9188;
+    padding:70px 20px;font-size:14px
+}
 
+/* modal */
+.modal{
+    display:none;position:fixed;inset:0;
+    background:rgba(0,0,0,.84);z-index:100;
+    align-items:center;justify-content:center;padding:18px;
+}
+.modal.active{display:flex}
+.modal-container{
+    width:min(900px,96vw);max-height:92vh;
+    background:var(--panel);border:2px solid var(--orange);
+    border-radius:16px;overflow:hidden;position:relative;
+    display:grid;grid-template-columns:minmax(280px,1.15fr) minmax(280px,.85fr);
+}
+.modal-media{
+    background:#1c1f1b;display:flex;align-items:center;justify-content:center;
+    min-height:360px;position:relative;
+}
+.modal-img{width:100%;height:100%;max-height:82vh;object-fit:contain}
+.modal-no-img{color:#777d72}
+.modal-body{padding:24px;overflow-y:auto;max-height:88vh}
+.modal-close{
+    position:absolute;right:14px;top:14px;z-index:5;
+    width:34px;height:34px;border-radius:50%;border:0;
+    background:var(--orange);color:#fff;font-size:20px;font-weight:bold;cursor:pointer
+}
+.modal-title{
+    color:#e3a187;font-family:ui-monospace,monospace;
+    font-size:18px;font-weight:800;word-break:break-all;margin:0 42px 14px 0
+}
+.subject-title{font-size:19px;font-weight:800;color:#fff;margin-bottom:16px}
+.modal-meta{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    padding:14px 0;margin-bottom:14px
+}
+.meta-item{font-size:12px}
+.meta-label{display:block;color:#9ea398;margin-bottom:3px}
+.meta-val{font-weight:700;color:#fff}
+.modal-note{
+    background:#262925;border-radius:8px;padding:12px;
+    color:#d3d0ca;font-size:13px;line-height:1.65;white-space:pre-wrap
+}
+.photo-nav{
+    position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+    display:flex;gap:8px;
+}
+.photo-nav button{
+    border:0;background:rgba(48,52,46,.9);color:#fff;
+    border-radius:8px;padding:7px 10px;cursor:pointer
+}
+.photo-counter{
+    background:rgba(0,0,0,.55);border-radius:8px;padding:7px 9px;font-size:11px
+}
+
+@media(max-width:720px){
+    .sidebar{width:104px;flex-basis:104px}
+    .category-btn{padding:12px 5px}
+    .content-grid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));padding:12px;gap:10px}
+    .img-box{height:115px}
+    .top-bar h1{font-size:15px}
+    .status{display:none}
+    .modal-container{grid-template-columns:1fr;overflow-y:auto}
+    .modal-media{min-height:240px;max-height:42vh}
+    .modal-body{max-height:none}
+}
 </style>
-
-
 </head>
+
 <body>
 
-
-    <!-- 頂部功能列 -->
-<!-- 頂部功能列 -->
 <div class="top-bar">
-    <a href="index.html" class="btn-home">⬅ 離開展示</a>
-    <h1>🏛️ 龍山寺文資互動展示機</h1>
-    <div class="btn-group">
-        <!-- 🔄 重新整理按鈕：初始由 JS 隱藏，匯入 CSV 成功後自動解鎖亮起 -->
-        <button type="button" id="btnRefresh" class="btn-refresh" onclick="window.refreshDisplay()">🔄 重新整理</button>
-        <button type="button" class="btn-import" onclick="document.getElementById('displayImport').click()">📂 導入數據包</button>
+    <a href="index.html" class="btn-home">← 離開展示</a>
+
+    <h1>🏛️ 艋舺龍山寺傳統裝飾普查成果</h1>
+
+    <div class="top-actions">
+        <span class="status" id="status">連線中……</span>
+        <button class="top-btn" id="refreshBtn" type="button">↻ 更新資料</button>
     </div>
 </div>
 
-<!-- 隱藏的實體檔案上傳控制項 -->
-<input type="file" id="displayImport" accept=".survey" style="display:none;">
-
-<!-- 主版面配置 -->
 <div class="main-layout">
-    <!-- 左欄：20 個學術殿區選單（修正：初始可見，由 JS 控管點亮與半透明灰化防呆） -->
-    <div class="sidebar" id="sidebarMenu">
-        <div class="category-btn" id="btn-SH" onclick="window.filterArea('SH')"><span class="text">三川殿<br>(SH)</span></div>
-        <div class="category-btn" id="btn-FL" onclick="window.filterArea('FL')"><span class="text">前殿龍門<br>(FL)</span></div>
-        <div class="category-btn" id="btn-FR" onclick="window.filterArea('FR')"><span class="text">前殿虎門<br>(FR)</span></div>
-        <div class="category-btn" id="btn-LC" onclick="window.filterArea('LC')"><span class="text">左下山前廊<br>(LC)</span></div>
-        <div class="category-btn" id="btn-RC" onclick="window.filterArea('RC')"><span class="text">右下山前廊<br>(RC)</span></div>
-        <div class="category-btn" id="btn-XL" onclick="window.filterArea('XL')"><span class="text">左下山護室<br>(XL)</span></div>
-        <div class="category-btn" id="btn-XR" onclick="window.filterArea('XR')"><span class="text">右下山護室<br>(XR)</span></div>
-        <div class="category-btn" id="btn-GL" onclick="window.filterArea('GL')"><span class="text">左過水廊<br>(GL)</span></div>
-        <div class="category-btn" id="btn-GR" onclick="window.filterArea('GR')"><span class="text">右過水廊<br>(GR)</span></div>
-        <div class="category-btn" id="btn-TL" onclick="window.filterArea('TL')"><span class="text">左頂山護室<br>(TL)</span></div>
-        <div class="category-btn" id="btn-TR" onclick="window.filterArea('TR')"><span class="text">右頂山護室<br>(TR)</span></div>
-        <div class="category-btn" id="btn-BT" onclick="window.filterArea('BT')"><span class="text">鐘樓<br>(BT)</span></div>
-        <div class="category-btn" id="btn-DT" onclick="window.filterArea('DT')"><span class="text">鼓樓<br>(DT)</span></div>
-        <div class="category-btn" id="btn-YH" onclick="window.filterArea('YH')"><span class="text">後殿月老廳<br>(YH)</span></div>
-        <div class="category-btn" id="btn-HH" onclick="window.filterArea('HH')"><span class="text">後殿華佗廳<br>(HH)</span></div>
-        <div class="category-btn" id="btn-RL" onclick="window.filterArea('RL')"><span class="text">後殿龍門<br>(RL)</span></div>
-        <div class="category-btn" id="btn-RR" onclick="window.filterArea('RR')"><span class="text">後殿虎門<br>(RR)</span></div>
-        <div class="category-btn" id="btn-TH" onclick="window.filterArea('TH')"><span class="text">聖母殿<br>(TH)</span></div>
-        <div class="category-btn" id="btn-GH" onclick="window.filterArea('GH')"><span class="text">關帝殿<br>(GH)</span></div>
-        <div class="category-btn" id="btn-WH" onclick="window.filterArea('WH')"><span class="text">文昌殿<br>(WH)</span></div>
-        <div class="category-btn" id="btn-PL" onclick="window.filterArea('PL')"><span class="text">牌樓<br>(PL)</span></div>
-    </div>
-    
-    <!-- 右欄：內容展示格 -->
-    <div class="content-grid" id="contentGrid">
-        <div style="grid-column:1/-1; text-align:center; color:#6b7280; padding-top:50px;">💡 請先點擊右上角導入普查打包檔案 (.survey)</div>
-    </div>
+    <aside class="sidebar" id="sidebar">
+        <div class="category-btn" data-area="SH"><span class="text">三川殿<br>(SH)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="FL"><span class="text">前殿龍門<br>(FL)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="FR"><span class="text">前殿虎門<br>(FR)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="LC"><span class="text">左下山前廊<br>(LC)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="RC"><span class="text">右下山前廊<br>(RC)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="XL"><span class="text">左下山護室<br>(XL)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="XR"><span class="text">右下山護室<br>(XR)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="GL"><span class="text">左過水廊<br>(GL)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="GR"><span class="text">右過水廊<br>(GR)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="TL"><span class="text">左頂山護室<br>(TL)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="TR"><span class="text">右頂山護室<br>(TR)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="BT"><span class="text">鐘樓<br>(BT)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="DT"><span class="text">鼓樓<br>(DT)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="YH"><span class="text">後殿月老廳<br>(YH)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="HH"><span class="text">後殿華佗廳<br>(HH)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="RL"><span class="text">後殿龍門<br>(RL)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="RR"><span class="text">後殿虎門<br>(RR)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="TH"><span class="text">天上聖母殿<br>(TH)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="GH"><span class="text">關聖帝君殿<br>(GH)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="WH"><span class="text">文昌帝君殿<br>(WH)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="PL"><span class="text">牌樓<br>(PL)</span><span class="category-count">0</span></div>
+    </aside>
+
+    <main class="content-wrap">
+        <div class="content-head">
+            <div class="area-title" id="areaTitle">正在載入資料……</div>
+            <div class="result-count" id="resultCount"></div>
+        </div>
+
+        <div class="content-grid" id="contentGrid">
+            <div class="empty">正在從 Supabase 讀取普查資料……</div>
+        </div>
+    </main>
 </div>
 
-<!-- 詳情彈出視窗（點擊深色背景、叉叉皆可彈開關閉） -->
-<div class="modal" id="detailModal" onclick="window.closeDetail()">
-    <div class="modal-container" onclick="event.stopPropagation()">
-        <button class="modal-close" onclick="window.closeDetail()">×</button>
-        <img id="mImg" class="modal-img" src="">
-        <div class="modal-body">
-            <div id="mCode" class="modal-title"></div>
-            <div class="modal-meta">
-                <div><span class="meta-label">屋面部位:</span> <span id="mRoof" class="meta-val"></span></div>
-                <div><span class="meta-label">細部分類:</span> <span id="mComp" class="meta-val"></span></div>
-                <div><span class="meta-label">朝向方位:</span> <span id="mDir" class="meta-val"></span></div>
-                <div><span class="meta-label">形式工藝:</span> <span id="mCraft" class="meta-val"></span></div>
+<div class="modal" id="detailModal">
+    <div class="modal-container">
+        <button class="modal-close" id="modalClose">×</button>
+
+        <div class="modal-media">
+            <img id="modalImg" class="modal-img" alt="">
+            <div id="modalNoImg" class="modal-no-img">📷 無影像</div>
+
+            <div class="photo-nav" id="photoNav" style="display:none">
+                <button id="prevPhoto" type="button">←</button>
+                <span class="photo-counter" id="photoCounter">1 / 1</span>
+                <button id="nextPhoto" type="button">→</button>
             </div>
-            <div id="mNote" class="modal-note"></div>
+        </div>
+
+        <div class="modal-body">
+            <div class="modal-title" id="mCode"></div>
+            <div class="subject-title" id="mTitle"></div>
+
+            <div class="modal-meta">
+                <div class="meta-item"><span class="meta-label">殿區</span><span class="meta-val" id="mArea"></span></div>
+                <div class="meta-item"><span class="meta-label">朝向方位</span><span class="meta-val" id="mDir"></span></div>
+                <div class="meta-item"><span class="meta-label">屋面部位</span><span class="meta-val" id="mRoof"></span></div>
+                <div class="meta-item"><span class="meta-label">構件</span><span class="meta-val" id="mComp"></span></div>
+                <div class="meta-item"><span class="meta-label">工藝形式</span><span class="meta-val" id="mCraft"></span></div>
+                <div class="meta-item"><span class="meta-label">年代</span><span class="meta-val" id="mPeriod"></span></div>
+            </div>
+
+            <div class="modal-note" id="mNote"></div>
         </div>
     </div>
 </div>
 
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-    <!-- 這裡稍後會置入第三部分的 JavaScript 核心邏輯 -->
-<script>
-    window.displayRecords = [];
-    window.currentSelectedArea = '';
+const SUPABASE_URL = "https://kappwvkerqdsvpgzamnc.supabase.co";
+const SUPABASE_KEY = "YOUR_PUBLISHABLE_KEY"; // 換成目前已測試成功的 Publishable key
+const BUCKET = "longshan-photos";
 
-    // --- 🚀 完美修復版：CSV 表格字串高速解讀模組 ---
-    function parseCSV(text) {
-        // 先將文字切成一行一行的陣列，並去除空白行
-        const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
-        if (lines.length === 0) return [];
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth:{
+        persistSession:true,
+        autoRefreshToken:true,
+        detectSessionInUrl:true
+    }
+});
 
-        // ✨【核心重大修復】：必須針對 lines 的第一行元素 lines[0] 進行切割！並修正正規表示式
-        const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
-        console.log("成功解析出的 CSV 表頭欄位：", headers);
+const AREA_NAMES = {
+    SH:"三川殿", FL:"前殿龍門", FR:"前殿虎門",
+    LC:"左下山前廊", RC:"右下山前廊",
+    XL:"左下山護室", XR:"右下山護室",
+    GL:"左過水廊", GR:"右過水廊",
+    TL:"左頂山護室", TR:"右頂山護室",
+    BT:"鐘樓", DT:"鼓樓",
+    YH:"後殿月老廳", HH:"後殿華佗廳",
+    RL:"後殿龍門", RR:"後殿虎門",
+    TH:"天上聖母殿", GH:"關聖帝君殿",
+    WH:"文昌帝君殿", PL:"牌樓"
+};
 
-        const result = [];
-        // 從第二行 (i=1) 開始跑迴圈，讀取實際的資料列
-        for (let i = 1; i < lines.length; i++) {
-            const line = lines[i];
-            const row = [];
-            let insideQuote = false;
-            let currentField = "";
+const DIR_NAMES = {E:"東",W:"西",S:"南",N:"北"};
+const ROOF_NAMES = {
+    MR:"正脊",DR:"垂脊",HR:"戧脊",ER:"圍脊",
+    AR:"角脊",SR:"燕尾",SD:"水車堵",GD:"山花",WD:"牆堵"
+};
+const COMPONENT_NAMES = {
+    "01":"上馬路","02":"下馬路","03":"三角堵","04":"四寸蓋",
+    "05":"印斗","06":"吐水","07":"圭角","08":"西施脊",
+    "09":"垂脊","10":"通風脊堵","11":"脊堵","12":"脊塞",
+    "13":"脊鎖","14":"脊獸","15":"規帶","16":"排頭","17":"燕尾"
+};
+const CRAFT_NAMES = {CP:"剪黏",CS:"泥塑",JP:"交趾陶"};
 
-            // 精準拆分含雙引號的 CSV 欄位（防範時間、流水號等逗號干擾）
-            for (let j = 0; j < line.length; j++) {
-                const char = line[j];
-                if (char === '"') {
-                    insideQuote = !insideQuote;
-                } else if (char === ',' && !insideQuote) {
-                    row.push(currentField.trim());
-                    currentField = "";
-                } else {
-                    currentField += char;
-                }
-            }
-            row.push(currentField.trim());
+let records = [];
+let selectedArea = "";
+let modalRecord = null;
+let modalPhotos = [];
+let modalPhotoIndex = 0;
 
-            // 對齊中文標題並組裝成物件
-            const obj = {};
-            headers.forEach((header, index) => {
-                let val = row[index] || "";
-                val = val.replace(/^"|"$/g, '').trim(); // 修正：精準移除欄位前後多餘的雙引號
-                obj[header] = val;
-            });
-            result.push(obj);
-        }
-        return result;
+const $ = id => document.getElementById(id);
+
+function esc(s){
+    return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;");
+}
+
+async function requireSession(){
+    const {data:{session},error} = await supabase.auth.getSession();
+
+    if(error){
+        $("status").textContent = "登入狀態錯誤";
+        return false;
     }
 
- // --- 1. .survey 檔案匯入監聽器 ---
-document.getElementById('displayImport').onchange = function(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    if(!session){
+        $("status").textContent = "尚未登入";
+        $("contentGrid").innerHTML =
+            '<div class="empty">🔐 此展示頁目前需要研究人員登入。<br><br><a href="login.html" style="color:#e3a187">前往登入</a></div>';
+        return false;
+    }
 
-    const reader = new FileReader();
+    $("status").textContent = "● 雲端資料庫已連線";
+    return true;
+}
 
-    reader.onload = function(evt) {
-        try {
-            const rawText = String(evt.target.result || "").trim();
+async function loadData(){
+    if(!await requireSession()) return;
 
-            if (!rawText) {
-                alert("❌ 檔案內容為空。");
-                return;
+    $("status").textContent = "資料讀取中……";
+    $("contentGrid").innerHTML = '<div class="empty">正在讀取普查資料與影像……</div>';
+
+    const {data,error} = await supabase
+        .from("survey_records")
+        .select(`
+            id,
+            record_code,
+            area,
+            direction,
+            roof_position,
+            component_code,
+            serial,
+            crafts,
+            title,
+            period_range,
+            artifact_year,
+            note,
+            subject_description,
+            updated_at,
+            photos (
+                id,
+                photo_code,
+                storage_path,
+                file_name,
+                is_representative,
+                sequence_no,
+                photo_type
+            )
+        `)
+        .order("record_code",{ascending:true});
+
+    if(error){
+        console.error(error);
+        $("status").textContent = "讀取失敗";
+        $("contentGrid").innerHTML =
+            `<div class="empty">❌ Supabase 讀取失敗<br>${esc(error.message)}</div>`;
+        return;
+    }
+
+    records = data || [];
+
+    // 產生每張照片的 signed URL
+    for(const r of records){
+        const photos = Array.isArray(r.photos) ? r.photos : [];
+
+        photos.sort((a,b)=>{
+            if(!!a.is_representative !== !!b.is_representative){
+                return a.is_representative ? -1 : 1;
             }
-
-            let records = [];
-
-            // ==========================================
-            // ① 優先判斷 JSON .survey
-            // ==========================================
-            if (rawText.startsWith("[") || rawText.startsWith("{")) {
-                const parsedJSON = JSON.parse(rawText);
-
-                // 支援：
-                // [ {...}, {...} ]
-                // 或 { records: [...] }
-                if (Array.isArray(parsedJSON)) {
-                    records = parsedJSON;
-                } else if (Array.isArray(parsedJSON.records)) {
-                    records = parsedJSON.records;
-                } else {
-                    throw new Error("JSON 中找不到資料陣列。");
-                }
-
-            // ==========================================
-            // ② 非 JSON 時，退回 CSV 解析
-            // ==========================================
-            } else {
-                records = parseCSV(rawText);
-            }
-
-            if (!Array.isArray(records) || records.length === 0) {
-                alert("❌ 檔案中沒有可用的普查資料。");
-                return;
-            }
-
-            // ==========================================
-            // ③ 統一資料結構
-            // 同時支援 JSON 與舊版中文 CSV
-            // ==========================================
-            window.displayRecords = records.map(item => {
-
-                return {
-                    fullCode:
-                        item.fullCode ||
-                        item["完整登錄編碼"] ||
-                        "未填寫編碼",
-
-                    area:
-                        String(
-                            item.area ||
-                            item["建築區域"] ||
-                            ""
-                        ).toUpperCase().trim(),
-
-                    direction:
-                        item.direction ||
-                        item["方位"] ||
-                        "？",
-
-                    roofPos:
-                        item.roofPos ||
-                        item["屋面部位"] ||
-                        "？",
-
-                    compCode:
-                        item.compCode ||
-                        item["細部分類"] ||
-                        "？",
-
-                    serial:
-                        item.serial ||
-                        item["流水號"] ||
-                        "000",
-
-                    photoSeq:
-                        item.photoType ||
-                        item.photoSeq ||
-                        item["照片序號"] ||
-                        "",
-
-                    craft:
-                        item.craft ||
-                        item["工藝形式"] ||
-                        "？",
-
-                    note:
-                        item.note ||
-                        item["備註"] ||
-                        "",
-
-                    photo:
-                        item.photo || ""
-                };
-            });
-
-            console.log(
-                "🎉 .survey 匯入成功：",
-                window.displayRecords
-            );
-
-            alert(
-                `🎉 導入成功！共解析出 ${window.displayRecords.length} 筆傳統裝飾紀錄。`
-            );
-
-            // 自動刷新畫面
-            window.currentSelectedArea = "";
-            window.refreshDisplay(true);
-
-        } catch (err) {
-
-            console.error("❌ .survey 解析失敗：", err);
-
-            alert(
-                "❌ 無法解析此 .survey 檔案。\n\n" +
-                "錯誤：" + err.message
-            );
-        }
-
-        // 允許重新選擇同一個檔案
-        e.target.value = "";
-    };
-
-    reader.onerror = function() {
-        alert("❌ 檔案讀取失敗。");
-    };
-
-    reader.readAsText(file, "UTF-8");
-};
-    // --- 2. 獨立重整與強制渲染核心 ---
-    window.refreshDisplay = function(isAutoTrigger = false) {
-        if (!window.displayRecords || window.displayRecords.length === 0) {
-            if(!isAutoTrigger) alert("📋 目前尚未導入數據。");
-            return;
-        }
-
-        // 亮起重整按鈕
-        document.getElementById('btnRefresh').style.display = 'block';
-
-        const existingAreas = new Set();
-        window.displayRecords.forEach(r => {
-            if (r.area) existingAreas.add(r.area);
+            return (a.sequence_no ?? 9999) - (b.sequence_no ?? 9999);
         });
 
-        // 動態重繪選單外觀控制 (有資料的殿區才亮起並具備點擊活性)
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            const areaId = btn.id.replace('btn-', '');
-            if (existingAreas.has(areaId)) {
-                btn.style.opacity = '1';
-                btn.style.pointerEvents = 'auto';
-            } else {
-                btn.style.opacity = '0.25'; // 無資料的殿區按鈕呈現半透明灰化防呆
-                btn.classList.remove('active');
-            }
-        });
+        for(const p of photos){
+            if(!p.storage_path) continue;
 
-        if (existingAreas.size > 0) {
-            const areaArray = Array.from(existingAreas);
-            if (!window.currentSelectedArea || !existingAreas.has(window.currentSelectedArea)) {
-                window.currentSelectedArea = areaArray[0]; // 修正：取出第一個字串，確保能順利過濾
-            }
-            
-            window.filterArea(window.currentSelectedArea);
-            
-            if(!isAutoTrigger) {
-                const grid = document.getElementById('contentGrid');
-                grid.style.opacity = '0.3';
-                setTimeout(() => grid.style.opacity = '1', 150);
-            }
-        } else {
-            document.getElementById('contentGrid').innerHTML = 
-                `<div style="grid-column:1/-1; text-align:center; color:#6b7280; padding-top:50px;">📋 此檔案不含任何有效的區域數據</div>`;
+            const {data:signed} = await supabase.storage
+                .from(BUCKET)
+                .createSignedUrl(p.storage_path,3600);
+
+            p.signed_url = signed?.signedUrl || "";
         }
-    };
+    }
 
-    // --- 3. 殿區過濾與網格卡片重繪 ---
-    window.filterArea = function(areaCode) {
-        window.currentSelectedArea = areaCode;
-        
-        document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-        const activeBtn = document.getElementById('btn-' + areaCode);
-        if (activeBtn) activeBtn.classList.add('active');
+    updateSidebar();
 
-        const filtered = window.displayRecords.filter(r => r.area === areaCode);
-        const grid = document.getElementById('contentGrid'); if (!grid) return; grid.innerHTML = "";
+    const firstArea = [...document.querySelectorAll(".category-btn")]
+        .map(x=>x.dataset.area)
+        .find(code=>records.some(r=>r.area===code));
 
-        if (filtered.length === 0) {
-            grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#6b7280; padding-top:50px; font-size:14px;">📋 該區域目前無數據</div>`;
-            return;
-        }
+    if(firstArea){
+        showArea(selectedArea && records.some(r=>r.area===selectedArea) ? selectedArea : firstArea);
+    }else{
+        $("areaTitle").textContent = "普查成果";
+        $("resultCount").textContent = "0 筆";
+        $("contentGrid").innerHTML = '<div class="empty">目前資料庫尚無可展示的作品。</div>';
+    }
 
-        filtered.forEach(r => {
-            const card = document.createElement('div'); card.className = 'item-card';
-            card.onclick = () => window.openDetail(r);
-            card.innerHTML = `
-                <div class="img-box">${r.photo ? `<img src="${r.photo}">` : '<span class="no-pic">📷 無影像</span>'}</div>
-                <div class="info-box">
-                    <div class="code">${r.fullCode}</div>
-                    <div class="title">方位：${r.direction} | 流水：${r.serial}</div>
+    $("status").textContent = `● 已載入 ${records.length} 筆作品`;
+}
+
+function updateSidebar(){
+    document.querySelectorAll(".category-btn").forEach(btn=>{
+        const code = btn.dataset.area;
+        const count = records.filter(r=>r.area===code).length;
+
+        btn.querySelector(".category-count").textContent = count;
+        btn.classList.toggle("disabled",count===0);
+    });
+}
+
+function craftText(crafts){
+    if(!Array.isArray(crafts) || !crafts.length) return "—";
+    return crafts.map(x=>CRAFT_NAMES[x] || x).join("、");
+}
+
+function showArea(areaCode){
+    selectedArea = areaCode;
+
+    document.querySelectorAll(".category-btn").forEach(btn=>{
+        btn.classList.toggle("active",btn.dataset.area===areaCode);
+    });
+
+    const filtered = records.filter(r=>r.area===areaCode);
+
+    $("areaTitle").textContent = `${AREA_NAMES[areaCode] || areaCode} (${areaCode})`;
+    $("resultCount").textContent = `${filtered.length} 筆作品`;
+
+    const grid = $("contentGrid");
+    grid.innerHTML = "";
+
+    if(!filtered.length){
+        grid.innerHTML = '<div class="empty">該殿區目前尚無作品。</div>';
+        return;
+    }
+
+    filtered.forEach(r=>{
+        const representative =
+            (r.photos || []).find(p=>p.is_representative && p.signed_url) ||
+            (r.photos || []).find(p=>p.signed_url);
+
+        const card = document.createElement("article");
+        card.className = "item-card";
+
+        card.innerHTML = `
+            <div class="img-box">
+                ${representative?.signed_url
+                    ? `<img src="${esc(representative.signed_url)}" alt="">`
+                    : `<span class="no-pic">📷 無影像</span>`}
+            </div>
+
+            <div class="info-box">
+                <div class="code">${esc(r.record_code)}</div>
+                <div class="title">${esc(r.title || "題材名稱未登錄")}</div>
+                <div class="meta">
+                    ${esc(DIR_NAMES[r.direction] || r.direction || "—")}｜
+                    ${esc(ROOF_NAMES[r.roof_position] || r.roof_position || "—")}｜
+                    ${esc(COMPONENT_NAMES[r.component_code] || r.component_code || "—")}
                 </div>
-            `;
-            grid.appendChild(card);
-        });
-    };
+                <div class="crafts">
+                    ${(r.crafts || []).map(c=>`<span class="craft">${esc(CRAFT_NAMES[c] || c)}</span>`).join("")}
+                </div>
+            </div>`;
 
-    // --- 4. 詳情彈出視窗控制 ---
-    window.openDetail = function(r) {
-        const imgEl = document.getElementById('mImg');
-        imgEl.src = r.photo || ""; 
-        imgEl.style.display = r.photo ? "block" : "none";
-        
-        document.getElementById('mCode').innerText = r.fullCode;
-        document.getElementById('mRoof').innerText = r.roofPos;
-        document.getElementById('mComp').innerText = r.compCode;
-        document.getElementById('mDir').innerText = r.direction;
-        document.getElementById('mCraft').innerText = r.craft; 
-        
-        document.getElementById('mNote').innerText = r.note ? `📝 調查描述：${r.note}` : "📝 現場無詳細描述。";
-        document.getElementById('detailModal').classList.add('active');
-    };
+        card.onclick = ()=>openDetail(r);
+        grid.appendChild(card);
+    });
+}
 
-    window.closeDetail = function() { 
-        document.getElementById('detailModal').classList.remove('active'); 
-    };
+function openDetail(r){
+    modalRecord = r;
+    modalPhotos = (r.photos || []).filter(p=>p.signed_url);
+    modalPhotoIndex = 0;
 
-    // --- 5. 初始載入安全狀態鎖 ---
-    window.onload = function() {
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.style.opacity = '0.35';
-        });
-        document.getElementById('btnRefresh').style.display = 'none'; 
-    };
+    $("mCode").textContent = r.record_code || "";
+    $("mTitle").textContent = r.title || "題材名稱未登錄";
+    $("mArea").textContent = `${AREA_NAMES[r.area] || r.area || "—"} (${r.area || "—"})`;
+    $("mDir").textContent = DIR_NAMES[r.direction] || r.direction || "—";
+    $("mRoof").textContent = ROOF_NAMES[r.roof_position] || r.roof_position || "—";
+    $("mComp").textContent = COMPONENT_NAMES[r.component_code] || r.component_code || "—";
+    $("mCraft").textContent = craftText(r.crafts);
+
+    let period = r.period_range || "";
+    if(r.artifact_year) period += `${period ? "；" : ""}${r.artifact_year} 年`;
+    $("mPeriod").textContent = period || "—";
+
+    const desc = r.subject_description || r.note || "尚無題材或調查說明。";
+    $("mNote").textContent = desc;
+
+    renderModalPhoto();
+    $("detailModal").classList.add("active");
+}
+
+function renderModalPhoto(){
+    if(!modalPhotos.length){
+        $("modalImg").style.display="none";
+        $("modalNoImg").style.display="block";
+        $("photoNav").style.display="none";
+        return;
+    }
+
+    const p = modalPhotos[modalPhotoIndex];
+
+    $("modalImg").src = p.signed_url;
+    $("modalImg").style.display="block";
+    $("modalNoImg").style.display="none";
+
+    if(modalPhotos.length > 1){
+        $("photoNav").style.display="flex";
+        $("photoCounter").textContent = `${modalPhotoIndex+1} / ${modalPhotos.length}`;
+    }else{
+        $("photoNav").style.display="none";
+    }
+}
+
+function closeModal(){
+    $("detailModal").classList.remove("active");
+}
+
+document.querySelectorAll(".category-btn").forEach(btn=>{
+    btn.onclick=()=>showArea(btn.dataset.area);
+});
+
+$("refreshBtn").onclick=loadData;
+$("modalClose").onclick=closeModal;
+
+$("detailModal").onclick=e=>{
+    if(e.target === $("detailModal")) closeModal();
+};
+
+$("prevPhoto").onclick=()=>{
+    if(!modalPhotos.length) return;
+    modalPhotoIndex=(modalPhotoIndex-1+modalPhotos.length)%modalPhotos.length;
+    renderModalPhoto();
+};
+
+$("nextPhoto").onclick=()=>{
+    if(!modalPhotos.length) return;
+    modalPhotoIndex=(modalPhotoIndex+1)%modalPhotos.length;
+    renderModalPhoto();
+};
+
+document.addEventListener("keydown",e=>{
+    if(e.key==="Escape") closeModal();
+    if(!$("detailModal").classList.contains("active")) return;
+    if(e.key==="ArrowLeft") $("prevPhoto").click();
+    if(e.key==="ArrowRight") $("nextPhoto").click();
+});
+
+await loadData();
 </script>
-
-
-
 
 </body>
 </html>
