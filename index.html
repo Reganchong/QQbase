@@ -245,7 +245,18 @@
 
     <div class="hero">
         <h1>🏛️ 艋舺龍山寺屋面傳統裝飾普查系統</h1>
-        <div class="subtitle">屋面裝飾調查・影像保存・資料管理・研究檢索</div>
+        <div class="subtitle">
+            屋面裝飾調查・影像保存・
+            <span id="managementText">資料管理</span>
+            <a id="managementLink" href="admin.html" style="
+                display:none;
+                color:inherit;
+                text-decoration:none;
+                border-bottom:1px dotted #9b958e;
+                cursor:pointer;
+            ">資料管理</a>
+            ・研究檢索
+        </div>
 
         <div class="auth-panel">
             <div class="auth-left">
@@ -294,19 +305,7 @@
             </div>
             <span class="menu-tag">成果展示</span>
         </a>
-
-        <a id="adminCard" href="admin.html" class="menu-item gray" style="display:none;">
-            <div>
-                <h2>👥 成員管理</h2>
-                <p>
-                    管理員可在此邀請新的研究人員加入系統。邀請郵件會引導新成員
-                    至密碼設定頁完成帳號啟用；實際邀請權限由伺服器端驗證。
-                </p>
-            </div>
-            <span class="menu-tag">管理員功能</span>
-        </a>
-
-    </div>
+</div>
 
     <div class="section-title">系統工作流程</div>
 
@@ -363,7 +362,8 @@
     const networkStatus = document.getElementById("networkStatus");
     const loginBtn = document.getElementById("loginBtn");
     const logoutBtn = document.getElementById("logoutBtn");
-    const adminCard = document.getElementById("adminCard");
+    const managementText = document.getElementById("managementText");
+    const managementLink = document.getElementById("managementLink");
 
     function updateNetworkStatus() {
         if (navigator.onLine) {
@@ -380,7 +380,8 @@
             authStatus.textContent = "❌ 無法確認登入狀態：" + error.message;
             loginBtn.style.display = "inline-block";
             logoutBtn.style.display = "none";
-            adminCard.style.display = "none";
+            managementText.style.display = "inline";
+            managementLink.style.display = "none";
             return;
         }
 
@@ -388,12 +389,14 @@
             authStatus.textContent = "✅ 已登入研究人員：" + session.user.email;
             loginBtn.style.display = "none";
             logoutBtn.style.display = "inline-block";
-            adminCard.style.display = "flex";
+            managementText.style.display = "none";
+            managementLink.style.display = "inline";
         } else {
             authStatus.textContent = "尚未登入研究人員帳號";
             loginBtn.style.display = "inline-block";
             logoutBtn.style.display = "none";
-            adminCard.style.display = "none";
+            managementText.style.display = "inline";
+            managementLink.style.display = "none";
         }
     }
 
