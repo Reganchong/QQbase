@@ -295,14 +295,15 @@
             <span class="menu-tag">成果展示</span>
         </a>
 
-        <a href="reset-password.html" class="menu-item gray">
+        <a id="adminCard" href="admin.html" class="menu-item gray" style="display:none;">
             <div>
-                <h2>🔑 帳號與密碼</h2>
+                <h2>👥 成員管理</h2>
                 <p>
-                    供研究人員處理密碼設定或重設流程。一般資料操作不需進入此頁。
+                    管理員可在此邀請新的研究人員加入系統。邀請郵件會引導新成員
+                    至密碼設定頁完成帳號啟用；實際邀請權限由伺服器端驗證。
                 </p>
             </div>
-            <span class="menu-tag">系統帳號</span>
+            <span class="menu-tag">管理員功能</span>
         </a>
 
     </div>
@@ -362,6 +363,7 @@
     const networkStatus = document.getElementById("networkStatus");
     const loginBtn = document.getElementById("loginBtn");
     const logoutBtn = document.getElementById("logoutBtn");
+    const adminCard = document.getElementById("adminCard");
 
     function updateNetworkStatus() {
         if (navigator.onLine) {
@@ -378,6 +380,7 @@
             authStatus.textContent = "❌ 無法確認登入狀態：" + error.message;
             loginBtn.style.display = "inline-block";
             logoutBtn.style.display = "none";
+            adminCard.style.display = "none";
             return;
         }
 
@@ -385,10 +388,12 @@
             authStatus.textContent = "✅ 已登入研究人員：" + session.user.email;
             loginBtn.style.display = "none";
             logoutBtn.style.display = "inline-block";
+            adminCard.style.display = "flex";
         } else {
             authStatus.textContent = "尚未登入研究人員帳號";
             loginBtn.style.display = "inline-block";
             logoutBtn.style.display = "none";
+            adminCard.style.display = "none";
         }
     }
 
