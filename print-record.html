@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>艋舺龍山寺作品調查表列印</title>
+<style>
+:root{
+  --orange:#c4785a;
+  --green:#5c634b;
+  --gray:#7a7671;
+  --line:#111;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#eceae6;
+  color:#111;
+  font-family:"Microsoft JhengHei","Noto Sans TC",sans-serif;
+}
+.toolbar{
+  position:sticky;top:0;z-index:10;
+  background:#fff;
+  border-bottom:1px solid #d7d0c8;
+  padding:10px 14px;
+  display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+}
+.toolbar button,.toolbar a{
+  border:0;border-radius:8px;padding:9px 14px;
+  font-weight:700;text-decoration:none;cursor:pointer;
+}
+.print-btn{background:var(--orange);color:#fff}
+.back-btn{background:var(--gray);color:#fff}
+.status{align-self:center;font-size:12px;color:#666}
+.page{
+  width:210mm;
+  min-height:297mm;
+  margin:12px auto;
+  background:#fff;
+  padding:12mm 12mm 13mm;
+  box-shadow:0 2px 14px rgba(0,0,0,.12);
+  page-break-after:always;
+}
+.page:last-child{page-break-after:auto}
+h1{
+  text-align:left;
+  font-size:17pt;
+  margin:0 0 5mm;
+  font-weight:800;
+  letter-spacing:.2px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+  font-size:10pt;
+  line-height:1.42;
+  border:2px solid #111;
+}
+th,td{
+  border:1px solid #111;
+  padding:2.2mm 2mm;
+  vertical-align:top;
+  word-break:break-word;
+}
+.section-title{
+  text-align:center;
+  font-size:13pt;
+  font-weight:700;
+  background:#efefef;
+  border-top:2px solid #111!important;
+  border-bottom:2px solid #111!important;
+}
+.label{
+  background:#f2f2f2;
+  font-weight:700;
+  text-align:center;
+  vertical-align:middle;
+}
+.check{white-space:nowrap;margin-right:4mm}
+.mark{
+  display:inline-block;
+  width:4mm;height:4mm;
+  border:1.2px solid #111;
+  margin-right:1.2mm;
+  vertical-align:-.5mm;
+  text-align:center;
+  line-height:3.4mm;
+  font-size:9pt;
+  font-weight:bold;
+}
+.mark.on::after{content:"✓"}
+.photo-box{
+  min-height:62mm;
+  display:flex;align-items:center;justify-content:center;
+}
+.photo-box img{
+  max-width:100%;max-height:60mm;object-fit:contain;
+}
+.muted{color:#666;font-size:9pt}
+.lines{min-height:30mm;white-space:pre-wrap}
+.small{font-size:9pt}
+.preview-wrap{transform-origin:top center}
+@media print{
+  body{background:#fff}
+  .toolbar{display:none!important}
+  .page{
+    margin:0;
+    box-shadow:none;
+    width:210mm;
+    min-height:297mm;
+    padding:10mm 11mm 12mm;
+  }
+  @page{size:A4 portrait;margin:0}
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <a class="back-btn" id="backLink" href="query.html">← 返回資料</a>
+  <button class="back-btn" id="zoomOutBtn" type="button">－</button>
+  <button class="back-btn" id="zoomResetBtn" type="button">100%</button>
+  <button class="back-btn" id="zoomInBtn" type="button">＋</button>
+  <button class="print-btn" id="printBtn" type="button">🖨️ 列印／另存 PDF</button>
+  <span class="status" id="status">正在讀取資料……</span>
+</div>
+
+<div id="previewWrap" class="preview-wrap"><div id="pages"></div></div>
+
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const SUPABASE_URL="https://kappwvkerqdsvpgzamnc.supabase.co";
+const SUPABASE_KEY="sb_publishable_WIVgXV-WgBcveNX2yvLs8g_Y2tYDomD";
+const BUCKET="longshan-photos";
+
+const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{
+  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+});
+
+const qs=new URLSearchParams(location.search);
+const recordId=qs.get("id");
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+const arr=v=>Array.isArray(v)?v:[];
+const checked=(v,list)=>`<span class="check"><span class="mark ${list.includes(v)?"on":""}"></span>${esc(v)}</span>`;
+const yn=v=>v?"✓":"";
+const areaNames={
+ SH:"三川殿",FL:"前殿龍門",FR:"前殿虎門",LC:"左下山前廊",RC:"右下山前廊",
+ XL:"左下山護室",XR:"右下山護室",GL:"左過水廊",GR:"右過水廊",TL:"左頂山護室",
+ TR:"右頂山護室",BT:"鐘樓",DT:"鼓樓",YH:"後殿月老廳",HH:"後殿華佗廳",
+ RL:"後殿龍門",RR:"後殿虎門",TH:"天上聖母殿",GH:"關聖帝君殿",WH:"文昌帝君殿",PL:"牌樓"
+};
+const roofNames={MR:"正脊",DR:"垂脊",HR:"戧脊",ER:"圍脊",AR:"角脊",SR:"燕尾",SD:"水車堵",GD:"山花",WD:"牆堵"};
+const craftNames={CP:"剪黏",CS:"泥塑",JP:"交趾陶"};
+
+function checkboxList(values, options){
+  const set=arr(values);
+  return options.map(x=>checked(x,set)).join(" ");
+}
+function page(content){
+  return `<section class="page">${content}</section>`;
+}
+function displayDate(v){
+  if(!v)return "";
+  const d=new Date(v);
+  return Number.isNaN(d.getTime())?esc(v):d.toLocaleDateString("zh-TW");
+}
+
+async function load(){
+  if(!recordId){
+    $("status").textContent="缺少作品 ID";
+    return;
+  }
+
+  const {data:{session}}=await supabase.auth.getSession();
+  if(!session){
+    $("status").textContent="尚未登入";
+    return;
+  }
+
+  const {data:r,error}=await supabase.from("survey_records").select("*").eq("id",recordId).single();
+  if(error){
+    $("status").textContent="讀取失敗："+error.message;
+    return;
+  }
+
+  const [{data:c},{data:photos},{data:repairs}]=await Promise.all([
+    supabase.from("condition_records").select("*").eq("record_id",recordId).maybeSingle(),
+    supabase.from("photos").select("*").eq("record_id",recordId).order("sequence_no"),
+    supabase.from("repair_records").select("*").eq("record_id",recordId).order("created_at")
+  ]);
+
+  let representative=(photos||[]).find(p=>p.is_representative)||(photos||[])[0]||null;
+  let representativeUrl="";
+  if(representative?.storage_path){
+    const {data:signed}=await supabase.storage.from(BUCKET).createSignedUrl(representative.storage_path,3600);
+    representativeUrl=signed?.signedUrl||"";
+  }
+
+  const photoUrls=[];
+  for(const p of photos||[]){
+    const {data:signed}=await supabase.storage.from(BUCKET).createSignedUrl(p.storage_path,3600);
+    photoUrls.push({...p,url:signed?.signedUrl||""});
+  }
+
+  const crafts=arr(r.crafts).map(x=>craftNames[x]||x);
+  const compositions=arr(r.composition_types);
+
+  const p1=page(`
+    <h1>艋舺龍山寺屋頂建築裝飾工藝作品調查表</h1>
+    <table>
+      <tr><td class="label" style="width:18%">專案名稱</td><td colspan="5"><strong>艋舺龍山寺屋頂剪黏、泥塑、交趾陶工藝普查—影像保存與工藝再現計畫</strong></td></tr>
+      <tr><td class="section-title" colspan="6">基本資料</td></tr>
+      <tr><td class="label" rowspan="5">題材資訊</td><td class="label">題材名稱</td><td colspan="4">${esc(r.title||"")}</td></tr>
+      <tr><td class="label">登錄編號</td><td colspan="4">${esc(r.record_code||"")}</td></tr>
+      <tr>
+        <td class="label">裝飾位置</td>
+        <td colspan="2">
+          殿區／代碼：${esc(areaNames[r.area]||r.area||"")} / ${esc(r.area||"")}<br>
+          屋面朝向：
+          ${checked("東",r.direction==="E"?["東"]:[])}
+          ${checked("西",r.direction==="W"?["西"]:[])}
+          ${checked("南",r.direction==="S"?["南"]:[])}
+          ${checked("北",r.direction==="N"?["北"]:[])}<br>
+          屋頂部位／代碼：${esc(roofNames[r.roof_position]||r.roof_position||"")} / ${esc(r.roof_position||"")}<br>
+          構件：${esc(r.component_code||"")}
+        </td>
+        <td class="label">檢視人員</td><td>${esc(r.inspector||"")}</td>
+      </tr>
+      <tr><td class="label">檢視單位</td><td colspan="2">${esc(r.inspection_unit||"")}</td><td class="label">檢視日期</td><td>${esc(r.inspection_date||"")}</td></tr>
+      <tr><td class="label">裝飾屬性</td><td colspan="4">
+        ${checked("製成年代逾 50 年以上裝飾工藝",r.decoration_age_class==="50年以上"?["製成年代逾 50 年以上裝飾工藝"]:[])}<br>
+        ${checked("製成年代未達 50 年裝飾工藝",r.decoration_age_class==="未達50年"?["製成年代未達 50 年裝飾工藝"]:[])}
+      </td></tr>
+      <tr><td class="label">工藝類型<br>（可複選）</td><td colspan="5">
+        ${checked("剪黏",crafts)} ${checked("泥塑",crafts)} ${checked("交趾陶",crafts)}
+      </td></tr>
+      <tr><td class="label">作者／落款</td><td colspan="5">${esc(r.author_signature||"")}</td></tr>
+      <tr><td class="label">重要附屬物</td><td colspan="5">
+        組成形式：${["單件","成對","連續排列","左右對稱","組群"].map(x=>checked(x,compositions)).join(" ")}<br><br>
+        對應作品編號：${esc(arr(r.related_record_codes).join("、"))}
+      </td></tr>
+    </table>
+  `);
+
+  const p2=page(`
+    <h1>艋舺龍山寺屋頂建築裝飾工藝作品調查表</h1>
+    <table>
+      <tr><td class="label" style="width:20%">尺寸（cm）</td><td>
+        長：${esc(r.length_cm??"")}　寬：${esc(r.width_cm??"")}　厚／高：${esc(r.height_cm??"")}<br>
+        ${checked("無法測量",r.unable_to_measure?["無法測量"]:[])}
+      </td></tr>
+      <tr><td class="label">保存空間／文資身分</td><td>所屬文化資產：${esc(r.cultural_asset_name||"艋舺龍山寺（國定古蹟）")}</td></tr>
+      <tr><td class="label">代表照片</td><td>
+        <div class="photo-box">${representativeUrl?`<img src="${esc(representativeUrl)}" alt="">`:""}</div>
+        攝影時間：${esc(displayDate(representative?.taken_at))}　攝影者：${esc(representative?.photographer||"")}<br>
+        授權說明：${esc(representative?.copyright_note||"")}
+      </td></tr>
+      <tr><td class="label">年代</td><td>
+        年代區間：${esc(r.period_range||"")}<br>
+        ${checked("文物紀年",r.artifact_year?["文物紀年"]:[])}：${esc(r.artifact_year??"")} 年（西元）
+        ${checked("待分析",r.year_pending_analysis?["待分析"]:[])}
+      </td></tr>
+      <tr><td class="label">工藝材質<br>剪黏、泥塑</td><td>
+        <b>表面材料：</b>${checkboxList(r.surface_materials,["仿古瓷碗片","彩色玻璃片","陶片","瓷片","瓦片","金屬","壓克力","彩繪","貼金","未施彩","無法辨識"])}<br><br>
+        <b>坯體：</b>${checkboxList(r.body_materials,["水泥砂漿","灰泥","金屬骨架","無法辨識"])}<br><br>
+        <b>基底材料：</b>${checkboxList(r.base_materials,["麻絨","海菜粉","糯米糖水","化學樹脂","未發現相關資料","無法確認"])}
+      </td></tr>
+      <tr><td class="label">交趾陶</td><td>
+        <b>坯體類型：</b>${checkboxList(r.ceramic_body_types,["陶坯","瓷坯","無法辨識"])}<br><br>
+        <b>釉彩類型：</b>${checkboxList(r.glaze_types,["寶石釉","水彩釉","西洋釉上彩","無法辨識"])}<br><br>
+        <b>釉面特徵：</b>${checkboxList(r.glaze_features,["透明","半透明","不透明","透明與不透明並用","無法辨識"])}
+      </td></tr>
+    </table>
+  `);
+
+  const p3=page(`
+    <h1>艋舺龍山寺屋頂建築裝飾工藝作品調查表</h1>
+    <table>
+      <tr><td class="label" style="width:20%">材料判定依據</td><td>${checkboxList(r.material_basis,["現場目視","材料外露","修復報告","施工紀錄","匠師訪談","材料檢測","歷史文獻"])}</td></tr>
+      <tr><td class="label">工藝題材典故</td><td>
+        <b>題材分類：</b>${checkboxList(r.subject_categories,["人物","神祇","歷史故事","戲曲故事","吉祥圖案","動物","植物","水族","器物","文字","山水","其他"])}
+        <br><br><b>題材內容與典故簡述：</b><div class="lines">${esc(r.subject_description||"")}</div>
+      </td></tr>
+    </table>
+  `);
+
+  const areas=Object.values(areaNames);
+  const roofs=Object.values(roofNames);
+  const p4=page(`
+    <h1>艋舺龍山寺屋頂建築裝飾工藝作品調查表</h1>
+    <table>
+      <tr><td class="section-title" colspan="2">工藝保存狀況</td></tr>
+      <tr><td class="label" style="width:20%">裝飾配置</td><td>
+        <b>建築區域：</b><br>${areas.map(x=>checked(x,(areaNames[r.area]===x)?[x]:[])).join(" ")}
+        <br><br><b>屋面部位：</b><br>${roofs.map(x=>checked(x,(roofNames[r.roof_position]===x)?[x]:[])).join(" ")}
+      </td></tr>
+    </table>
+  `);
+
+  const p5=page(`
+    <h1>艋舺龍山寺屋頂建築裝飾工藝作品調查表</h1>
+    <table>
+      <tr><td class="label" style="width:20%">損壞情形</td><td>
+        <b>整體情形：</b>${checkboxList(c?.overall_conditions,["現況良好","損壞嚴重","局部損壞","結構不穩","作品佚失"])}<br><br>
+        <b>骨架：</b>${checkboxList(c?.framework_damage,["裸露","鏽蝕","斷裂","變形","鬆動","背景或配件佚失","佚失"])}<br><br>
+        <b>胚體：</b>${checkboxList(c?.body_damage,["汙損","粉化","剝離","空鼓","生物劣化","鹽害","破損","裂縫","佚失"])}<br><br>
+        <b>表層繪色：</b>${checkboxList(c?.surface_damage,["汙損","粉化","褪色","龜裂","剝落","起甲","泛鹽","佚失"])}<br><br>
+        <b>外覆材料：</b>${checkboxList(c?.covering_damage,["汙損","脫落","碎裂","釉面剝落","褪色","佚失"])}
+      </td></tr>
+    </table>
+  `);
+
+  const levels=[1,2,3,4,5];
+  const levelText={
+    1:"第一級：整體狀況良好。",
+    2:"第二級：有輕微劣化，但狀況穩定，暫不需處理。",
+    3:"第三級：有明顯劣化，可延緩處理。",
+    4:"第四級：劣化持續發展，需優先處理。",
+    5:"第五級：結構或構件處於危急狀態，需立即處理。"
+  };
+  const p6=page(`
+    <h1>艋舺龍山寺屋頂建築裝飾工藝作品調查表</h1>
+    <table>
+      <tr><td class="label" style="width:20%">保存狀況簡述</td><td>
+        ${levels.map(n=>checked(levelText[n],Number(c?.condition_level)===n?[levelText[n]]:[])).join("<br>")}
+        <br><br><div class="lines">${esc(c?.condition_description||"")}</div>
+      </td></tr>
+      <tr><td class="label">未來修護建議</td><td>
+        <b>修護策略：</b><br>${checkboxList(c?.conservation_strategies,["原狀維護","現狀保存","加固處理","清潔處理","表層色層補色","補缺修復","局部重塑","不當修補材料移除","原貌復原","全面重製","移地保存","複製替換"])}
+        <br><br><b>材料選用：</b><br>${checkboxList(c?.material_recommendations,["傳統材料","類傳統材料","現代可逆材料","原件碎片回貼"])}
+        <br><br>${checked("需委託專業修復單位評估",c?.professional_assessment_needed?["需委託專業修復單位評估"]:[])}
+        ${checked("需緊急處理（短期內）",c?.urgent_treatment_needed?["需緊急處理（短期內）"]:[])}
+      </td></tr>
+    </table>
+  `);
+
+  const detailPhotos=photoUrls.slice(0,2);
+  const p7=page(`
+    <h1>艋舺龍山寺屋頂建築裝飾工藝作品調查表</h1>
+    <table>
+      ${[0,1].map(i=>{
+        const p=detailPhotos[i];
+        return `<tr><td class="label" style="width:20%">細部影像</td><td>
+          <div class="photo-box">${p?.url?`<img src="${esc(p.url)}" alt="">`:""}</div>
+          照片編號／檔名：${esc(p?.photo_code||"")} / ${esc(p?.file_name||"")}<br>
+          影像內容：${esc(p?.image_content||"")}<br>
+          損壞標示或位置說明：${esc(p?.damage_location_note||"")}<br>
+          照片類型：${esc(p?.photo_type||"")}
+        </td></tr>`;
+      }).join("")}
+      <tr><td class="label">資料來源與年代判定</td><td>
+        資料來源：${checkboxList(r.source_types,["現場落款","修繕碑記","廟方檔案","修復報告","歷史照片","訪談","文獻","推定"])}<br><br>
+        判定可信程度：${esc(r.dating_confidence||"")}
+      </td></tr>
+    </table>
+  `);
+
+  const repair=(repairs||[])[0]||{};
+  const p8=page(`
+    <h1>艋舺龍山寺屋頂建築裝飾工藝作品調查表</h1>
+    <table>
+      <tr><td class="label" style="width:20%">歷次修繕／替換紀錄與備註</td><td>
+        原作年代：${esc(repair.original_year||"")}<br><br>
+        現存作品年代：${esc(repair.existing_work_year||"")}<br><br>
+        修繕年代：${esc(repair.repair_year||"")}<br><br>
+        修繕匠師／單位：${esc(repair.artisan||"")} ${esc(repair.organization||"")}<br><br>
+        現存狀態：${esc(repair.current_status||"")}<br><br>
+        修繕方式／紀錄來源：${esc(repair.repair_method||"")}<br><br>
+        資料來源：${esc(repair.source||"")}<br><br>
+        其他備註：<div class="lines">${esc(repair.note||r.other_notes||"")}</div>
+      </td></tr>
+    </table>
+  `);
+
+  $("pages").innerHTML=p1+p2+p3+p4+p5+p6+p7+p8;
+  $("backLink").href=`record.html?id=${encodeURIComponent(recordId)}`;
+  $("status").textContent=`✅ 已載入：${r.record_code}`;
+}
+
+let previewScale=1;
+function applyScale(){
+  $("previewWrap").style.transform=`scale(${previewScale})`;
+  $("previewWrap").style.width=`${100/previewScale}%`;
+  $("zoomResetBtn").textContent=`${Math.round(previewScale*100)}%`;
+}
+$("zoomOutBtn").onclick=()=>{previewScale=Math.max(.65,previewScale-.1);applyScale();};
+$("zoomInBtn").onclick=()=>{previewScale=Math.min(1.35,previewScale+.1);applyScale();};
+$("zoomResetBtn").onclick=()=>{previewScale=1;applyScale();};
+$("printBtn").onclick=()=>window.print();
+await load();
+</script>
+</body>
+</html>
