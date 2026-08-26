@@ -753,11 +753,18 @@ window.saveSurveyRecord = async function() {
     window.currentSessionRecords.push({
         recordCode: entry.recordCode,
         photoCode: entry.photoCode,
+        photoToken: entry.photoToken || "",
+        photoType: entry.photoType || null,
+        photoSerial: entry.photoSerial || null,
         crafts: entry.record.crafts,
         note: entry.record.note,
         photoName: entry.photoFile?.name || "",
         createdAtLocal: entry.createdAtLocal,
-        status, statusText, errorMessage
+        status, statusText, errorMessage,
+
+        // .survey 离线交换包真正需要的作品 metadata。
+        // 不含影像二进制；照片原档仍保留在现场设备或 Storage。
+        record: { ...entry.record }
     });
 
     if (status === "synced") alert(`✅ ${entry.recordCode}\n已成功儲存至 Supabase。`);
@@ -854,9 +861,9 @@ function refreshTempUIList() {
 window.downloadBulkPackFile = function() {
     if (!window.currentSessionRecords.length) { alert("❌ 本次尚無資料可匯出。"); return; }
     const pack = {
-        format: "longshan-survey-v2",
+        format: "longshan-survey-v3",
         exportedAt: new Date().toISOString(),
-        warning: "此 .survey 保存普查 metadata，不嵌入原始影像；原始影像由 Supabase Storage 或現場原始檔保存。",
+        warning: "此 .survey 保存可重新汇入 Supabase 的普查 metadata，不嵌入原始影像；照片原档请另外保留。",
         records: window.currentSessionRecords
     };
     const blob = new Blob([JSON.stringify(pack, null, 2)], { type:"application/json;charset=utf-8" });
