@@ -298,13 +298,12 @@
                     <option value="RC">右下山前廊 (RC)</option>
                     <option value="XL">左下山護室 (XL)</option>
                     <option value="XR">右下山護室 (XR)</option>
-                    <option value="BT">鐘樓 (BT)</option>
-                    <option value="DT">鼓樓 (DT)</option>
                     <option value="GL">左過水廊 (GL)</option>
                     <option value="GR">右過水廊 (GR)</option>
-                    <option value="MH">中殿 (MH)</option>
                     <option value="TL">左頂山護室 (TL)</option>
                     <option value="TR">右頂山護室 (TR)</option>
+                    <option value="BT">鐘樓 (BT)</option>
+                    <option value="DT">鼓樓 (DT)</option>
                     <option value="YH">後殿月老廳 (YH)</option>
                     <option value="HH">後殿華佗廳 (HH)</option>
                     <option value="RL">後殿龍門 (RL)</option>
@@ -336,7 +335,7 @@
     <!-- 📄 第二步分頁：詳細數據、工藝形式多選與大打包 -->
     <div id="page2" class="page">
         <h3 style="color:var(--temple-orange); margin-bottom:15px; border-left:4px solid var(--temple-orange); padding-left:8px;">
-            第二步：詳細普查數據與影像紀錄
+            第二步：詳細普查數據與工藝紀錄
         </h3>
         <div class="form-row">
             <div class="form-group">
@@ -356,29 +355,23 @@
             <div class="form-group">
                 <label>構件細部分類</label>
                 <select id="compCode" onchange="updateCodePreview()">
-                    <option value="00" selected>無法辨識 (00)</option>
-                    <option value="01">上馬路 (01)</option>
+                    <option value="01" selected>上馬路 (01)</option>
                     <option value="02">下馬路 (02)</option>
                     <option value="03">三角堵 (03)</option>
-                    <option value="04">水車堵 (04)</option>
-                    <option value="05">四寸蓋 (05)</option>
-                    <option value="06">印斗 (06)</option>
-                    <option value="07">吐水 (07)</option>
+                    <option value="04">四寸蓋 (04)</option>
+                    <option value="05">印斗 (05)</option>
+                    <option value="06">吐水 (06)</option>
+                    <option value="07">圭角 (07)</option>
                     <option value="08">西施脊 (08)</option>
-                    <option value="09">身堵 (09)</option>
-                    <option value="10">垂脊(10)</option>
-                    <option value="11">通風脊堵 (11)</option>
-                    <option value="12">脊堵 (12)</option>
-                    <option value="13">脊塞 (13)</option>
-                    <option value="14">脊鎖 (14)</option>
-                    <option value="15">脊獸 (15)</option>
-                    <option value="16">規帶 (16)</option>
-                    <option value="17">排頭 (17)</option>
-                    <option value="18">頂堵 (18)</option>
-                    <option value="19">墀頭 (19)</option>
-                    <option value="20">燕尾 (20)</option>
-
-                    
+                    <option value="09">垂脊 (09)</option>
+                    <option value="10">通風脊堵 (10)</option>
+                    <option value="11">脊堵 (11)</option>
+                    <option value="12">脊塞 (12)</option>
+                    <option value="13">脊鎖 (13)</option>
+                    <option value="14">脊獸 (14)</option>
+                    <option value="15">規帶 (15)</option>
+                    <option value="16">排頭 (16)</option>
+                    <option value="17">燕尾 (17)</option>
                 </select>
             </div>
         </div>
@@ -390,12 +383,7 @@
                     <input type="text" id="serial" value="001" oninput="updateCodePreview()" required>
                     <button type="button" class="serial-nav-btn next" onclick="changeSerial(1)">下一個 →</button>
                 </div>
-
-            </div>
-            <div class="form-group">
-                <label>照片型別+序號</label>
-                <input type="text" id="photoType" value="O01" oninput="updateCodePreview()" 
-                       required style="font-family: monospace;">
+                <div class="small-note">儲存後不會自動跳號；需要切換作品時，再按「上一個／下一個」。</div>
             </div>
         </div>
         
@@ -417,20 +405,55 @@
             </div>
         </div>
         
-        <div class="form-group" style="margin-top: 15px;">
-            <label>📷 調查影像 (選填)</label>
+        <div class="btn-group">
+            <button type="button" class="btn-nav" onclick="switchPage(1)">⬅️ 返回第一步</button>
+            <button type="button" class="btn-submit" onclick="switchPage(3)">下一步 ➡️</button>
+        </div>
+    </div>
+
+    <!-- 📄 第三步分頁：皆為選填 -->
+    <div id="page3" class="page">
+        <h3 style="color:var(--temple-orange); margin-bottom:15px; border-left:4px solid var(--temple-orange); padding-left:8px;">
+            第三步：照片與補充紀錄（皆為選填）
+        </h3>
+
+        <div class="form-group">
+            <label>照片型別 <span style="font-weight:normal; color:var(--text-sub);">（選填）</span></label>
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    <input type="radio" name="photoTypeBox" value="O" onchange="updateCodePreview()">
+                    全景（O）
+                </label>
+                <label class="checkbox-label">
+                    <input type="radio" name="photoTypeBox" value="D" onchange="updateCodePreview()">
+                    細節（D）
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top:15px;">
+            <label>照片編號 <span style="font-weight:normal; color:var(--text-sub);">（選填）</span></label>
+            <input type="text" id="photoSerial" value="" oninput="updateCodePreview()"
+                   inputmode="numeric" placeholder="例如：001" style="font-family: monospace;">
+            <div class="small-note">照片型別與照片編號分開填寫，例如「全景 O」＋「001」会组成 O001。</div>
+        </div>
+
+        <div class="form-group" style="margin-top:15px;">
+            <label>📷 調查影像 <span style="font-weight:normal; color:var(--text-sub);">（選填）</span></label>
             <input type="file" id="photo" accept="image/*">
-         
+            <div class="small-note">可略過。照片將直接上傳 Supabase Storage，不轉成 Base64 寫入資料庫。</div>
             <div class="preview-container" id="previewContainer">
                 <img id="imagePreview" src="" alt="預覽">
             </div>
         </div>
-        <div class="form-group" style="margin-top: 15px;">
-            <label>📝 題材內容 / 保存狀況備註</label>
-            <textarea id="note" rows="2" placeholder="請輸入細部觀察描述..."></textarea>
+
+        <div class="form-group" style="margin-top:15px;">
+            <label>📝 題材內容 / 保存狀況備註 <span style="font-weight:normal; color:var(--text-sub);">（選填）</span></label>
+            <textarea id="note" rows="3" placeholder="可留空；需要時再輸入細部觀察描述..."></textarea>
         </div>
+
         <div class="btn-group">
-            <button type="button" class="btn-nav" onclick="switchPage(1)">⬅️ 返回第一步</button>
+            <button type="button" class="btn-nav" onclick="switchPage(2)">⬅️ 返回第二步</button>
             <button type="button" class="btn-submit" id="saveBtn" onclick="saveSurveyRecord()">💾 儲存此筆普查數據</button>
         </div>
 
@@ -453,7 +476,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 // 若你已改用新版 sb_publishable_... key，請把這裡換成 database-test.html 中成功使用的同一把 key。
 const SUPABASE_URL = "https://kappwvkerqdsvpgzamnc.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthcHB3dmtlcnFkc3ZwZ3phbW5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3NjUxNDgsImV4cCI6MjEwMjM0MTE0OH0.DlrTO0jeORbVVnuhb0DK5Ufqpsku_eGSrExwVsGqBeA";
+const SUPABASE_KEY = "sb_publishable_WIVgXV-WgBcveNX2yvLs8g_Y2tYDomD";
 const BUCKET = "longshan-photos";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
@@ -524,8 +547,21 @@ function normalizedSerial() {
     return Number.isNaN(n) ? raw : String(n).padStart(3, "0");
 }
 
+function selectedPhotoType() {
+    return document.querySelector('input[name="photoTypeBox"]:checked')?.value || "";
+}
+
+function normalizedPhotoSerial() {
+    const raw = document.getElementById("photoSerial").value.trim();
+    if (!raw) return "";
+    const n = parseInt(raw, 10);
+    return Number.isNaN(n) ? raw.replace(/\s+/g, "") : String(n).padStart(3, "0");
+}
+
 function photoToken() {
-    return document.getElementById("photoType").value.trim().toUpperCase().replace(/\s+/g, "");
+    const type = selectedPhotoType();
+    const serial = normalizedPhotoSerial();
+    return (type && serial) ? `${type}${serial}` : "";
 }
 
 function recordCode() {
@@ -581,8 +617,8 @@ async function refreshSyncSummary() {
 
 // ===== 照片 metadata =====
 function parsePhotoToken(token) {
-    const m = token.match(/^([A-Z]+)(\d+)$/);
-    return m ? { type: m[1], sequence: parseInt(m[2], 10) } : { type: token || null, sequence: null };
+    const m = token.match(/^([OD])(\d+)$/);
+    return m ? { type: m[1], sequence: parseInt(m[2], 10) } : { type: null, sequence: null };
 }
 
 function extensionOf(file) {
@@ -594,20 +630,30 @@ function extensionOf(file) {
 function collectEntry() {
     const crafts = getSelectedCrafts();
     const serial = normalizedSerial();
+    const pType = selectedPhotoType();
+    const pSerial = normalizedPhotoSerial();
     const pToken = photoToken();
 
     if (!serial) throw new Error("請填寫作品流水號。");
     if (!crafts.length) throw new Error("請至少勾選一種工藝形式。");
-    if (selectedPhotoFile && !pToken) throw new Error("已選照片時，請填寫照片型別＋序號，例如 O01。");
+
+    if (selectedPhotoFile && !pType) {
+        throw new Error("已選照片時，請選擇照片型別：全景（O）或細節（D）。");
+    }
+    if (selectedPhotoFile && !pSerial) {
+        throw new Error("已選照片時，請填寫照片編號，例如 001。");
+    }
 
     document.getElementById("serial").value = serial;
-    document.getElementById("photoType").value = pToken;
+    document.getElementById("photoSerial").value = pSerial;
 
     const code = recordCode();
     return {
         recordCode: code,
         photoCode: selectedPhotoFile ? photoCode() : "",
         photoToken: pToken,
+        photoType: pType || null,
+        photoSerial: pSerial || null,
         record: {
             record_code: code,
             temple_code: "LS",
@@ -822,9 +868,12 @@ window.downloadBulkPackFile = function() {
 };
 
 // ===== 事件 =====
-[area, direction, roofPos, compCode, serial, photoType].forEach(el => {
+[area, direction, roofPos, compCode, serial, photoSerial].forEach(el => {
     el.addEventListener("input", updateCodePreview);
     el.addEventListener("change", updateCodePreview);
+});
+document.querySelectorAll('input[name="photoTypeBox"]').forEach(radio => {
+    radio.addEventListener("change", updateCodePreview);
 });
 document.querySelectorAll('input[name="craftBox"]').forEach(cb => cb.addEventListener("change", updateCodePreview));
 
