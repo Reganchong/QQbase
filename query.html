@@ -400,6 +400,17 @@
             word-break: break-word;
         }
 
+        .import-summary {
+            margin-top: 12px;
+            padding: 12px 14px;
+            border: 1px solid #d7d0c8;
+            border-radius: 9px;
+            background: #fbfaf8;
+            color: #4a5568;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
         .modal-loading {
             padding: 28px 10px;
             text-align: center;
@@ -529,6 +540,8 @@
         <div class="action-row">
             <button type="button" id="searchBtn" class="btn-primary">🔍 查詢</button>
             <button type="button" id="clearBtn" class="btn-secondary">♻️ 清除條件</button>
+            <button type="button" id="importSurveyBtn" class="btn-export">📥 匯入離線 .survey</button>
+            <input type="file" id="importSurveyInput" accept=".survey,application/json" multiple style="display:none;">
             <button type="button" id="exportBtn" class="btn-export">📊 匯出目前查詢 CSV</button>
             <a href="index.html" class="btn-link btn-home">🏠 回目錄</a>
         </div>
@@ -1076,6 +1089,175 @@
 
     document.getElementById("historyModal").addEventListener("click", event => {
         if (event.target.id === "historyModal") closeModal("historyModal");
+    });
+
+
+
+    function parseRecordCode(recordCode) {
+        const parts = String(recordCode || "").trim().split("-");
+        if (parts.length < 6) return null;
+
+        return {
+            temple_code: parts[0] || "LS",
+            area: parts[1] || null,
+            direction: parts[2] || null,
+            roof_position: parts[3] || null,
+            component_code: parts[4] || null,
+            serial: parts[5] || null
+        };
+    }
+
+    function normalizeSurveyRecord(item) {
+        // v3：log.html 直接保存完整 record 对象。
+        if (item?.record && item.record.record_code) {
+            return {
+                ...item.record,
+                crafts: Array.isArray(item.record.crafts)
+                    ? item.record.crafts
+                    : (Array.isArray(item.crafts) ? item.crafts : [])
+            };
+        }
+
+        // v2：过去的 .survey 只有 recordCode / crafts / note。
+        // 可由作品编号还原核心定位字段。
+        if (item?.recordCode) {
+            const parsed = parseRecordCode(item.recordCode);
+            if (!parsed) return null;
+
+            return {
+                record_code: item.recordCode,
+                temple_code: parsed.temple_code || "LS",
+                area: parsed.area,
+                direction: parsed.direction,
+                roof_position: parsed.roof_position,
+                component_code: parsed.component_code,
+                serial: parsed.serial,
+                crafts: Array.isArray(item.crafts) ? item.crafts : [],
+                note: item.note || null
+            };
+        }
+
+        // 更旧版：直接储存 area / direction / roofPos / compCode / serial。
+        if (item?.area && item?.direction && item?.roofPos && item?.compCode && item?.serial) {
+            const recordCode =
+                item.record_code ||
+                item.recordCode ||
+                `LS-${item.area}-${item.direction}-${item.roofPos}-${item.compCode}-${item.serial}`;
+
+            let crafts = item.crafts || item.craft || [];
+            if (typeof crafts === "string") {
+                crafts = crafts.split(/[-,、\s]+/).filter(Boolean);
+            }
+
+            return {
+                record_code: recordCode,
+                temple_code: "LS",
+                area: item.area,
+                direction: item.direction,
+                roof_position: item.roofPos,
+                component_code: item.compCode,
+                serial: item.serial,
+                crafts: Array.isArray(crafts) ? crafts : [],
+                note: item.note || null
+            };
+        }
+
+        return null;
+    }
+
+    function extractSurveyItems(parsed) {
+        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed?.records)) return parsed.records;
+        return parsed ? [parsed] : [];
+    }
+
+    async function importSurveyFiles(files) {
+        if (!files?.length) return;
+
+        if (!await checkSession()) {
+            alert("❌ 请先登录研究人员帐号，再汇入离线资料。");
+            return;
+        }
+
+        const importBtn = document.getElementById("importSurveyBtn");
+        importBtn.disabled = true;
+        importBtn.textContent = "⏳ 正在匯入……";
+
+        let fileCount = 0;
+        let rawCount = 0;
+        let validCount = 0;
+        let successCount = 0;
+        let failedCount = 0;
+        const errors = [];
+
+        try {
+            for (const file of files) {
+                fileCount++;
+
+                let parsed;
+                try {
+                    parsed = JSON.parse(await file.text());
+                } catch (err) {
+                    failedCount++;
+                    errors.push(`${file.name}：无法解析 JSON`);
+                    continue;
+                }
+
+                const items = extractSurveyItems(parsed);
+                rawCount += items.length;
+
+                for (const item of items) {
+                    const record = normalizeSurveyRecord(item);
+
+                    if (!record?.record_code || !record?.area) {
+                        failedCount++;
+                        errors.push(`${file.name}：发现一笔无法识别的旧格式资料`);
+                        continue;
+                    }
+
+                    validCount++;
+
+                    const { error } = await supabase
+                        .from("survey_records")
+                        .upsert(record, { onConflict: "record_code" });
+
+                    if (error) {
+                        failedCount++;
+                        errors.push(`${record.record_code}：${error.message}`);
+                    } else {
+                        successCount++;
+                    }
+                }
+            }
+
+            let message =
+                `📥 离线 .survey 汇入完成\n\n` +
+                `档案：${fileCount} 个\n` +
+                `读取：${rawCount} 笔\n` +
+                `可识别：${validCount} 笔\n` +
+                `成功写入／更新：${successCount} 笔\n` +
+                `失败：${failedCount} 笔`;
+
+            if (errors.length) {
+                message += `\n\n前几笔错误：\n${errors.slice(0, 8).join("\n")}`;
+            }
+
+            alert(message);
+            await loadRecords(true);
+
+        } finally {
+            importBtn.disabled = false;
+            importBtn.textContent = "📥 匯入離線 .survey";
+            document.getElementById("importSurveyInput").value = "";
+        }
+    }
+
+    document.getElementById("importSurveyBtn").addEventListener("click", () => {
+        document.getElementById("importSurveyInput").click();
+    });
+
+    document.getElementById("importSurveyInput").addEventListener("change", event => {
+        importSurveyFiles([...event.target.files]);
     });
 
 
