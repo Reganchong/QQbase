@@ -1105,7 +1105,6 @@
         csv += [
             "作品編號",
             "殿區代碼",
-            "殿區名稱",
             "方位",
             "屋面部位",
             "構件代碼",
@@ -1124,7 +1123,6 @@
             csv += [
                 row.record_code,
                 row.area,
-                AREA_NAMES[row.area] || row.area,
                 row.direction,
                 row.roof_position,
                 row.component_code,
