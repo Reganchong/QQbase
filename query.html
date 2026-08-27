@@ -633,16 +633,11 @@
     });
 
     const AREA_NAMES = {
-        SH: "三川殿", FL: "前殿龍門", FR: "前殿虎門",
-        LC: "左下山前廊", RC: "右下山前廊",
-        XL: "左下山護室", XR: "右下山護室",
-        GL: "左過水廊", GR: "右過水廊",
-        TL: "左頂山護室", TR: "右頂山護室",
-        BT: "鐘樓", DT: "鼓樓",
-        YH: "後殿月老廳", HH: "後殿華佗廳",
-        RL: "後殿龍門", RR: "後殿虎門",
-        TH: "天上聖母殿", GH: "關聖帝君殿",
-        WH: "文昌帝君殿", PL: "牌樓"
+        SH:"三川殿", FL:"前殿龍門", FR:"前殿虎門", LC:"左下山前廊", RC:"右下山前廊",
+        XL:"左下山護室", XR:"右下山護室", BT:"鐘樓", DT:"鼓樓", GL:"左過水廊",
+        GR:"右過水廊", MH:"中殿", TL:"左頂山護室", TR:"右頂山護室", HH:"後殿華佗廳",
+        YH:"後殿月老廳", RL:"後殿龍門", RR:"後殿虎門", TH:"天上聖母殿",
+        GH:"關聖帝君殿", WH:"文昌帝君殿", PL:"牌樓"
     };
 
     const DIRECTION_NAMES = {
@@ -656,12 +651,27 @@
     };
 
     const COMPONENT_NAMES = {
-        "01": "上馬路", "02": "下馬路", "03": "三角堵",
-        "04": "四寸蓋", "05": "印斗", "06": "吐水",
-        "07": "圭角", "08": "西施脊", "09": "垂脊",
-        "10": "通風脊堵", "11": "脊堵", "12": "脊塞",
-        "13": "脊鎖", "14": "脊獸", "15": "規帶",
-        "16": "排頭", "17": "燕尾"
+        "00":"無法辨識",
+        "01":"上馬路",
+        "02":"下馬路",
+        "03":"三角堵",
+        "04":"水車堵",
+        "05":"四寸蓋",
+        "06":"印斗",
+        "07":"吐水",
+        "08":"西施脊",
+        "09":"身堵",
+        "10":"垂脊",
+        "11":"通風脊堵",
+        "12":"脊堵",
+        "13":"脊塞",
+        "14":"脊鎖",
+        "15":"脊獸",
+        "16":"規帶",
+        "17":"排頭",
+        "18":"頂堵",
+        "19":"墀頭",
+        "20":"翹脊"
     };
 
     const CRAFT_NAMES = {
@@ -1284,37 +1294,39 @@
         }
 
         let csv = "\uFEFF";
+
+        // 欄位順序依「作品登錄表」：
+        // 序號、寺廟識別碼、殿區、方位、屋面部位、構件類別碼、
+        // 作品流水號、完整作品識別碼、工藝、題材／內容
         csv += [
-            "作品編號",
-            "殿區代碼",
+            "序號",
+            "寺廟識別碼",
+            "殿區",
             "方位",
             "屋面部位",
-            "構件代碼",
-            "構件名稱",
-            "流水號",
-            "工藝形式",
-            "題材名稱",
-            "備註",
-            "建立時間",
-            "更新時間"
+            "構件類別碼",
+            "作品流水號",
+            "完整作品識別碼",
+            "工藝",
+            "題材／內容"
         ].map(csvCell).join(",") + "\n";
 
-        currentRows.forEach(row => {
-            const crafts = Array.isArray(row.crafts) ? row.crafts.join("-") : "";
+        currentRows.forEach((row, index) => {
+            const crafts = Array.isArray(row.crafts)
+                ? row.crafts.join("+")
+                : "";
 
             csv += [
-                row.record_code,
-                row.area,
-                row.direction,
-                row.roof_position,
-                row.component_code,
-                COMPONENT_NAMES[row.component_code] || row.component_code,
-                row.serial,
+                String(index + 1).padStart(3, "0"),
+                row.temple_code || "LS",
+                row.area || "",
+                row.direction || "",
+                row.roof_position || "",
+                row.component_code || "",
+                String(row.serial || "").padStart(3, "0"),
+                row.record_code || "",
                 crafts,
-                row.title || "",
-                row.note || "",
-                row.created_at || "",
-                row.updated_at || ""
+                row.title || row.subject_description || ""
             ].map(csvCell).join(",") + "\n";
         });
 
@@ -1323,11 +1335,11 @@
         const link = document.createElement("a");
 
         link.href = url;
-        link.download = `龍山寺普查查詢結果_${new Date().toISOString().slice(0, 10)}.csv`;
+        link.download = `龍山寺作品登錄表_${new Date().toISOString().slice(0, 10)}.csv`;
 
         document.body.appendChild(link);
         link.click();
-        link.remove();
+        document.body.removeChild(link);
         URL.revokeObjectURL(url);
     }
 
