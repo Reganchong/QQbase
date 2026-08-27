@@ -455,6 +455,69 @@
             }
         }
 
+    
+        /* 表格欄寬：優先保留作品編號，操作欄壓縮 */
+        table {
+            min-width: 1120px;
+            table-layout: fixed;
+        }
+
+        .col-record { width: 170px; }
+        .col-area { width: 92px; }
+        .col-direction { width: 52px; }
+        .col-roof { width: 72px; }
+        .col-component { width: 72px; }
+        .col-serial { width: 58px; }
+        .col-craft { width: 100px; }
+        .col-title { width: 220px; }
+        .col-updated { width: 112px; }
+        .col-actions { width: 222px; }
+
+        .code {
+            word-break: normal;
+            overflow-wrap: anywhere;
+            line-height: 1.45;
+        }
+
+        .action-cell {
+            min-width: 0;
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 4px;
+            flex-wrap: nowrap;
+            align-items: center;
+        }
+
+        .edit-btn,
+        .print-record-btn,
+        .history-btn,
+        .delete-record-btn {
+            padding: 6px 7px;
+            font-size: 11px;
+            line-height: 1.15;
+        }
+
+        .col-updated {
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 1200px) {
+            .col-title { width: 190px; }
+            .col-updated { width: 98px; }
+            .col-actions { width: 210px; }
+
+            .edit-btn,
+            .print-record-btn,
+            .history-btn,
+            .delete-record-btn {
+                padding: 5px 6px;
+                font-size: 10.5px;
+            }
+        }
+
     </style>
 </head>
 
@@ -600,23 +663,23 @@
 
     <div class="summary-bar">
         <span id="resultSummary">尚未讀取資料</span>
-        <span>點擊資料列或「查看 / 編輯」即可進入完整調查表。</span>
+        <span>點擊資料列或「編輯」即可進入完整調查表。</span>
     </div>
 
     <div class="table-responsive">
         <table>
             <thead>
                 <tr>
-                    <th>作品編號</th>
-                    <th>殿區</th>
-                    <th>方位</th>
-                    <th>屋面部位</th>
-                    <th>構件</th>
-                    <th>流水號</th>
-                    <th>工藝形式</th>
-                    <th>題材名稱</th>
-                    <th>最後更新</th>
-                    <th class="action-cell">操作</th>
+                    <th class="col-record">作品編號</th>
+                    <th class="col-area">殿區</th>
+                    <th class="col-direction">方位</th>
+                    <th class="col-roof">屋面部位</th>
+                    <th class="col-component">構件</th>
+                    <th class="col-serial">流水號</th>
+                    <th class="col-craft">工藝形式</th>
+                    <th class="col-title">題材名稱</th>
+                    <th class="col-updated">最後更新</th>
+                    <th class="action-cell col-actions">操作</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
@@ -893,20 +956,20 @@
             const tr = document.createElement("tr");
             tr.className = "record-row";
             tr.innerHTML = `
-                <td class="code">${escapeHtml(row.record_code)}</td>
-                <td>${escapeHtml(AREA_NAMES[row.area] || row.area || "—")}<br><small>${escapeHtml(row.area || "")}</small></td>
-                <td>${escapeHtml(DIRECTION_NAMES[row.direction] || row.direction || "—")}</td>
-                <td>${escapeHtml(ROOF_NAMES[row.roof_position] || row.roof_position || "—")}</td>
-                <td>${escapeHtml(COMPONENT_NAMES[row.component_code] || row.component_code || "—")}</td>
-                <td style="font-family:monospace;">${escapeHtml(row.serial || "—")}</td>
-                <td>${craftHtml}</td>
-                <td>${escapeHtml(row.title || "—")}</td>
-                <td>${escapeHtml(localDate(row.updated_at))}</td>
-                <td class="action-cell">
+                <td class="code col-record">${escapeHtml(row.record_code)}</td>
+                <td class="col-area">${escapeHtml(AREA_NAMES[row.area] || row.area || "—")}</td>
+                <td class="col-direction">${escapeHtml(DIRECTION_NAMES[row.direction] || row.direction || "—")}</td>
+                <td class="col-roof">${escapeHtml(ROOF_NAMES[row.roof_position] || row.roof_position || "—")}</td>
+                <td class="col-component">${escapeHtml(COMPONENT_NAMES[row.component_code] || row.component_code || "—")}</td>
+                <td class="col-serial" style="font-family:monospace;">${escapeHtml(row.serial || "—")}</td>
+                <td class="col-craft">${craftHtml}</td>
+                <td class="col-title">${escapeHtml(row.title || "—")}</td>
+                <td class="col-updated">${escapeHtml(localDate(row.updated_at))}</td>
+                <td class="action-cell col-actions">
                     <div class="row-actions">
-                        <a class="edit-btn" href="${editUrl}">查看 / 編輯</a>
-                        <a class="print-record-btn" href="${printUrl}" target="_blank" rel="noopener">預覽 / 列印</a>
-                        <button class="history-btn" type="button">修改紀錄</button>
+                        <a class="edit-btn" href="${editUrl}">編輯</a>
+                        <a class="print-record-btn" href="${printUrl}" target="_blank" rel="noopener">預覽</a>
+                        <button class="history-btn" type="button">修改記錄</button>
                         <button class="delete-record-btn" type="button">刪除</button>
                     </div>
                 </td>
