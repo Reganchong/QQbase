@@ -25,10 +25,10 @@ body{margin:0;background:#e9e6e1;font-family:"Microsoft JhengHei","Noto Sans TC"
 }
 .value{font-weight:500}
 .checkmark{
-  width:5.2pt;
-  height:5.2pt;
+  width:4.3pt;
+  height:4.3pt;
   background:#000;
-  border-radius:.35pt;
+  border-radius:.25pt;
 }
 .wrap{
   white-space:normal;
@@ -81,6 +81,11 @@ function addText(p,x,y,text,w=100,size=8.4,cls="",h=null){
   if(h!==null){
     el.style.height=`${h}pt`;
     el.style.maxHeight=`${h}pt`;
+
+    if(!isWrap){
+      el.style.display="flex";
+      el.style.alignItems="center";
+    }
   }else if(!isWrap){
     el.style.height=`${Math.max(size*1.35,10)}pt`;
     el.style.maxHeight=`${Math.max(size*1.35,10)}pt`;
@@ -111,8 +116,8 @@ function addCheck(p,x,y,on){
 
   // 黑色實心方格比勾號更不易產生上下偏移。
   // 稍微向右、向下內縮，使方格落在原表格的 □ 中央。
-  el.style.left=`${x+0.65}pt`;
-  el.style.top=`${y+0.75}pt`;
+  el.style.left=`${x+1.05}pt`;
+  el.style.top=`${y+1.20}pt`;
 
   pageEl(p)?.appendChild(el);
 }
@@ -138,19 +143,19 @@ async function loadRecord(){
   return {r,c:c||{},repairs:repairs||[]};
 }
 function overlayData(r,c,repairs){
-  addText(1,211,136,r.title||"",310,8.7);addText(1,211,164,r.record_code||"",310,8.6);
-  addText(1,269,184,`${AREA_NAMES[r.area]||r.area||""} / ${r.area||""}`,110,8);
-  addText(1,286,211,`${ROOF_NAMES[r.roof_position]||r.roof_position||""} / ${r.roof_position||""}`,88,7.6);
-  addText(1,239,224,r.component_code||"",132,8);
-  addCheck(1,255.4,198.5,r.direction==="E");addCheck(1,273.7,198.5,r.direction==="W");addCheck(1,291.9,198.5,r.direction==="S");addCheck(1,310.2,198.5,r.direction==="N");
-  addText(1,437,203,r.inspector||"",87,8);addText(1,211,245,r.inspection_unit||"",159,8);addText(1,437,245,r.inspection_date||"",87,8);
-  addCheck(1,153,269.8,r.decoration_age_class==="50年以上");addCheck(1,153,284.4,r.decoration_age_class==="未達50年");
-  addCheck(1,153,310.8,has(r.crafts,"CP"));addCheck(1,190.2,310.8,has(r.crafts,"CS"));addCheck(1,230.5,310.8,has(r.crafts,"JP"));
-  addText(1,153,336,r.author_signature||"",215,8.2);
-  addCheck(1,153,382.4,has(r.composition_types,"單件"));addCheck(1,153,397.0,has(r.composition_types,"成對"));addCheck(1,155.7,411.5,has(r.composition_types,"連續排列"));addCheck(1,153,426.0,has(r.composition_types,"左右對稱"));addCheck(1,153,440.6,has(r.composition_types,"組群"));
+  addText(1,211,136,r.title||"",310,8.0,"",13);addText(1,211,164,r.record_code||"",310,8.0,"",13);
+  addText(1,269,184,`${AREA_NAMES[r.area]||r.area||""} / ${r.area||""}`,105,7.5,"",12);
+  addText(1,286,211,`${ROOF_NAMES[r.roof_position]||r.roof_position||""} / ${r.roof_position||""}`,82,7.2,"",11);
+  addText(1,239,224,r.component_code||"",126,7.5,"",11);
+  addCheck(1,255.4,198.9,r.direction==="E");addCheck(1,273.7,198.9,r.direction==="W");addCheck(1,291.9,198.9,r.direction==="S");addCheck(1,310.2,198.9,r.direction==="N");
+  addText(1,437,203,r.inspector||"",82,7.3,"",11);addText(1,211,245,r.inspection_unit||"",153,7.3,"",11);addText(1,437,245,r.inspection_date||"",82,7.2,"",11);
+  addCheck(1,153,270.15,r.decoration_age_class==="50年以上");addCheck(1,153,284.75,r.decoration_age_class==="未達50年");
+  addCheck(1,153,311.10,has(r.crafts,"CP"));addCheck(1,190.2,311.10,has(r.crafts,"CS"));addCheck(1,230.5,311.10,has(r.crafts,"JP"));
+  addText(1,153,336,r.author_signature||"",210,7.6,"",13);
+  addCheck(1,153,382.75,has(r.composition_types,"單件"));addCheck(1,153,397.35,has(r.composition_types,"成對"));addCheck(1,155.7,411.85,has(r.composition_types,"連續排列"));addCheck(1,153,426.35,has(r.composition_types,"左右對稱"));addCheck(1,153,440.95,has(r.composition_types,"組群"));
   addText(1,228,454,A(r.related_record_codes).join("、"),137,7.5,"wrap",15);
-  addText(1,164,472,r.length_cm??"",19,8);addText(1,198,472,r.width_cm??"",18,8);addText(1,247,472,r.height_cm??"",26,8);addCheck(1,151.5,495.6,!!r.unable_to_measure);
-  addText(1,204,582,r.period_range||"",43,7.2,"wrap",13);addCheck(1,153,596.4,!!r.artifact_year);addText(1,216,596,r.artifact_year??"",24,7.8);addCheck(1,291,596.4,!!r.year_pending_analysis);
+  addText(1,164,472,r.length_cm??"",18,7.2,"",10);addText(1,198,472,r.width_cm??"",17,7.2,"",10);addText(1,247,472,r.height_cm??"",24,7.2,"",10);addCheck(1,151.5,495.95,!!r.unable_to_measure);
+  addText(1,204,582,r.period_range||"",43,7.2,"wrap",13);addCheck(1,153,596.75,!!r.artifact_year);addText(1,216,596,r.artifact_year??"",24,7.8);addCheck(1,291,596.75,!!r.year_pending_analysis);
 
   const surface=A(r.surface_materials);
   [["仿古瓷碗片",235.5,627.5],["彩色玻璃片",235.5,642],["陶片",235.5,656.6],["瓷片",235.5,671.1],["瓦片",235.5,685.7],["金屬",235.5,700.2]].forEach(([v,x,y])=>addCheck(1,x,y,has(surface,v)));
