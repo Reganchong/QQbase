@@ -440,7 +440,8 @@
             <label>照片編號 <span style="font-weight:normal; color:var(--text-sub);">（選填）</span></label>
             <input type="text" id="photoSerial" value="" oninput="updateCodePreview()"
                    inputmode="numeric" placeholder="例如：01" style="font-family: monospace;">
-            <div class="small-note">照片型別與照片編號分開填寫，例如「整體全景 O」＋「01」會組成 O01。</div>
+            <div class="small-note">照片型別與照片編號分開填寫，例如「整體全景 O」＋「01」會組成 O01；完整照片編號會自動加入工藝代碼。</div>
+            <div class="small-note">例：LS-FH-N-MR-11-001 + CP、CS + D01 → LS-FH-N-MR-11-001-CP-CS-D01。</div>
         </div>
 
         <div class="form-group" style="margin-top:15px;">
@@ -574,7 +575,13 @@ function recordCode() {
 }
 
 function photoCode() {
-    return photoToken() ? `${recordCode()}-${photoToken()}` : "";
+    const token = photoToken();
+    if (!token) return "";
+
+    const crafts = selectedCrafts();
+    const craftToken = crafts.length ? `-${crafts.join("-")}` : "";
+
+    return `${recordCode()}${craftToken}-${token}`;
 }
 
 window.updateCodePreview = function() {
