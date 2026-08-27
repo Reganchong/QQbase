@@ -24,11 +24,9 @@ body{margin:0;background:#e9e6e1;font-family:"Microsoft JhengHei","Noto Sans TC"
   text-overflow:clip;
 }
 .value{font-weight:500}
-.checkmark{
-  width:3.9pt;
-  height:3.9pt;
-  background:#000;
-  border-radius:.2pt;
+.checkmark-svg{
+  display:block;
+  overflow:visible;
 }
 .wrap{
   white-space:normal;
@@ -37,7 +35,8 @@ body{margin:0;background:#e9e6e1;font-family:"Microsoft JhengHei","Noto Sans TC"
   overflow:hidden;
 }
 @media(max-width:900px){.preview{overflow-x:auto}.sheet{margin-left:12px;margin-right:12px}}
-@media print{body{background:#fff}.toolbar{display:none!important}.preview{padding:0}.sheet{margin:0;box-shadow:none;width:612pt;height:792pt}@page{size:letter portrait;margin:0}}
+@media print{
+  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}body{background:#fff}.toolbar{display:none!important}.preview{padding:0}.sheet{margin:0;box-shadow:none;width:612pt;height:792pt}@page{size:letter portrait;margin:0}}
 </style>
 </head>
 <body>
@@ -112,15 +111,28 @@ function addText(p,x,y,text,w=100,size=8.4,cls="",h=null){
 }
 function addCheck(p,x,y,on){
   if(!on)return;
-  const el=document.createElement("div");
-  el.className="overlay checkmark";
 
-  // 黑色實心方格比勾號更不易產生上下偏移。
-  // 稍微向右、向下內縮，使方格落在原表格的 □ 中央。
-  el.style.left=`${x+1.28}pt`;
-  el.style.top=`${y+1.42}pt`;
+  const ns="http://www.w3.org/2000/svg";
+  const svg=document.createElementNS(ns,"svg");
+  svg.setAttribute("viewBox","0 0 10 10");
+  svg.setAttribute("width","4.2pt");
+  svg.setAttribute("height","4.2pt");
+  svg.setAttribute("aria-hidden","true");
+  svg.classList.add("overlay","checkmark-svg");
 
-  pageEl(p)?.appendChild(el);
+  const rect=document.createElementNS(ns,"rect");
+  rect.setAttribute("x","0");
+  rect.setAttribute("y","0");
+  rect.setAttribute("width","10");
+  rect.setAttribute("height","10");
+  rect.setAttribute("fill","#000000");
+  svg.appendChild(rect);
+
+  // 內縮到原本 □ 的中央位置。
+  svg.style.left=`${x+1.14}pt`;
+  svg.style.top=`${y+1.30}pt`;
+
+  pageEl(p)?.appendChild(svg);
 }
 async function renderTemplate(){
   const pdf=await pdfjsLib.getDocument(TEMPLATE_PDF).promise;
