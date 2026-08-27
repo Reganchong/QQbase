@@ -439,8 +439,8 @@
         <div class="form-group" style="margin-top:15px;">
             <label>照片編號 <span style="font-weight:normal; color:var(--text-sub);">（選填）</span></label>
             <input type="text" id="photoSerial" value="" oninput="updateCodePreview()"
-                   inputmode="numeric" placeholder="例如：001" style="font-family: monospace;">
-            <div class="small-note">照片型別與照片編號分開填寫，例如「全景 O」＋「001」会组成 O001。</div>
+                   inputmode="numeric" placeholder="例如：01" style="font-family: monospace;">
+            <div class="small-note">照片型別與照片編號分開填寫，例如「整體全景 O」＋「01」會組成 O01。</div>
         </div>
 
         <div class="form-group" style="margin-top:15px;">
@@ -549,7 +549,7 @@ function getSelectedCrafts() {
 function normalizedSerial() {
     const raw = document.getElementById("serial").value.trim();
     const n = parseInt(raw, 10);
-    return Number.isNaN(n) ? raw : String(n).padStart(3, "0");
+    return Number.isNaN(n) ? raw : String(n).padStart(2, "0");
 }
 
 function selectedPhotoType() {
@@ -560,7 +560,7 @@ function normalizedPhotoSerial() {
     const raw = document.getElementById("photoSerial").value.trim();
     if (!raw) return "";
     const n = parseInt(raw, 10);
-    return Number.isNaN(n) ? raw.replace(/\s+/g, "") : String(n).padStart(3, "0");
+    return Number.isNaN(n) ? raw.replace(/\s+/g, "") : String(n).padStart(2, "0");
 }
 
 function photoToken() {
@@ -799,7 +799,7 @@ window.changeSerial = function(delta) {
     let n = parseInt(serial.value, 10);
     if (Number.isNaN(n)) n = 1;
     n = Math.max(1, n + delta);
-    serial.value = String(n).padStart(3, "0");
+    serial.value = String(n).padStart(2, "0");
     updateCodePreview();
 };
 
