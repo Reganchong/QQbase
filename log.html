@@ -385,7 +385,7 @@
                 <label>作品流水號</label>
                 <div class="serial-control">
                     <button type="button" class="serial-nav-btn" onclick="changeSerial(-1)">← 上一個</button>
-                    <input type="text" id="serial" value="001" oninput="updateCodePreview()" required>
+                    <input type="text" id="serial" value="001" inputmode="numeric" maxlength="3" oninput="updateCodePreview()" required>
                     <button type="button" class="serial-nav-btn next" onclick="changeSerial(1)">下一個 →</button>
                 </div>
                 <div class="small-note">儲存後不會自動跳號；需要切換作品時，再按「上一個／下一個」。</div>
@@ -439,7 +439,7 @@
         <div class="form-group" style="margin-top:15px;">
             <label>照片編號 <span style="font-weight:normal; color:var(--text-sub);">（選填）</span></label>
             <input type="text" id="photoSerial" value="" oninput="updateCodePreview()"
-                   inputmode="numeric" placeholder="例如：01" style="font-family: monospace;">
+                   inputmode="numeric" maxlength="2" placeholder="例如：01" style="font-family: monospace;">
             <div class="small-note">照片型別與照片編號分開填寫，例如「整體全景 O」＋「01」會組成 O01；完整照片編號會自動加入工藝代碼。</div>
             <div class="small-note">例：LS-FH-N-MR-11-001 + CP、CS + D01 → LS-FH-N-MR-11-001-CP-CS-D01。</div>
         </div>
@@ -549,8 +549,13 @@ function getSelectedCrafts() {
 
 function normalizedSerial() {
     const raw = document.getElementById("serial").value.trim();
+
+    if (!/^\d{1,3}$/.test(raw)) return null;
+
     const n = parseInt(raw, 10);
-    return Number.isNaN(n) ? raw : String(n).padStart(2, "0");
+    if (n < 1 || n > 999) return null;
+
+    return String(n).padStart(3, "0");
 }
 
 function selectedPhotoType() {
@@ -560,25 +565,35 @@ function selectedPhotoType() {
 function normalizedPhotoSerial() {
     const raw = document.getElementById("photoSerial").value.trim();
     if (!raw) return "";
+
+    if (!/^\d{1,2}$/.test(raw)) {
+        return null;
+    }
+
     const n = parseInt(raw, 10);
-    return Number.isNaN(n) ? raw.replace(/\s+/g, "") : String(n).padStart(2, "0");
+    if (n < 1 || n > 99) return null;
+
+    return String(n).padStart(2, "0");
 }
 
 function photoToken() {
     const type = selectedPhotoType();
     const serial = normalizedPhotoSerial();
-    return (type && serial) ? `${type}${serial}` : "";
+
+    if (!type || !serial) return "";
+    return `${type}${serial}`;
 }
 
 function recordCode() {
-    return `LS-${area.value}-${direction.value}-${roofPos.value}-${compCode.value}-${normalizedSerial()}`;
+    const serial = normalizedSerial();
+    return `LS-${area.value}-${direction.value}-${roofPos.value}-${compCode.value}-${serial ?? "ERR"}`;
 }
 
 function photoCode() {
     const token = photoToken();
     if (!token) return "";
 
-    const crafts = selectedCrafts();
+    const crafts = getSelectedCrafts();
     const craftToken = crafts.length ? `-${crafts.join("-")}` : "";
 
     return `${recordCode()}${craftToken}-${token}`;
@@ -586,8 +601,20 @@ function photoCode() {
 
 window.updateCodePreview = function() {
     const crafts = getSelectedCrafts();
-    recordCodePreview.textContent = recordCode();
-    photoCodePreview.textContent = photoCode() ? `照片編號：${photoCode()}` : "照片編號：尚未填寫";
+    const workCode = recordCode();
+    const pSerial = normalizedPhotoSerial();
+    const pType = selectedPhotoType();
+
+    recordCodePreview.textContent = workCode.includes("ERR") ? "作品流水號格式錯誤" : workCode;
+
+    if (pSerial === null) {
+        photoCodePreview.textContent = "照片編號：格式錯誤（請輸入 01–99）";
+    } else if (pType && pSerial && crafts.length) {
+        photoCodePreview.textContent = `照片編號：${photoCode()}`;
+    } else {
+        photoCodePreview.textContent = "照片編號：尚未完整填寫";
+    }
+
     craftPreview.textContent = crafts.length ? `工藝：${crafts.join("-")}` : "工藝：尚未選擇";
 };
 
@@ -646,14 +673,17 @@ function collectEntry() {
     const pSerial = normalizedPhotoSerial();
     const pToken = photoToken();
 
-    if (!serial) throw new Error("請填寫作品流水號。");
+    if (!serial) throw new Error("作品流水號需為 001–999 的數字。");
     if (!crafts.length) throw new Error("請至少勾選一種工藝形式。");
 
     if (selectedPhotoFile && !pType) {
         throw new Error("已選照片時，請選擇照片型別：整體全景（O）或局部細節（D）。");
     }
+    if (selectedPhotoFile && pSerial === null) {
+        throw new Error("照片編號需為 01–99 的兩位數，例如 01。");
+    }
     if (selectedPhotoFile && !pSerial) {
-        throw new Error("已選照片時，請填寫照片編號，例如 001。");
+        throw new Error("已選照片時，請填寫照片編號，例如 01。");
     }
 
     document.getElementById("serial").value = serial;
@@ -718,7 +748,7 @@ async function pushToCloud(entry) {
                 sequence_no: parsed.sequence,
                 file_name: entry.photoFile.name,
                 storage_path: path,
-                is_representative: parsed.type === "O"
+                is_representative: false
             }, { onConflict: "photo_code" });
 
         if (photoError) throw new Error(`照片資料表寫入失敗：${photoError.message}`);
@@ -779,11 +809,17 @@ window.saveSurveyRecord = async function() {
         record: { ...entry.record }
     });
 
-    if (status === "synced") alert(`✅ ${entry.recordCode}\n已成功儲存至 Supabase。`);
-    else if (status === "pending") alert(`🟠 ${entry.recordCode}\n${statusText}。`);
-    else alert(`❌ ${entry.recordCode}\n${errorMessage}`);
+    if (status === "synced") {
+        alert(`✅ ${entry.recordCode}\n已成功儲存至 Supabase。`);
+        resetAfterSave();
+    } else if (status === "pending") {
+        alert(`🟠 ${entry.recordCode}\n${statusText}。`);
+        resetAfterSave();
+    } else {
+        alert(`❌ ${entry.recordCode}\n${errorMessage}`);
+        // 完全失敗時保留畫面資料，方便使用者修正後重試。
+    }
 
-    resetAfterSave();
     refreshTempUIList();
     await refreshSyncSummary();
     saveBtn.disabled = false;
@@ -796,8 +832,15 @@ function resetAfterSave() {
     previewContainer.style.display = "none";
     imagePreview.removeAttribute("src");
     selectedPhotoFile = null;
+
+    document.querySelectorAll('input[name="photoTypeBox"]').forEach(radio => {
+        radio.checked = false;
+    });
+    photoSerial.value = "";
+
     document.querySelectorAll('input[name="craftBox"]').forEach(cb => cb.checked = false);
-    // 儲存後保留目前流水號，不自動跳號。
+
+    // 儲存後保留目前作品流水號，不自動跳號。
     updateCodePreview();
 }
 
@@ -806,7 +849,7 @@ window.changeSerial = function(delta) {
     let n = parseInt(serial.value, 10);
     if (Number.isNaN(n)) n = 1;
     n = Math.max(1, n + delta);
-    serial.value = String(n).padStart(2, "0");
+    serial.value = String(n).padStart(3, "0");
     updateCodePreview();
 };
 
@@ -854,10 +897,10 @@ function refreshTempUIList() {
         const card = document.createElement("div");
         card.className = `data-card ${cardState}`;
         card.innerHTML = `
-            <button type="button" class="delete-btn">✕ 移除清單</button>
+            <button type="button" class="delete-btn">✕ 只移除此清單</button>
             <strong>🔍 ${esc(v.recordCode)}</strong><span class="badge ${badge}">${esc(v.statusText)}</span><br>
             <span style="color:var(--temple-gray);font-size:12px;">🕒 ${new Date(v.createdAtLocal).toLocaleString()} ｜ 🎨 ${esc(v.crafts.join("-"))}</span>
-            ${v.photoCode ? `<br><span style="font-size:12px;">📷 ${esc(v.photoCode)} ${v.photoName ? "｜" + esc(v.photoName) : ""}</span>` : ""}
+            ${v.photoCode ? `<br><span style="font-size:12px;">📷 照片編號：${esc(v.photoCode)}${v.photoName ? " ｜ 原檔：" + esc(v.photoName) : ""}</span>` : `<br><span style="font-size:12px;color:var(--temple-gray);">📷 本筆未附照片</span>`}
             ${v.note ? `<div style="margin-top:5px;background:#fff;padding:6px;border:1px solid #edf2f7;">📝 ${esc(v.note)}</div>` : ""}
             ${v.errorMessage ? `<div style="margin-top:5px;color:#c53030;font-size:12px;">${esc(v.errorMessage)}</div>` : ""}
         `;
