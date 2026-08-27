@@ -16,9 +16,26 @@ body{margin:0;background:#e9e6e1;font-family:"Microsoft JhengHei","Noto Sans TC"
 .sheet:last-child{page-break-after:auto}
 .sheet canvas{position:absolute;inset:0;width:612pt;height:792pt;z-index:1}
 .overlay{position:absolute;z-index:2;color:#000;pointer-events:none}
-.text{font-size:8.4pt;line-height:1.2;white-space:pre-wrap}.value{font-weight:500}
-.checkmark{width:7.5pt;height:7.5pt;font-size:8.5pt;line-height:7.5pt;text-align:center;font-weight:800;font-family:Arial,sans-serif}
-.wrap{white-space:normal;overflow-wrap:anywhere}
+.text{
+  font-size:8.4pt;
+  line-height:1.16;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:clip;
+}
+.value{font-weight:500}
+.checkmark{
+  width:5.2pt;
+  height:5.2pt;
+  background:#000;
+  border-radius:.35pt;
+}
+.wrap{
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  overflow:hidden;
+}
 @media(max-width:900px){.preview{overflow-x:auto}.sheet{margin-left:12px;margin-right:12px}}
 @media print{body{background:#fff}.toolbar{display:none!important}.preview{padding:0}.sheet{margin:0;box-shadow:none;width:612pt;height:792pt}@page{size:letter portrait;margin:0}}
 </style>
@@ -47,19 +64,56 @@ const AREA_NAMES={SH:"三川殿",FL:"前殿龍門",FR:"前殿虎門",LC:"左下�
 const ROOF_NAMES={MR:"正脊",DR:"垂脊",HR:"戧脊",ER:"圍脊",AR:"角脊",SR:"燕尾",SD:"水車堵",GD:"山花",WD:"牆堵"};
 
 function pageEl(n){return document.querySelector(`.sheet[data-page="${n}"]`)}
-function addText(p,x,y,text,w=100,size=8.4,cls=""){
+function addText(p,x,y,text,w=100,size=8.4,cls="",h=null){
   if(text===null||text===undefined||text==="")return;
+
   const el=document.createElement("div");
+  const isWrap=String(cls).split(/\s+/).includes("wrap");
+
   el.className=`overlay text value ${cls}`;
   el.textContent=String(text);
-  el.style.left=`${x}pt`;el.style.top=`${y}pt`;el.style.width=`${w}pt`;el.style.fontSize=`${size}pt`;
+  el.style.left=`${x}pt`;
+  el.style.top=`${y}pt`;
+  el.style.width=`${w}pt`;
+  el.style.fontSize=`${size}pt`;
+
+  // 單行欄位限制在本列高度內；多行欄位由呼叫端指定可用高度。
+  if(h!==null){
+    el.style.height=`${h}pt`;
+    el.style.maxHeight=`${h}pt`;
+  }else if(!isWrap){
+    el.style.height=`${Math.max(size*1.35,10)}pt`;
+    el.style.maxHeight=`${Math.max(size*1.35,10)}pt`;
+  }
+
   pageEl(p)?.appendChild(el);
+
+  // 單行內容太長時逐步縮小字體，避免跨出表格線。
+  if(!isWrap){
+    let current=size;
+    while(el.scrollWidth>el.clientWidth && current>5.8){
+      current-=0.25;
+      el.style.fontSize=`${current}pt`;
+    }
+  }else if(h!==null){
+    // 多行內容過多時也適度縮小，直到盡量容納在欄位內。
+    let current=size;
+    while(el.scrollHeight>el.clientHeight && current>5.8){
+      current-=0.25;
+      el.style.fontSize=`${current}pt`;
+    }
+  }
 }
 function addCheck(p,x,y,on){
   if(!on)return;
   const el=document.createElement("div");
-  el.className="overlay checkmark";el.textContent="✓";
-  el.style.left=`${x-.3}pt`;el.style.top=`${y-.4}pt`;
+  el.className="overlay checkmark";
+
+  // 黑色實心方格比勾號更不易產生上下偏移。
+  // 稍微向右、向下內縮，使方格落在原表格的 □ 中央。
+  el.style.left=`${x+0.65}pt`;
+  el.style.top=`${y+0.75}pt`;
+
   pageEl(p)?.appendChild(el);
 }
 async function renderTemplate(){
@@ -84,19 +138,19 @@ async function loadRecord(){
   return {r,c:c||{},repairs:repairs||[]};
 }
 function overlayData(r,c,repairs){
-  addText(1,211,135,r.title||"",310,8.7);addText(1,211,163,r.record_code||"",310,8.6);
+  addText(1,211,136,r.title||"",310,8.7);addText(1,211,164,r.record_code||"",310,8.6);
   addText(1,269,184,`${AREA_NAMES[r.area]||r.area||""} / ${r.area||""}`,110,8);
   addText(1,286,211,`${ROOF_NAMES[r.roof_position]||r.roof_position||""} / ${r.roof_position||""}`,88,7.6);
   addText(1,239,224,r.component_code||"",132,8);
   addCheck(1,255.4,198.5,r.direction==="E");addCheck(1,273.7,198.5,r.direction==="W");addCheck(1,291.9,198.5,r.direction==="S");addCheck(1,310.2,198.5,r.direction==="N");
-  addText(1,437,202,r.inspector||"",87,8);addText(1,211,244,r.inspection_unit||"",159,8);addText(1,437,244,r.inspection_date||"",87,8);
+  addText(1,437,203,r.inspector||"",87,8);addText(1,211,245,r.inspection_unit||"",159,8);addText(1,437,245,r.inspection_date||"",87,8);
   addCheck(1,153,269.8,r.decoration_age_class==="50年以上");addCheck(1,153,284.4,r.decoration_age_class==="未達50年");
   addCheck(1,153,310.8,has(r.crafts,"CP"));addCheck(1,190.2,310.8,has(r.crafts,"CS"));addCheck(1,230.5,310.8,has(r.crafts,"JP"));
   addText(1,153,336,r.author_signature||"",215,8.2);
   addCheck(1,153,382.4,has(r.composition_types,"單件"));addCheck(1,153,397.0,has(r.composition_types,"成對"));addCheck(1,155.7,411.5,has(r.composition_types,"連續排列"));addCheck(1,153,426.0,has(r.composition_types,"左右對稱"));addCheck(1,153,440.6,has(r.composition_types,"組群"));
-  addText(1,228,454,A(r.related_record_codes).join("、"),137,7.5,"wrap");
+  addText(1,228,454,A(r.related_record_codes).join("、"),137,7.5,"wrap",15);
   addText(1,164,472,r.length_cm??"",19,8);addText(1,198,472,r.width_cm??"",18,8);addText(1,247,472,r.height_cm??"",26,8);addCheck(1,151.5,495.6,!!r.unable_to_measure);
-  addText(1,204,582,r.period_range||"",43,7.2,"wrap");addCheck(1,153,596.4,!!r.artifact_year);addText(1,216,596,r.artifact_year??"",24,7.8);addCheck(1,291,596.4,!!r.year_pending_analysis);
+  addText(1,204,582,r.period_range||"",43,7.2,"wrap",13);addCheck(1,153,596.4,!!r.artifact_year);addText(1,216,596,r.artifact_year??"",24,7.8);addCheck(1,291,596.4,!!r.year_pending_analysis);
 
   const surface=A(r.surface_materials);
   [["仿古瓷碗片",235.5,627.5],["彩色玻璃片",235.5,642],["陶片",235.5,656.6],["瓷片",235.5,671.1],["瓦片",235.5,685.7],["金屬",235.5,700.2]].forEach(([v,x,y])=>addCheck(1,x,y,has(surface,v)));
@@ -109,7 +163,7 @@ function overlayData(r,c,repairs){
   const gf=A(r.glaze_features);[["透明",424.5,186.5],["半透明",424.5,199.2],["不透明",424.5,211.8],["透明與不透明並用",424.5,224.5],["無法辨識",424.5,237.1]].forEach(([v,x,y])=>addCheck(2,x,y,has(gf,v)));
   const basis=A(r.material_basis);[["現場目視",154.5,265.5],["材料外露",212.7,265.5],["修復報告",271,265.5],["施工紀錄",329.2,265.5],["匠師訪談",387.5,265.5],["材料檢測",445.7,265.5],["歷史文獻",504,265.5]].forEach(([v,x,y])=>addCheck(2,x,y,has(basis,v)));
   const subj=A(r.subject_categories);[["人物",208.5,305.2],["神祇",242.7,305.2],["歷史故事",277,305.2],["戲曲故事",335.2,305.2],["吉祥圖案",393.5,305.2],["動物",451.7,305.2],["植物",486,305.2],["水族",181.5,321.1],["器物",215.7,321.1],["文字",250,321.1],["山水",284.2,322]].forEach(([v,x,y])=>addCheck(2,x,y,has(subj,v)));
-  addText(2,155,367,r.subject_description||"",372,8.2,"wrap");
+  addText(2,155,367,r.subject_description||"",372,8.2,"wrap",316);
 
   const areaMap={PL:[235.5,87.8],SH:[235.5,102.3],FL:[235.5,116.9],FR:[235.5,131.4],LC:[235.5,145.9],RC:[235.5,160.5],XL:[235.5,175],XR:[235.5,189.6],GL:[235.5,204.1],GR:[235.5,218.7],TL:[235.5,233.2],TR:[235.5,247.8],BT:[235.5,262.3],DT:[235.5,276.9],YH:[235.5,291.4],HH:[235.5,306],RL:[235.5,320.5],RR:[235.5,335.1],TH:[235.5,349.6],GH:[235.5,364.1],WH:[235.5,378.7]};
   if(areaMap[r.area])addCheck(3,...areaMap[r.area],true);
@@ -134,7 +188,7 @@ function overlayData(r,c,repairs){
   const repair=repairs[0]||{};
   addText(5,300,607,repair.original_year||"",61,8);addText(5,453,607,repair.existing_work_year||"",65,8);addText(5,300,623,repair.repair_year||"",61,8);addText(5,455,623,[repair.artisan,repair.organization].filter(Boolean).join("／"),64,7.6);
   const rsm={"原件":[291,639.7],"局部更新":[325.2,639.7],"全面重製":[383.5,639.7],"年代不明":[441.7,639.7]};if(rsm[repair.current_status])addCheck(5,...rsm[repair.current_status],true);
-  addText(5,360,654,repair.repair_method||repair.source||"",168,7.7,"wrap");addText(5,298,671,repair.note||r.other_notes||"",226,7.7,"wrap");
+  addText(5,360,654,repair.repair_method||repair.source||"",168,7.7,"wrap",14);addText(5,298,671,repair.note||r.other_notes||"",226,7.7,"wrap",29);
 }
 async function init(){
   if(!recordId)throw new Error("网址缺少作品 id。");
