@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>普查系統 - 雲端資料查詢</title>
+    <title>調查結果資料庫</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -417,14 +417,52 @@
             color: #718096;
         }
 
+
+        .craft-filter-group {
+            grid-column: span 2;
+        }
+
+        .craft-filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .craft-filter-item {
+            display: flex !important;
+            align-items: center;
+            gap: 7px;
+            margin: 0 !important;
+            padding: 9px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            background: #fff;
+            color: #4a5568 !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+        }
+
+        .craft-filter-item input {
+            width: auto;
+            margin: 0;
+            accent-color: #c4785a;
+        }
+
+        @media (max-width: 700px) {
+            .craft-filter-group {
+                grid-column: span 1;
+            }
+        }
+
     </style>
 </head>
 
 <body>
 <div class="container">
 
-    <h1>📋 艋舺龍山寺普查資料庫</h1>
-    <div class="subtitle">直接查詢 Supabase 雲端資料，不需再手動導入 .survey</div>
+    <h1>📋 調查結果資料庫</h1>
+    <div class="subtitle">艋舺龍山寺屋面傳統裝飾普查資料查詢、檢視與編輯</div>
 
     <div class="top-status">
         <span id="authStatus">正在確認登入狀態……</span>
@@ -449,14 +487,15 @@
                     <option value="RC">右下山前廊 (RC)</option>
                     <option value="XL">左下山護室 (XL)</option>
                     <option value="XR">右下山護室 (XR)</option>
-                    <option value="GL">左過水廊 (GL)</option>
-                    <option value="GR">右過水廊 (GR)</option>
-                    <option value="TL">左頂山護室 (TL)</option>
-                    <option value="TR">右頂山護室 (TR)</option>
                     <option value="BT">鐘樓 (BT)</option>
                     <option value="DT">鼓樓 (DT)</option>
-                    <option value="YH">後殿月老廳 (YH)</option>
+                    <option value="GL">左過水廊 (GL)</option>
+                    <option value="GR">右過水廊 (GR)</option>
+                    <option value="MH">中殿 (MH)</option>
+                    <option value="TL">左頂山護室 (TL)</option>
+                    <option value="TR">右頂山護室 (TR)</option>
                     <option value="HH">後殿華佗廳 (HH)</option>
+                    <option value="YH">後殿月老廳 (YH)</option>
                     <option value="RL">後殿龍門 (RL)</option>
                     <option value="RR">後殿虎門 (RR)</option>
                     <option value="TH">天上聖母殿 (TH)</option>
@@ -497,34 +536,46 @@
                 <label>構件細部</label>
                 <select id="componentFilter">
                     <option value="">全部構件</option>
+                    <option value="00">無法辨識 (00)</option>
                     <option value="01">上馬路 (01)</option>
                     <option value="02">下馬路 (02)</option>
                     <option value="03">三角堵 (03)</option>
-                    <option value="04">四寸蓋 (04)</option>
-                    <option value="05">印斗 (05)</option>
-                    <option value="06">吐水 (06)</option>
-                    <option value="07">圭角 (07)</option>
+                    <option value="04">水車堵 (04)</option>
+                    <option value="05">四寸蓋 (05)</option>
+                    <option value="06">印斗 (06)</option>
+                    <option value="07">吐水 (07)</option>
                     <option value="08">西施脊 (08)</option>
-                    <option value="09">垂脊 (09)</option>
-                    <option value="10">通風脊堵 (10)</option>
-                    <option value="11">脊堵 (11)</option>
-                    <option value="12">脊塞 (12)</option>
-                    <option value="13">脊鎖 (13)</option>
-                    <option value="14">脊獸 (14)</option>
-                    <option value="15">規帶 (15)</option>
-                    <option value="16">排頭 (16)</option>
-                    <option value="17">燕尾 (17)</option>
+                    <option value="09">身堵 (09)</option>
+                    <option value="10">垂脊 (10)</option>
+                    <option value="11">通風脊堵 (11)</option>
+                    <option value="12">脊堵 (12)</option>
+                    <option value="13">脊塞 (13)</option>
+                    <option value="14">脊鎖 (14)</option>
+                    <option value="15">脊獸 (15)</option>
+                    <option value="16">規帶 (16)</option>
+                    <option value="17">排頭 (17)</option>
+                    <option value="18">頂堵 (18)</option>
+                    <option value="19">墀頭 (19)</option>
+                    <option value="20">翹脊 (20)</option>
                 </select>
             </div>
 
-            <div class="filter-group">
-                <label>工藝形式</label>
-                <select id="craftFilter">
-                    <option value="">全部工藝</option>
-                    <option value="CP">剪黏 (CP)</option>
-                    <option value="CS">泥塑 (CS)</option>
-                    <option value="JP">交趾陶 (JP)</option>
-                </select>
+            <div class="filter-group craft-filter-group">
+                <label>工藝形式（可複選）</label>
+                <div class="craft-filter-options">
+                    <label class="craft-filter-item">
+                        <input type="checkbox" name="craftFilterBox" value="CP">
+                        剪黏（CP）
+                    </label>
+                    <label class="craft-filter-item">
+                        <input type="checkbox" name="craftFilterBox" value="CS">
+                        泥塑（CS）
+                    </label>
+                    <label class="craft-filter-item">
+                        <input type="checkbox" name="craftFilterBox" value="JP">
+                        交趾陶（JP）
+                    </label>
+                </div>
             </div>
 
             <div class="filter-group">
@@ -540,9 +591,9 @@
         <div class="action-row">
             <button type="button" id="searchBtn" class="btn-primary">🔍 查詢</button>
             <button type="button" id="clearBtn" class="btn-secondary">♻️ 清除條件</button>
-            <button type="button" id="importSurveyBtn" class="btn-export">📥 匯入離線 .survey</button>
+            <button type="button" id="importSurveyBtn" class="btn-export">📥 匯入離線資料</button>
             <input type="file" id="importSurveyInput" accept=".survey,application/json" multiple style="display:none;">
-            <button type="button" id="exportBtn" class="btn-export">📊 匯出目前查詢 CSV</button>
+            <button type="button" id="exportBtn" class="btn-export">📊 匯出目前查詢</button>
             <a href="index.html" class="btn-link btn-home">🏠 回目錄</a>
         </div>
     </div>
@@ -740,7 +791,8 @@
         const direction = document.getElementById("directionFilter").value;
         const roof = document.getElementById("roofFilter").value;
         const component = document.getElementById("componentFilter").value;
-        const craft = document.getElementById("craftFilter").value;
+        const crafts = [...document.querySelectorAll('input[name="craftFilterBox"]:checked')]
+            .map(cb => cb.value);
 
         let query = supabase
             .from("survey_records")
@@ -758,8 +810,8 @@
         if (roof) query = query.eq("roof_position", roof);
         if (component) query = query.eq("component_code", component);
 
-        // crafts 是 text[]，contains(['CP']) 可查詢包含該工藝的作品。
-        if (craft) query = query.contains("crafts", [craft]);
+        // crafts 是 text[]。複選時，作品必須同時包含所勾選的工藝。
+        if (crafts.length) query = query.contains("crafts", crafts);
 
         return query;
     }
@@ -1257,7 +1309,7 @@
 
         } finally {
             importBtn.disabled = false;
-            importBtn.textContent = "📥 匯入離線 .survey";
+            importBtn.textContent = "📥 匯入離線資料";
             document.getElementById("importSurveyInput").value = "";
         }
     }
@@ -1277,7 +1329,9 @@
         document.getElementById("directionFilter").value = "";
         document.getElementById("roofFilter").value = "";
         document.getElementById("componentFilter").value = "";
-        document.getElementById("craftFilter").value = "";
+        document.querySelectorAll('input[name="craftFilterBox"]').forEach(cb => {
+            cb.checked = false;
+        });
         currentPage = 1;
         loadRecords();
     }
