@@ -291,21 +291,22 @@
             <div class="form-group">
                 <label>建築區域 [殿區]</label>
                 <select id="area" onchange="updateCodePreview()">
-                    <option value="SH" selected>三川殿 (SH)</option>
+                                        <option value="SH" selected>三川殿 (SH)</option>
                     <option value="FL">前殿龍門 (FL)</option>
                     <option value="FR">前殿虎門 (FR)</option>
                     <option value="LC">左下山前廊 (LC)</option>
                     <option value="RC">右下山前廊 (RC)</option>
                     <option value="XL">左下山護室 (XL)</option>
                     <option value="XR">右下山護室 (XR)</option>
-                    <option value="GL">左過水廊 (GL)</option>
-                    <option value="GR">右過水廊 (GR)</option>
-                    <option value="TL">左頂山護室 (TL)</option>
-                    <option value="TR">右頂山護室 (TR)</option>
                     <option value="BT">鐘樓 (BT)</option>
                     <option value="DT">鼓樓 (DT)</option>
-                    <option value="YH">後殿月老廳 (YH)</option>
+                    <option value="GL">左過水廊 (GL)</option>
+                    <option value="GR">右過水廊 (GR)</option>
+                    <option value="MH">中殿 (MH)</option>
+                    <option value="TL">左頂山護室 (TL)</option>
+                    <option value="TR">右頂山護室 (TR)</option>
                     <option value="HH">後殿華佗廳 (HH)</option>
+                    <option value="YH">後殿月老廳 (YH)</option>
                     <option value="RL">後殿龍門 (RL)</option>
                     <option value="RR">後殿虎門 (RR)</option>
                     <option value="TH">天上聖母殿 (TH)</option>
@@ -319,9 +320,9 @@
             <div class="form-group">
                 <label>屋面朝向 [方位]</label>
                 <select id="direction" onchange="updateCodePreview()">
-                    <option value="W" selected>西 West (W)</option>
-                    <option value="E">東 East (E)</option>
+                                        <option value="E" selected>東 East (E)</option>
                     <option value="S">南 South (S)</option>
+                    <option value="W">西 West (W)</option>
                     <option value="N">北 North (N)</option>
                 </select>
             </div>
@@ -341,7 +342,7 @@
             <div class="form-group">
                 <label>屋面部位</label>
                 <select id="roofPos" onchange="updateCodePreview()">
-                    <option value="MR" selected>正脊 (MR)</option>
+                                        <option value="MR" selected>正脊 (MR)</option>
                     <option value="DR">垂脊 (DR)</option>
                     <option value="HR">戧脊 (HR)</option>
                     <option value="ER">圍脊 (ER)</option>
@@ -355,23 +356,27 @@
             <div class="form-group">
                 <label>構件細部分類</label>
                 <select id="compCode" onchange="updateCodePreview()">
-                    <option value="01" selected>上馬路 (01)</option>
+                                        <option value="00" selected>無法辨識 (00)</option>
+                    <option value="01">上馬路 (01)</option>
                     <option value="02">下馬路 (02)</option>
                     <option value="03">三角堵 (03)</option>
-                    <option value="04">四寸蓋 (04)</option>
-                    <option value="05">印斗 (05)</option>
-                    <option value="06">吐水 (06)</option>
-                    <option value="07">圭角 (07)</option>
+                    <option value="04">水車堵 (04)</option>
+                    <option value="05">四寸蓋 (05)</option>
+                    <option value="06">印斗 (06)</option>
+                    <option value="07">吐水 (07)</option>
                     <option value="08">西施脊 (08)</option>
-                    <option value="09">垂脊 (09)</option>
-                    <option value="10">通風脊堵 (10)</option>
-                    <option value="11">脊堵 (11)</option>
-                    <option value="12">脊塞 (12)</option>
-                    <option value="13">脊鎖 (13)</option>
-                    <option value="14">脊獸 (14)</option>
-                    <option value="15">規帶 (15)</option>
-                    <option value="16">排頭 (16)</option>
-                    <option value="17">燕尾 (17)</option>
+                    <option value="09">身堵 (09)</option>
+                    <option value="10">垂脊 (10)</option>
+                    <option value="11">通風脊堵 (11)</option>
+                    <option value="12">脊堵 (12)</option>
+                    <option value="13">脊塞 (13)</option>
+                    <option value="14">脊鎖 (14)</option>
+                    <option value="15">脊獸 (15)</option>
+                    <option value="16">規帶 (16)</option>
+                    <option value="17">排頭 (17)</option>
+                    <option value="18">頂堵 (18)</option>
+                    <option value="19">墀頭 (19)</option>
+                    <option value="20">翹脊 (20)</option>
                 </select>
             </div>
         </div>
@@ -422,11 +427,11 @@
             <div class="checkbox-group">
                 <label class="checkbox-label">
                     <input type="radio" name="photoTypeBox" value="O" onchange="updateCodePreview()">
-                    全景（O）
+                    整體全景（O）
                 </label>
                 <label class="checkbox-label">
                     <input type="radio" name="photoTypeBox" value="D" onchange="updateCodePreview()">
-                    細節（D）
+                    局部細節（D）
                 </label>
             </div>
         </div>
@@ -638,7 +643,7 @@ function collectEntry() {
     if (!crafts.length) throw new Error("請至少勾選一種工藝形式。");
 
     if (selectedPhotoFile && !pType) {
-        throw new Error("已選照片時，請選擇照片型別：全景（O）或細節（D）。");
+        throw new Error("已選照片時，請選擇照片型別：整體全景（O）或局部細節（D）。");
     }
     if (selectedPhotoFile && !pSerial) {
         throw new Error("已選照片時，請填寫照片編號，例如 001。");
