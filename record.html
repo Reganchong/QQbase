@@ -109,6 +109,7 @@ textarea{min-height:95px;resize:vertical}
 </div>
 
 <!-- 1 -->
+<!-- 編碼選項已依最新版統一：殿區、方位、屋面部位、構件 -->
 <section class="panel active" id="basic">
 <div class="section">
 <h2>基本資料</h2>
@@ -116,22 +117,69 @@ textarea{min-height:95px;resize:vertical}
 <label class="field">題材名稱<input id="title" type="text"></label>
 <label class="field">登錄編號<input id="record_code" class="readonly" type="text" readonly></label>
 <label class="field">殿區
-<select id="area">
-<option value="SH">三川殿 (SH)</option><option value="FL">前殿龍門 (FL)</option><option value="FR">前殿虎門 (FR)</option>
-<option value="LC">左下山前廊 (LC)</option><option value="RC">右下山前廊 (RC)</option><option value="XL">左下山護室 (XL)</option>
-<option value="XR">右下山護室 (XR)</option><option value="GL">左過水廊 (GL)</option><option value="GR">右過水廊 (GR)</option>
-<option value="TL">左頂山護室 (TL)</option><option value="TR">右頂山護室 (TR)</option><option value="BT">鐘樓 (BT)</option>
-<option value="DT">鼓樓 (DT)</option><option value="YH">後殿月老廳 (YH)</option><option value="HH">後殿華佗廳 (HH)</option>
-<option value="RL">後殿龍門 (RL)</option><option value="RR">後殿虎門 (RR)</option><option value="TH">天上聖母殿 (TH)</option>
-<option value="GH">關聖帝君殿 (GH)</option><option value="WH">文昌帝君殿 (WH)</option><option value="PL">牌樓 (PL)</option>
-</select></label>
+<select id="area"><option value="SH">三川殿 (SH)</option>
+<option value="FL">前殿龍門 (FL)</option>
+<option value="FR">前殿虎門 (FR)</option>
+<option value="LC">左下山前廊 (LC)</option>
+<option value="RC">右下山前廊 (RC)</option>
+<option value="XL">左下山護室 (XL)</option>
+<option value="XR">右下山護室 (XR)</option>
+<option value="BT">鐘樓 (BT)</option>
+<option value="DT">鼓樓 (DT)</option>
+<option value="GL">左過水廊 (GL)</option>
+<option value="GR">右過水廊 (GR)</option>
+<option value="MH">中殿 (MH)</option>
+<option value="TL">左頂山護室 (TL)</option>
+<option value="TR">右頂山護室 (TR)</option>
+<option value="HH">後殿華佗廳 (HH)</option>
+<option value="YH">後殿月老廳 (YH)</option>
+<option value="RL">後殿龍門 (RL)</option>
+<option value="RR">後殿虎門 (RR)</option>
+<option value="TH">天上聖母殿 (TH)</option>
+<option value="GH">關聖帝君殿 (GH)</option>
+<option value="WH">文昌帝君殿 (WH)</option>
+<option value="PL">牌樓 (PL)</option></select></label>
 <label class="field">屋面朝向
-<select id="direction"><option value="E">東</option><option value="W">西</option><option value="S">南</option><option value="N">北</option></select>
+<select id="direction"><option value="E">東</option>
+<option value="S">南</option>
+<option value="W">西</option>
+<option value="N">北</option></select>
 </label>
 <label class="field">屋面部位
-<select id="roof_position"><option value="MR">正脊</option><option value="DR">垂脊</option><option value="HR">戧脊</option><option value="ER">圍脊</option><option value="AR">角脊</option><option value="SR">燕尾</option><option value="SD">水車堵</option><option value="GD">山花</option><option value="WD">牆堵</option></select>
+<select id="roof_position"><option value="MR">正脊</option>
+<option value="DR">垂脊</option>
+<option value="HR">戧脊</option>
+<option value="ER">圍脊</option>
+<option value="AR">角脊</option>
+<option value="SR">燕尾</option>
+<option value="SD">水車堵</option>
+<option value="GD">山花</option>
+<option value="WD">牆堵</option></select>
 </label>
-<label class="field">構件代碼<input id="component_code" type="text"></label>
+<label class="field">構件
+<select id="component_code">
+<option value="00">無法辨識 (00)</option>
+<option value="01">上馬路 (01)</option>
+<option value="02">下馬路 (02)</option>
+<option value="03">三角堵 (03)</option>
+<option value="04">水車堵 (04)</option>
+<option value="05">四寸蓋 (05)</option>
+<option value="06">印斗 (06)</option>
+<option value="07">吐水 (07)</option>
+<option value="08">西施脊 (08)</option>
+<option value="09">身堵 (09)</option>
+<option value="10">垂脊 (10)</option>
+<option value="11">通風脊堵 (11)</option>
+<option value="12">脊堵 (12)</option>
+<option value="13">脊塞 (13)</option>
+<option value="14">脊鎖 (14)</option>
+<option value="15">脊獸 (15)</option>
+<option value="16">規帶 (16)</option>
+<option value="17">排頭 (17)</option>
+<option value="18">頂堵 (18)</option>
+<option value="19">墀頭 (19)</option>
+<option value="20">翹脊 (20)</option>
+</select></label>
 <label class="field">檢視人員<input id="inspector" type="text"></label>
 <label class="field">檢視單位<input id="inspection_unit" type="text"></label>
 <label class="field">檢視日期<input id="inspection_date" type="date"></label>
@@ -146,9 +194,9 @@ textarea{min-height:95px;resize:vertical}
 <div class="full">
 <label class="field">工藝類型（可複選）</label>
 <div class="checks">
-<label class="check"><input type="checkbox" name="crafts" value="CP">剪黏</label>
-<label class="check"><input type="checkbox" name="crafts" value="CS">泥塑</label>
-<label class="check"><input type="checkbox" name="crafts" value="JP">交趾陶</label>
+<label class="check"><input type="checkbox" name="crafts" value="CP">剪黏（CP）</label>
+<label class="check"><input type="checkbox" name="crafts" value="CS">泥塑（CS）</label>
+<label class="check"><input type="checkbox" name="crafts" value="JP">交趾陶（JP）</label>
 </div>
 </div>
 <div class="full">
@@ -192,7 +240,7 @@ textarea{min-height:95px;resize:vertical}
 <h2>年代</h2>
 <div class="grid">
 <label class="field">年代區間<input id="period_range" type="text" placeholder="例如：日治時期（1895–1945）"></label>
-<label class="field">文物紀年（西元）<input id="artifact_year" type="number"></label>
+<label class="field">文物紀年（西元）<input id="artifact_year" type="text" placeholder="例如：約1959年、1960年代、1959–1963"></label>
 </div>
 <div class="checks" style="margin-top:12px"><label class="check"><input id="year_pending_analysis" type="checkbox">待分析</label></div>
 </div>
@@ -245,6 +293,9 @@ textarea{min-height:95px;resize:vertical}
 <div class="checks" data-check-group="subject_categories">
 <label class="check"><input type="checkbox" value="人物">人物</label><label class="check"><input type="checkbox" value="神祇">神祇</label><label class="check"><input type="checkbox" value="歷史故事">歷史故事</label><label class="check"><input type="checkbox" value="戲曲故事">戲曲故事</label><label class="check"><input type="checkbox" value="吉祥圖案">吉祥圖案</label><label class="check"><input type="checkbox" value="動物">動物</label><label class="check"><input type="checkbox" value="植物">植物</label><label class="check"><input type="checkbox" value="水族">水族</label><label class="check"><input type="checkbox" value="器物">器物</label><label class="check"><input type="checkbox" value="文字">文字</label><label class="check"><input type="checkbox" value="山水">山水</label><label class="check"><input type="checkbox" value="其他">其他</label>
 </div>
+<label class="field" style="margin-top:14px">其他題材說明
+<input id="subject_other_text" type="text" placeholder="例如：章回小說名稱：《封神演義》">
+</label>
 <label class="field" style="margin-top:14px">題材內容與典故簡述<textarea id="subject_description"></textarea></label>
 <label class="field" style="margin-top:14px">一般備註<textarea id="note"></textarea></label>
 </div>
@@ -285,7 +336,7 @@ textarea{min-height:95px;resize:vertical}
 <label class="check"><input type="radio" name="condition_level" value="4">第四級：劣化持續發展，需優先處理</label>
 <label class="check"><input type="radio" name="condition_level" value="5">第五級：危急狀態，需立即處理</label>
 </div>
-<label class="field" style="margin-top:14px">保存狀況簡述<textarea id="condition_description"></textarea></label>
+
 </div>
 </section>
 
@@ -312,6 +363,9 @@ textarea{min-height:95px;resize:vertical}
 <div class="checks" data-check-group="source_types">
 <label class="check"><input type="checkbox" value="現場落款">現場落款</label><label class="check"><input type="checkbox" value="修繕碑記">修繕碑記</label><label class="check"><input type="checkbox" value="廟方檔案">廟方檔案</label><label class="check"><input type="checkbox" value="修復報告">修復報告</label><label class="check"><input type="checkbox" value="歷史照片">歷史照片</label><label class="check"><input type="checkbox" value="訪談">訪談</label><label class="check"><input type="checkbox" value="文獻">文獻</label><label class="check"><input type="checkbox" value="推定">推定</label>
 </div>
+<label class="field" style="margin-top:14px">受訪者
+<input id="interviewee" type="text" placeholder="例如：陳世仁師傅">
+</label>
 <label class="field" style="margin-top:14px">判定可信程度
 <select id="dating_confidence"><option value=""></option><option>確定</option><option>高度可能</option><option>推測</option><option>待考</option></select>
 </label>
@@ -540,9 +594,11 @@ async function loadRecord(){
     setGroup("glaze_features",data.glaze_features);
     setGroup("material_basis",data.material_basis);
     setGroup("subject_categories",data.subject_categories);
+    $("subject_other_text").value=data.subject_other_text||"";
     $("subject_description").value=data.subject_description||"";
     $("note").value=data.note||"";
     setGroup("source_types",data.source_types);
+    $("interviewee").value=data.interviewee||"";
     $("dating_confidence").value=data.dating_confidence||"";
 
     await Promise.all([loadCondition(),loadPhotos(),loadRepairs()]);
@@ -558,7 +614,6 @@ async function loadCondition(){
     setGroup("surface_damage",data.surface_damage);
     setGroup("covering_damage",data.covering_damage);
     setRadio("condition_level",data.condition_level);
-    $("condition_description").value=data.condition_description||"";
     setGroup("conservation_strategies",data.conservation_strategies);
     setGroup("material_recommendations",data.material_recommendations);
     $("professional_assessment_needed").checked=!!data.professional_assessment_needed;
@@ -858,13 +913,13 @@ async function saveAll(){
         related_record_codes:related, length_cm:numOrNull("length_cm"), width_cm:numOrNull("width_cm"),
         height_cm:numOrNull("height_cm"), unable_to_measure:$("unable_to_measure").checked,
         cultural_asset_name: FIXED_CULTURAL_ASSET_IDENTITY, period_range:val("period_range"),
-        artifact_year:numOrNull("artifact_year"), year_pending_analysis:$("year_pending_analysis").checked,
+        artifact_year:val("artifact_year"), year_pending_analysis:$("year_pending_analysis").checked,
         surface_materials:groupValues("surface_materials"), body_materials:groupValues("body_materials"),
         base_materials:groupValues("base_materials"), ceramic_body_types:groupValues("ceramic_body_types"),
         glaze_types:groupValues("glaze_types"), glaze_features:groupValues("glaze_features"),
         material_basis:groupValues("material_basis"), subject_categories:groupValues("subject_categories"),
-        subject_description:val("subject_description"), note:val("note"),
-        source_types:groupValues("source_types"), dating_confidence:$("dating_confidence").value||null
+        subject_other_text:val("subject_other_text"), subject_description:val("subject_description"), note:val("note"),
+        source_types:groupValues("source_types"), interviewee:val("interviewee"), dating_confidence:$("dating_confidence").value||null
     };
 
     const {error:e1}=await supabase.from("survey_records").update(survey).eq("id",recordId);
@@ -879,7 +934,6 @@ async function saveAll(){
         surface_damage:groupValues("surface_damage"),
         covering_damage:groupValues("covering_damage"),
         condition_level:level?Number(level):null,
-        condition_description:val("condition_description"),
         conservation_strategies:groupValues("conservation_strategies"),
         material_recommendations:groupValues("material_recommendations"),
         professional_assessment_needed:$("professional_assessment_needed").checked,
