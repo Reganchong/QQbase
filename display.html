@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>艋舺龍山寺傳統裝飾普查成果展示</title>
+<title>傳統裝飾普查成果展示</title>
 
 <style>
 :root{
@@ -189,6 +189,17 @@ body{
     .modal-media{min-height:240px;max-height:42vh}
     .modal-body{max-height:none}
 }
+
+/* 無照片的作品以文字卡呈現，不浪費大面積影像空間 */
+.item-card.no-image .img-box{
+    height:56px;
+    background:#292d28;
+}
+.item-card.no-image .no-pic{
+    font-size:11px;
+    color:#8f948a;
+}
+
 </style>
 </head>
 
@@ -197,7 +208,7 @@ body{
 <div class="top-bar">
     <a href="index.html" class="btn-home">← 離開展示</a>
 
-    <h1>🏛️ 艋舺龍山寺傳統裝飾普查成果</h1>
+    <h1>🏛️ 傳統裝飾普查成果</h1>
 
     <div class="top-actions">
         <span class="status" id="status">連線中……</span>
@@ -207,27 +218,28 @@ body{
 
 <div class="main-layout">
     <aside class="sidebar" id="sidebar">
-        <div class="category-btn" data-area="SH"><span class="text">三川殿<br>(SH)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="FL"><span class="text">前殿龍門<br>(FL)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="FR"><span class="text">前殿虎門<br>(FR)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="LC"><span class="text">左下山前廊<br>(LC)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="RC"><span class="text">右下山前廊<br>(RC)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="XL"><span class="text">左下山護室<br>(XL)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="XR"><span class="text">右下山護室<br>(XR)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="GL"><span class="text">左過水廊<br>(GL)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="GR"><span class="text">右過水廊<br>(GR)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="TL"><span class="text">左頂山護室<br>(TL)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="TR"><span class="text">右頂山護室<br>(TR)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="BT"><span class="text">鐘樓<br>(BT)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="DT"><span class="text">鼓樓<br>(DT)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="YH"><span class="text">後殿月老廳<br>(YH)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="HH"><span class="text">後殿華佗廳<br>(HH)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="RL"><span class="text">後殿龍門<br>(RL)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="RR"><span class="text">後殿虎門<br>(RR)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="TH"><span class="text">天上聖母殿<br>(TH)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="GH"><span class="text">關聖帝君殿<br>(GH)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="WH"><span class="text">文昌帝君殿<br>(WH)</span><span class="category-count">0</span></div>
-        <div class="category-btn" data-area="PL"><span class="text">牌樓<br>(PL)</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="SH"><span class="text">三川殿</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="FL"><span class="text">前殿龍門</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="FR"><span class="text">前殿虎門</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="LC"><span class="text">左下山前廊</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="RC"><span class="text">右下山前廊</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="XL"><span class="text">左下山護室</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="XR"><span class="text">右下山護室</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="BT"><span class="text">鐘樓</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="DT"><span class="text">鼓樓</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="GL"><span class="text">左過水廊</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="GR"><span class="text">右過水廊</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="MH"><span class="text">中殿</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="TL"><span class="text">左頂山護室</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="TR"><span class="text">右頂山護室</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="HH"><span class="text">後殿華佗廳</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="YH"><span class="text">後殿月老廳</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="RL"><span class="text">後殿龍門</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="RR"><span class="text">後殿虎門</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="TH"><span class="text">天上聖母殿</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="GH"><span class="text">關聖帝君殿</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="WH"><span class="text">文昌帝君殿</span><span class="category-count">0</span></div>
+        <div class="category-btn" data-area="PL"><span class="text">牌樓</span><span class="category-count">0</span></div>
     </aside>
 
     <main class="content-wrap">
@@ -279,7 +291,7 @@ body{
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 const SUPABASE_URL = "https://kappwvkerqdsvpgzamnc.supabase.co";
-const SUPABASE_KEY = "sb_publishable_WIVgXV-WgBcveNX2yvLs8g_Y2tYDomD"; // 換成目前已測試成功的 Publishable key
+const SUPABASE_KEY = "sb_publishable_WIVgXV-WgBcveNX2yvLs8g_Y2tYDomD";
 const BUCKET = "longshan-photos";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
@@ -294,25 +306,43 @@ const AREA_NAMES = {
     SH:"三川殿", FL:"前殿龍門", FR:"前殿虎門",
     LC:"左下山前廊", RC:"右下山前廊",
     XL:"左下山護室", XR:"右下山護室",
-    GL:"左過水廊", GR:"右過水廊",
-    TL:"左頂山護室", TR:"右頂山護室",
     BT:"鐘樓", DT:"鼓樓",
-    YH:"後殿月老廳", HH:"後殿華佗廳",
+    GL:"左過水廊", GR:"右過水廊",
+    MH:"中殿",
+    TL:"左頂山護室", TR:"右頂山護室",
+    HH:"後殿華佗廳", YH:"後殿月老廳",
     RL:"後殿龍門", RR:"後殿虎門",
     TH:"天上聖母殿", GH:"關聖帝君殿",
     WH:"文昌帝君殿", PL:"牌樓"
 };
 
-const DIR_NAMES = {E:"東",W:"西",S:"南",N:"北"};
+const DIR_NAMES = {E:"東",S:"南",W:"西",N:"北"};
 const ROOF_NAMES = {
     MR:"正脊",DR:"垂脊",HR:"戧脊",ER:"圍脊",
     AR:"角脊",SR:"燕尾",SD:"水車堵",GD:"山花",WD:"牆堵"
 };
 const COMPONENT_NAMES = {
-    "01":"上馬路","02":"下馬路","03":"三角堵","04":"四寸蓋",
-    "05":"印斗","06":"吐水","07":"圭角","08":"西施脊",
-    "09":"垂脊","10":"通風脊堵","11":"脊堵","12":"脊塞",
-    "13":"脊鎖","14":"脊獸","15":"規帶","16":"排頭","17":"燕尾"
+    "00":"無法辨識",
+    "01":"上馬路",
+    "02":"下馬路",
+    "03":"三角堵",
+    "04":"水車堵",
+    "05":"四寸蓋",
+    "06":"印斗",
+    "07":"吐水",
+    "08":"西施脊",
+    "09":"身堵",
+    "10":"垂脊",
+    "11":"通風脊堵",
+    "12":"脊堵",
+    "13":"脊塞",
+    "14":"脊鎖",
+    "15":"脊獸",
+    "16":"規帶",
+    "17":"排頭",
+    "18":"頂堵",
+    "19":"墀頭",
+    "20":"翹脊"
 };
 const CRAFT_NAMES = {CP:"剪黏",CS:"泥塑",JP:"交趾陶"};
 
@@ -355,7 +385,7 @@ async function loadData(){
     if(!await requireSession()) return;
 
     $("status").textContent = "資料讀取中……";
-    $("contentGrid").innerHTML = '<div class="empty">正在讀取普查資料與影像……</div>';
+    $("contentGrid").innerHTML = '<div class="empty">正在讀取普查資料……</div>';
 
     const {data,error} = await supabase
         .from("survey_records")
@@ -459,7 +489,7 @@ function showArea(areaCode){
 
     const filtered = records.filter(r=>r.area===areaCode);
 
-    $("areaTitle").textContent = `${AREA_NAMES[areaCode] || areaCode} (${areaCode})`;
+    $("areaTitle").textContent = AREA_NAMES[areaCode] || areaCode;
     $("resultCount").textContent = `${filtered.length} 筆作品`;
 
     const grid = $("contentGrid");
@@ -476,7 +506,7 @@ function showArea(areaCode){
             (r.photos || []).find(p=>p.signed_url);
 
         const card = document.createElement("article");
-        card.className = "item-card";
+        card.className = `item-card${representative?.signed_url ? "" : " no-image"}`;
 
         card.innerHTML = `
             <div class="img-box">
@@ -510,14 +540,14 @@ function openDetail(r){
 
     $("mCode").textContent = r.record_code || "";
     $("mTitle").textContent = r.title || "題材名稱未登錄";
-    $("mArea").textContent = `${AREA_NAMES[r.area] || r.area || "—"} (${r.area || "—"})`;
+    $("mArea").textContent = AREA_NAMES[r.area] || r.area || "—";
     $("mDir").textContent = DIR_NAMES[r.direction] || r.direction || "—";
     $("mRoof").textContent = ROOF_NAMES[r.roof_position] || r.roof_position || "—";
     $("mComp").textContent = COMPONENT_NAMES[r.component_code] || r.component_code || "—";
     $("mCraft").textContent = craftText(r.crafts);
 
     let period = r.period_range || "";
-    if(r.artifact_year) period += `${period ? "；" : ""}${r.artifact_year} 年`;
+    if(r.artifact_year) period += `${period ? "；" : ""}${r.artifact_year}`;
     $("mPeriod").textContent = period || "—";
 
     const desc = r.subject_description || r.note || "尚無題材或調查說明。";
