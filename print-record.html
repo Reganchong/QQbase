@@ -3,222 +3,383 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>艋舺龍山寺作品調查表預覽／列印</title>
+<title>作品調查表 Word 匯出</title>
 <style>
-:root{--orange:#c4785a;--gray:#7a7671;--green:#5c634b}
+:root {
+  --orange:#c4785a;
+  --gray:#7a7671;
+  --green:#5c634b;
+  --bg:#f7f5f2;
+  --card:#fff;
+  --border:#d7d0c8;
+  --text:#2f2d2b;
+  --sub:#6b6762;
+}
 *{box-sizing:border-box}
-body{margin:0;background:#e9e6e1;font-family:"Microsoft JhengHei","Noto Sans TC","PingFang TC",sans-serif;color:#111}
-.toolbar{position:sticky;top:0;z-index:100;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px;background:#fff;border-bottom:1px solid #d7d0c8}
-.toolbar a,.toolbar button{border:0;border-radius:8px;padding:9px 14px;font-weight:700;font-size:13px;text-decoration:none;cursor:pointer}
-.back{background:var(--gray);color:#fff}.print{background:var(--orange);color:#fff}.toolbar button:disabled{opacity:.45;cursor:not-allowed}.status{font-size:12px;color:#666}
-.preview{padding:14px 0 28px}
-.sheet{position:relative;width:612pt;height:792pt;margin:0 auto 16px;background:#fff;box-shadow:0 3px 18px rgba(0,0,0,.16);overflow:hidden;page-break-after:always}
-.sheet:last-child{page-break-after:auto}
-.sheet canvas{position:absolute;inset:0;width:612pt;height:792pt;z-index:1}
-.overlay{position:absolute;z-index:2;color:#000;pointer-events:none}
-.text{
-  font-size:8.4pt;
-  line-height:1.10;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:clip;
+body{
+  margin:0;
+  padding:24px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",sans-serif;
 }
-.value{font-weight:500}
-.checkmark-svg{
-  display:block;
-  overflow:visible;
+.wrap{max-width:760px;margin:0 auto}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:28px;
+  box-shadow:0 6px 20px rgba(92,99,75,.08);
 }
-.wrap{
-  white-space:normal;
-  overflow-wrap:anywhere;
-  word-break:break-word;
-  overflow:hidden;
+h1{margin:0;color:var(--green);font-size:24px}
+.sub{margin-top:8px;color:var(--sub);font-size:14px;line-height:1.7}
+.info{
+  margin-top:22px;
+  padding:16px;
+  border:1px solid var(--border);
+  background:#faf8f5;
+  border-radius:10px;
+  line-height:1.8;
 }
-@media(max-width:900px){.preview{overflow-x:auto}.sheet{margin-left:12px;margin-right:12px}}
-@media print{
-  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}body{background:#fff}.toolbar{display:none!important}.preview{padding:0}.sheet{margin:0;box-shadow:none;width:612pt;height:792pt}@page{size:letter portrait;margin:0}}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:700;color:var(--orange)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+button,a.btn{
+  border:0;
+  border-radius:9px;
+  padding:11px 16px;
+  font-size:14px;
+  font-weight:800;
+  cursor:pointer;
+  text-decoration:none;
+}
+#downloadBtn{background:var(--orange);color:#fff}
+#downloadBtn:disabled{opacity:.45;cursor:not-allowed}
+.btn{background:var(--green);color:#fff}
+.note{
+  margin-top:18px;
+  padding:12px 14px;
+  border-left:4px solid var(--green);
+  background:#f0f2ed;
+  color:var(--sub);
+  font-size:13px;
+  line-height:1.7;
+}
+#error{margin-top:15px;color:#a5453d;white-space:pre-wrap;font-size:13px}
 </style>
 </head>
 <body>
-<div class="toolbar">
-  <a class="back" id="backLink" href="query.html">← 返回資料</a>
-  <button class="print" id="printBtn" type="button" disabled>🖨️ 列印／另存 PDF</button>
-  <span class="status" id="status">正在讀取資料與原始表格……</span>
-</div>
-<div class="preview" id="preview"></div>
+<div class="wrap">
+  <div class="card">
+    <h1>作品調查表 Word 匯出</h1>
+    <div class="sub">從資料庫帶入文字記錄與勾選項目，下載後可直接使用 Microsoft Word 修改。</div>
 
+    <div class="info">
+      <div>作品編號：<span id="recordCode" class="code">讀取中……</span></div>
+      <div>題材名稱：<span id="titleText">—</span></div>
+      <div>輸出格式：<strong>.docx</strong></div>
+      <div>影像處理：<strong>所有照片與影像說明欄位保持空白</strong></div>
+    </div>
+
+    <div class="actions">
+      <button id="downloadBtn" type="button" disabled>下載 Word 調查表</button>
+      <a class="btn" href="query.html">返回調查結果資料庫</a>
+    </div>
+
+    <div class="note">
+      這份 Word 只帶入調查記錄，不會從雲端下載或插入任何照片。部件影像、細部影像、照片檔名與影像說明區域會保留空白，方便後續在 Word 中自行補充。
+    </div>
+    <div id="error"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/pizzip@3.2.0/dist/pizzip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.65.2/build/docxtemplater.js"></script>
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import * as pdfjsLib from "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs";
-pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs";
 
-const SUPABASE_URL="https://kappwvkerqdsvpgzamnc.supabase.co";
-const SUPABASE_KEY="sb_publishable_WIVgXV-WgBcveNX2yvLs8g_Y2tYDomD";
-const TEMPLATE_PDF="./survey-template.pdf";
-const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-const qs=new URLSearchParams(location.search), recordId=qs.get("id");
-const $=id=>document.getElementById(id), A=v=>Array.isArray(v)?v:[], has=(a,v)=>A(a).includes(v);
+const SUPABASE_URL = "https://kappwvkerqdsvpgzamnc.supabase.co";
+const SUPABASE_KEY = "sb_publishable_WIVgXV-WgBcveNX2yvLs8g_Y2tYDomD";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+});
 
-const AREA_NAMES={SH:"三川殿",FL:"前殿龍門",FR:"前殿虎門",LC:"左下山前廊",RC:"右下山前廊",XL:"左下山護室",XR:"右下山護室",GL:"左過水廊",GR:"右過水廊",TL:"左頂山護室",TR:"右頂山護室",BT:"鐘樓",DT:"鼓樓",YH:"後殿月老廳",HH:"後殿華佗廳",RL:"後殿龍門",RR:"後殿虎門",TH:"天上聖母殿",GH:"關聖帝君殿",WH:"文昌帝君殿",PL:"牌樓"};
-const ROOF_NAMES={MR:"正脊",DR:"垂脊",HR:"戧脊",ER:"圍脊",AR:"角脊",SR:"燕尾",SD:"水車堵",GD:"山花",WD:"牆堵"};
+const AREA_NAMES = {
+  SH:"三川殿", FL:"前殿龍門", FR:"前殿虎門", LC:"左下山前廊", RC:"右下山前廊",
+  XL:"左下山護室", XR:"右下山護室", BT:"鐘樓", DT:"鼓樓", GL:"左過水廊",
+  GR:"右過水廊", MH:"中殿", TL:"左頂山護室", TR:"右頂山護室", HH:"後殿華佗廳",
+  YH:"後殿月老廳", RL:"後殿龍門", RR:"後殿虎門", TH:"天上聖母殿",
+  GH:"關聖帝君殿", WH:"文昌帝君殿", PL:"牌樓"
+};
+const ROOF_NAMES = {MR:"正脊",DR:"垂脊",HR:"戧脊",ER:"圍脊",AR:"角脊",SR:"燕尾",SD:"水車堵",GD:"山花",WD:"牆堵"};
+const COMPONENT_NAMES = {
+  "00":"無法辨識","01":"上馬路","02":"下馬路","03":"三角堵","04":"水車堵",
+  "05":"四寸蓋","06":"印斗","07":"吐水","08":"西施脊","09":"身堵","10":"垂脊",
+  "11":"通風脊堵","12":"脊堵","13":"脊塞","14":"脊鎖","15":"脊獸","16":"規帶",
+  "17":"排頭","18":"頂堵","19":"墀頭","20":"翹脊"
+};
 
-function pageEl(n){return document.querySelector(`.sheet[data-page="${n}"]`)}
-function addText(p,x,y,text,w=100,size=8.4,cls="",h=null){
-  if(text===null||text===undefined||text==="")return;
+const params = new URLSearchParams(location.search);
+const recordId = params.get("id");
+const downloadBtn = document.getElementById("downloadBtn");
+const errorBox = document.getElementById("error");
+let payload = null;
 
-  const el=document.createElement("div");
-  const isWrap=String(cls).split(/\s+/).includes("wrap");
+const A = v => Array.isArray(v) ? v : [];
+const has = (arr,v) => A(arr).includes(v);
+const mark = (arr,v,label=v) => `${has(arr,v) ? "■" : "□"} ${label}`;
+const radio = (value, expected, label) => `${String(value??"")===String(expected) ? "■" : "□"} ${label}`;
+const txt = v => v===null || v===undefined ? "" : String(v).trim();
 
-  el.className=`overlay text value ${cls}`;
-  el.textContent=String(text);
-  el.style.left=`${x}pt`;
-  el.style.top=`${y}pt`;
-  el.style.width=`${w}pt`;
-  el.style.fontSize=`${size}pt`;
-
-  // 單行欄位限制在本列高度內；多行欄位由呼叫端指定可用高度。
-  if(h!==null){
-    el.style.height=`${h}pt`;
-    el.style.maxHeight=`${h}pt`;
-
-    if(!isWrap){
-      el.style.display="flex";
-      el.style.alignItems="center";
-      el.style.paddingRight="2pt";
-    }
-  }else if(!isWrap){
-    el.style.height=`${Math.max(size*1.35,10)}pt`;
-    el.style.maxHeight=`${Math.max(size*1.35,10)}pt`;
-  }
-
-  pageEl(p)?.appendChild(el);
-
-  // 單行內容太長時逐步縮小字體，避免跨出表格線。
-  if(!isWrap){
-    let current=size;
-    while(el.scrollWidth>el.clientWidth && current>5.8){
-      current-=0.25;
-      el.style.fontSize=`${current}pt`;
-    }
-  }else if(h!==null){
-    // 多行內容過多時也適度縮小，直到盡量容納在欄位內。
-    let current=size;
-    while(el.scrollHeight>el.clientHeight && current>5.8){
-      current-=0.25;
-      el.style.fontSize=`${current}pt`;
-    }
-  }
+function formatDateTW(value) {
+  if (!value) return "";
+  const m = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return txt(value);
+  return `${Number(m[1])} 年 ${Number(m[2])} 月 ${Number(m[3])} 日`;
 }
-function addCheck(p,x,y,on){
-  if(!on)return;
 
-  const ns="http://www.w3.org/2000/svg";
-  const svg=document.createElementNS(ns,"svg");
-  svg.setAttribute("viewBox","0 0 10 10");
-  svg.setAttribute("width","4.2pt");
-  svg.setAttribute("height","4.2pt");
-  svg.setAttribute("aria-hidden","true");
-  svg.classList.add("overlay","checkmark-svg");
-
-  const rect=document.createElementNS(ns,"rect");
-  rect.setAttribute("x","0");
-  rect.setAttribute("y","0");
-  rect.setAttribute("width","10");
-  rect.setAttribute("height","10");
-  rect.setAttribute("fill","#000000");
-  svg.appendChild(rect);
-
-  // 內縮到原本 □ 的中央位置。
-  svg.style.left=`${x+1.14}pt`;
-  svg.style.top=`${y+1.30}pt`;
-
-  pageEl(p)?.appendChild(svg);
+function unknownValues(arr, known) {
+  return A(arr).filter(v => !known.includes(v));
 }
-async function renderTemplate(){
-  const pdf=await pdfjsLib.getDocument(TEMPLATE_PDF).promise;
-  $("preview").innerHTML="";
-  for(let n=1;n<=pdf.numPages;n++){
-    const page=await pdf.getPage(n), viewport=page.getViewport({scale:2.2});
-    const sheet=document.createElement("section");sheet.className="sheet";sheet.dataset.page=String(n);
-    const canvas=document.createElement("canvas");canvas.width=Math.floor(viewport.width);canvas.height=Math.floor(viewport.height);
-    sheet.appendChild(canvas);$("preview").appendChild(sheet);
-    await page.render({canvasContext:canvas.getContext("2d"),viewport}).promise;
-  }
+
+function selectedOther(arr, known) {
+  const u = unknownValues(arr,known);
+  return u.length ? `■ 其他：${u.join("、")}` : "□ 其他：_____";
 }
-async function loadRecord(){
-  const {data:{session}}=await supabase.auth.getSession(); if(!session) throw new Error("尚未登入，请先登录。");
-  const {data:r,error:e1}=await supabase.from("survey_records").select("*").eq("id",recordId).single(); if(e1) throw e1;
-  const [{data:c,error:e2},{data:repairs,error:e3}]=await Promise.all([
+
+function buildData(r,c,repairs) {
+  const repair = A(repairs).length ? repairs[repairs.length-1] : {};
+
+  const dir = {
+    E: r.direction==="E", W:r.direction==="W",
+    S:r.direction==="S", N:r.direction==="N"
+  };
+
+  const location_block =
+    `殿區／代碼：${AREA_NAMES[r.area]||r.area||""}${r.area ? " / "+r.area : ""}    ` +
+    `屋面朝向：${dir.E?"■":"□"}東  ${dir.W?"■":"□"}西  ${dir.S?"■":"□"}南  ${dir.N?"■":"□"}北\n` +
+    `屋頂部位／代碼：${ROOF_NAMES[r.roof_position]||r.roof_position||""}${r.roof_position ? " / "+r.roof_position : ""}    ` +
+    `構件：${COMPONENT_NAMES[r.component_code]||r.component_code||""}${r.component_code ? " / "+r.component_code : ""}`;
+
+  const age_block =
+    `${radio(r.decoration_age_class,"50年以上","製成年代逾50年以上裝飾工藝")}   ` +
+    `${radio(r.decoration_age_class,"未達50年","製成年代未達50年裝飾工藝")}`;
+
+  const craft_block =
+    `${mark(r.crafts,"CP","剪黏")}    ${mark(r.crafts,"CS","泥塑")}    ${mark(r.crafts,"JP","交趾陶")}`;
+
+  const period_block =
+    `年代區間：${txt(r.period_range) || "___________________"}\n` +
+    `文物紀年：${txt(r.artifact_year) || "________"} 年（西元）\n` +
+    `${r.year_pending_analysis ? "■" : "□"} 待分析`;
+
+  const composition_block =
+    `組成形式：${mark(r.composition_types,"單件")}   ${mark(r.composition_types,"成對")}   ` +
+    `${mark(r.composition_types,"連續排列")}   ${mark(r.composition_types,"左右對稱")}   ${mark(r.composition_types,"組群")}\n` +
+    `對應作品編號：${A(r.related_record_codes).join("、") || "____________________________________"}`;
+
+  const size_block = r.unable_to_measure
+    ? `長：________ ， 寬：________ ， 厚/高：________   ■ 無法測量`
+    : `長：${txt(r.length_cm)||"________"} ， 寬：${txt(r.width_cm)||"________"} ， 厚/高：${txt(r.height_cm)||"________"}   □ 無法測量`;
+
+  const surfKnown = ["仿古瓷碗片","彩色玻璃片","陶片","瓷片","瓦片","金屬","壓克力","彩繪","貼金","未施彩","無法辨識"];
+  const bodyKnown = ["水泥砂漿","灰泥","金屬骨架","無法辨識"];
+  const baseKnown = ["麻絨","海菜粉","糯米糖水","化學樹脂","未發現相關資料","無法確認","無法辨識"];
+
+  const material_cp_cs =
+    `【表面材料】${mark(r.surface_materials,"仿古瓷碗片")}  ${mark(r.surface_materials,"彩色玻璃片")}  ` +
+    `${mark(r.surface_materials,"陶片")}  ${mark(r.surface_materials,"瓷片")}  ${mark(r.surface_materials,"瓦片")}  ` +
+    `${mark(r.surface_materials,"金屬")}  ${mark(r.surface_materials,"壓克力")}  ${mark(r.surface_materials,"彩繪")}  ` +
+    `${mark(r.surface_materials,"貼金")}  ${mark(r.surface_materials,"未施彩")}  ${selectedOther(r.surface_materials,surfKnown)}  ` +
+    `${mark(r.surface_materials,"無法辨識")}\n` +
+    `【坯體】${mark(r.body_materials,"水泥砂漿")}  ${mark(r.body_materials,"灰泥")}  ${mark(r.body_materials,"金屬骨架")}  ` +
+    `${selectedOther(r.body_materials,bodyKnown)}  ${mark(r.body_materials,"無法辨識")}\n` +
+    `【基底材料】${mark(r.base_materials,"麻絨")}  ${mark(r.base_materials,"海菜粉")}  ${mark(r.base_materials,"糯米糖水")}  ` +
+    `${mark(r.base_materials,"化學樹脂")}  ${selectedOther(r.base_materials,baseKnown)}\n` +
+    `${mark(r.base_materials,"未發現相關資料")}  ${has(r.base_materials,"無法確認")||has(r.base_materials,"無法辨識") ? "■" : "□"} 無法辨識`;
+
+  const ceramicKnown = ["陶坯","瓷坯","無法辨識"];
+  const glazeKnown = ["寶石釉","水彩釉","西洋釉上彩","無法辨識"];
+  const featureKnown = ["透明","半透明","不透明","透明與不透明並用","無法辨識"];
+  const material_jp =
+    `【坯體類型】${mark(r.ceramic_body_types,"陶坯")}  ${mark(r.ceramic_body_types,"瓷坯")}  ` +
+    `${selectedOther(r.ceramic_body_types,ceramicKnown)}  ${mark(r.ceramic_body_types,"無法辨識")}\n` +
+    `【釉彩類型】${mark(r.glaze_types,"寶石釉")}  ${mark(r.glaze_types,"水彩釉")}  ${mark(r.glaze_types,"西洋釉上彩")}  ` +
+    `${selectedOther(r.glaze_types,glazeKnown)}  ${mark(r.glaze_types,"無法辨識")}\n` +
+    `【釉面特徵】${mark(r.glaze_features,"透明")}  ${mark(r.glaze_features,"半透明")}  ${mark(r.glaze_features,"不透明")}  ` +
+    `${mark(r.glaze_features,"透明與不透明並用")}  ${mark(r.glaze_features,"無法辨識")}`;
+
+  const material_basis_block =
+    `${mark(r.material_basis,"現場目視")}  ${mark(r.material_basis,"材料外露")}  ${mark(r.material_basis,"修復報告")}  ` +
+    `${mark(r.material_basis,"施工紀錄")}  ${mark(r.material_basis,"匠師訪談")}  ${mark(r.material_basis,"材料檢測")}\n` +
+    `${mark(r.material_basis,"歷史文獻")}  ${selectedOther(r.material_basis,["現場目視","材料外露","修復報告","施工紀錄","匠師訪談","材料檢測","歷史文獻"])}`;
+
+  const subjKnown = ["人物","神祇","歷史故事","戲曲故事","吉祥圖案","動物","植物","水族","器物","文字","山水","其他"];
+  const subjectOther = has(r.subject_categories,"其他") ? "■ 其他：___________" : "□ 其他：___________";
+  const subject_block =
+    `【題材分類】${mark(r.subject_categories,"人物")}  ${mark(r.subject_categories,"神祇")}  ${mark(r.subject_categories,"歷史故事")}  ` +
+    `${mark(r.subject_categories,"戲曲故事")}  ${mark(r.subject_categories,"吉祥圖案")}  ${mark(r.subject_categories,"動物")}  ${mark(r.subject_categories,"植物")}\n` +
+    `${mark(r.subject_categories,"水族")}  ${mark(r.subject_categories,"器物")}  ${mark(r.subject_categories,"文字")}  ${mark(r.subject_categories,"山水")}  ${subjectOther}\n` +
+    `【題材內容與典故簡述】\n${txt(r.subject_description)}`;
+
+  const overallKnown=["現況良好","損壞嚴重","局部損壞","結構不穩","作品佚失"];
+  const frameworkKnown=["裸露","鏽蝕","斷裂","變形","鬆動","背景或配件佚失","佚失"];
+  const bodyDamageKnown=["汙損","粉化","剝離","空鼓","生物劣化","鹽害","破損","裂縫","佚失"];
+  const surfaceKnown=["汙損","粉化","褪色","龜裂","剝落","起甲","泛鹽","佚失"];
+  const coverKnown=["汙損","脫落","碎裂","釉面剝落","褪色","佚失"];
+
+  const damage_block =
+    `【整體情形】${mark(c?.overall_conditions,"現況良好")}  ${mark(c?.overall_conditions,"損壞嚴重")}  ${mark(c?.overall_conditions,"局部損壞")}  ` +
+    `${mark(c?.overall_conditions,"結構不穩")}  ${mark(c?.overall_conditions,"作品佚失")}\n${selectedOther(c?.overall_conditions,overallKnown)}\n` +
+    `【骨架】${mark(c?.framework_damage,"裸露")}  ${mark(c?.framework_damage,"鏽蝕")}  ${mark(c?.framework_damage,"斷裂")}  ` +
+    `${mark(c?.framework_damage,"變形")}  ${mark(c?.framework_damage,"鬆動")}  ${mark(c?.framework_damage,"背景或配件佚失")}  ${mark(c?.framework_damage,"佚失")}\n` +
+    `${selectedOther(c?.framework_damage,frameworkKnown)}\n` +
+    `【胚體】${mark(c?.body_damage,"汙損")}  ${mark(c?.body_damage,"粉化","粉化（灰泥基底劣化）")}  ${mark(c?.body_damage,"剝離","剝離（層間分離）")}  ` +
+    `${mark(c?.body_damage,"空鼓","空鼓（內部中空）")}  ${mark(c?.body_damage,"生物劣化","生物劣化（苔蘚、藻類附生）")}  ${mark(c?.body_damage,"鹽害")}  ${mark(c?.body_damage,"破損")}  ${mark(c?.body_damage,"裂縫")}  ${mark(c?.body_damage,"佚失")}\n` +
+    `【表層繪色】${mark(c?.surface_damage,"汙損")}  ${mark(c?.surface_damage,"粉化")}  ${mark(c?.surface_damage,"褪色")}  ${mark(c?.surface_damage,"龜裂")}  ` +
+    `${mark(c?.surface_damage,"剝落")}  ${mark(c?.surface_damage,"起甲","起甲（彩繪層翹起）")}  ${mark(c?.surface_damage,"泛鹽","泛鹽（白華現象）")}  ${mark(c?.surface_damage,"佚失")}\n` +
+    `【外覆材料】${mark(c?.covering_damage,"汙損")}  ${mark(c?.covering_damage,"脫落")}  ${mark(c?.covering_damage,"碎裂")}  ` +
+    `${mark(c?.covering_damage,"釉面剝落","釉面剝落（交趾陶適用）")}  ${mark(c?.covering_damage,"褪色")}  ${mark(c?.covering_damage,"佚失")}`;
+
+  const condition_level_block =
+    `${radio(c?.condition_level,1,"第一級：整體狀況良好。")}\n` +
+    `${radio(c?.condition_level,2,"第二級：有輕微劣化，但狀況穩定，暫不需處理。")}\n` +
+    `${radio(c?.condition_level,3,"第三級：有明顯劣化，可延緩處理。")}\n` +
+    `${radio(c?.condition_level,4,"第四級：劣化持續發展，需優先處理。")}\n` +
+    `${radio(c?.condition_level,5,"第五級：結構或構件處於危急狀態，需立即處理。")}`;
+
+  const repair_advice_block =
+    `【修護策略】${mark(c?.conservation_strategies,"原狀維護","原狀維護（定期清潔、監測）")}  ` +
+    `${mark(c?.conservation_strategies,"現狀保存","現狀保存（維持現況，不介入）")}\n` +
+    `${mark(c?.conservation_strategies,"加固處理","加固處理（含泥胎補強、剪黏片重新固定）")}  ${mark(c?.conservation_strategies,"清潔處理")}  ` +
+    `${mark(c?.conservation_strategies,"表層色層補色","表層色層補色（比對原構件色相）")}  ${mark(c?.conservation_strategies,"補缺修復","補缺修復（脫落片回補／重新鑲嵌）")}  ${mark(c?.conservation_strategies,"局部重塑")}\n` +
+    `${mark(c?.conservation_strategies,"不當修補材料移除")}  ${mark(c?.conservation_strategies,"原貌復原")}  ${mark(c?.conservation_strategies,"全面重製")}  ` +
+    `${mark(c?.conservation_strategies,"移地保存")}  ${mark(c?.conservation_strategies,"複製替換","複製替換（原件典藏）")}\n` +
+    `【材料選用】${mark(c?.material_recommendations,"傳統材料","傳統材料（石灰、糯米漿等）")}  ` +
+    `${mark(c?.material_recommendations,"類傳統材料")}  ${mark(c?.material_recommendations,"現代可逆材料")}  ${mark(c?.material_recommendations,"原件碎片回貼")}`;
+
+  const source_block =
+    `資料來源：${mark(r.source_types,"現場落款")}  ${mark(r.source_types,"修繕碑記")}  ${mark(r.source_types,"廟方檔案")}  ` +
+    `${mark(r.source_types,"修復報告")}  ${mark(r.source_types,"歷史照片")}\n` +
+    `${has(r.source_types,"訪談") ? "■" : "□"} 訪談受訪者：___________  ${mark(r.source_types,"文獻")}  ${mark(r.source_types,"推定")}  □ 其他：_____\n` +
+    `判定可信程度：${radio(r.dating_confidence,"確定","確定")}  ${radio(r.dating_confidence,"高度可能","高度可能")}  ` +
+    `${radio(r.dating_confidence,"推測","推測")}  ${radio(r.dating_confidence,"待考","待考")}`;
+
+  const currentStatus = txt(repair.current_status);
+  const repair_history_block =
+    `原作年代：${txt(repair.original_year)||"____________________"}    現存作品年代：${txt(repair.existing_work_year)||"____________________"}\n` +
+    `修繕年代：${txt(repair.repair_year)||"____________________"}    修繕匠師：${txt(repair.artisan)||"__________________"}\n` +
+    `現存狀態：${currentStatus.includes("原件")?"■":"□"} 原件  ${currentStatus.includes("局部更新")?"■":"□"} 局部更新  ` +
+    `${currentStatus.includes("全面重製")?"■":"□"} 全面重製  ${currentStatus.includes("年代不明")?"■":"□"} 年代不明\n` +
+    `修繕方式／紀錄來源：${txt(repair.repair_method)||txt(repair.source)||"________________________________________________"}\n` +
+    `其他備註：${txt(repair.note)||txt(r.other_notes)||"________________________________________________"}`;
+
+  return {
+    title: txt(r.title),
+    record_code: txt(r.record_code),
+    location_block,
+    inspector: txt(r.inspector),
+    inspection_unit: txt(r.inspection_unit),
+    inspection_date: formatDateTW(r.inspection_date),
+    age_block,
+    craft_block,
+    author_signature: txt(r.author_signature),
+    period_block,
+    composition_block,
+    size_block,
+    material_cp_cs,
+    material_jp,
+    material_basis_block,
+    subject_block,
+    damage_block,
+    condition_level_block,
+    repair_advice_block,
+    source_block,
+    repair_history_block
+  };
+}
+
+async function loadRecord() {
+  if (!recordId) throw new Error("網址缺少作品 id。");
+
+  const { data:{session} } = await supabase.auth.getSession();
+  if (!session) throw new Error("請先登入研究人員帳號。");
+
+  const [recordRes, conditionRes, repairRes] = await Promise.all([
+    supabase.from("survey_records").select("*").eq("id",recordId).single(),
     supabase.from("condition_records").select("*").eq("record_id",recordId).maybeSingle(),
     supabase.from("repair_records").select("*").eq("record_id",recordId).order("created_at",{ascending:true})
   ]);
-  if(e2)throw e2;if(e3)throw e3;
-  return {r,c:c||{},repairs:repairs||[]};
+
+  if (recordRes.error) throw recordRes.error;
+  if (conditionRes.error) throw conditionRes.error;
+  if (repairRes.error) throw repairRes.error;
+
+  const r = recordRes.data;
+  document.getElementById("recordCode").textContent = r.record_code || "—";
+  document.getElementById("titleText").textContent = r.title || "—";
+
+  payload = buildData(r, conditionRes.data || {}, repairRes.data || []);
+  downloadBtn.disabled = false;
 }
-function overlayData(r,c,repairs){
-  addText(1,214,137,r.title||"",305,7.6,"",12);addText(1,214,165,r.record_code||"",305,7.6,"",12);
-  addText(1,272,185,`${AREA_NAMES[r.area]||r.area||""} / ${r.area||""}`,100,7.0,"",10.5);
-  addText(1,289,212,`${ROOF_NAMES[r.roof_position]||r.roof_position||""} / ${r.roof_position||""}`,78,6.8,"",10);
-  addText(1,242,225,r.component_code||"",122,7.0,"",10);
-  addCheck(1,255.4,199.25,r.direction==="E");addCheck(1,273.7,199.25,r.direction==="W");addCheck(1,291.9,199.25,r.direction==="S");addCheck(1,310.2,199.25,r.direction==="N");
-  addText(1,440,204,r.inspector||"",78,6.9,"",10);addText(1,214,246,r.inspection_unit||"",149,6.9,"",10);addText(1,440,246,r.inspection_date||"",78,6.8,"",10);
-  addCheck(1,153,270.45,r.decoration_age_class==="50年以上");addCheck(1,153,285.05,r.decoration_age_class==="未達50年");
-  addCheck(1,153,311.45,has(r.crafts,"CP"));addCheck(1,190.2,311.45,has(r.crafts,"CS"));addCheck(1,230.5,311.45,has(r.crafts,"JP"));
-  addText(1,157,337,r.author_signature||"",205,7.1,"",12);
-  addCheck(1,153,383.10,has(r.composition_types,"單件"));addCheck(1,153,397.70,has(r.composition_types,"成對"));addCheck(1,155.7,412.20,has(r.composition_types,"連續排列"));addCheck(1,153,426.70,has(r.composition_types,"左右對稱"));addCheck(1,153,441.30,has(r.composition_types,"組群"));
-  addText(1,232,455,A(r.related_record_codes).join("、"),132,7.0,"wrap",14);
-  addText(1,164,472,r.length_cm??"",18,7.2,"",10);addText(1,198,472,r.width_cm??"",17,7.2,"",10);addText(1,247,472,r.height_cm??"",24,7.2,"",10);addCheck(1,151.5,496.30,!!r.unable_to_measure);
-  addText(1,204,582,r.period_range||"",43,7.2,"wrap",13);addCheck(1,153,597.10,!!r.artifact_year);addText(1,216,596,r.artifact_year??"",24,7.8);addCheck(1,291,597.10,!!r.year_pending_analysis);
 
-  const surface=A(r.surface_materials);
-  [["仿古瓷碗片",235.5,627.5],["彩色玻璃片",235.5,642],["陶片",235.5,656.6],["瓷片",235.5,671.1],["瓦片",235.5,685.7],["金屬",235.5,700.2]].forEach(([v,x,y])=>addCheck(1,x,y,has(surface,v)));
-  const body=A(r.body_materials);[["水泥砂漿",334.5,625.6],["灰泥",334.5,638.2],["金屬骨架",334.5,650.9],["無法辨識",334.5,676.2]].forEach(([v,x,y])=>addCheck(1,x,y,has(body,v)));
-  const base=A(r.base_materials);[["麻絨",424.5,625.9],["海菜粉",424.5,638.5],["糯米糖水",424.5,651.2],["化學樹脂",424.5,663.8],["未發現相關資料",424.5,689.1],["無法確認",424.5,701.8]].forEach(([v,x,y])=>addCheck(1,x,y,has(base,v)));
+async function downloadDocx() {
+  if (!payload) return;
 
-  [["壓克力",235.5,73.2],["彩繪",235.5,87.8],["貼金",235.5,102.3],["未施彩",235.5,116.9],["無法辨識",235.5,144.1]].forEach(([v,x,y])=>addCheck(2,x,y,has(surface,v)));
-  const ceramic=A(r.ceramic_body_types);[["陶坯",235.5,186.5],["瓷坯",235.5,199.2],["無法辨識",235.5,224.5]].forEach(([v,x,y])=>addCheck(2,x,y,has(ceramic,v)));
-  const glaze=A(r.glaze_types);[["寶石釉",334.5,186.5],["水彩釉",334.5,199.2],["西洋釉上彩",334.5,211.8],["無法辨識",334.5,237.1]].forEach(([v,x,y])=>addCheck(2,x,y,has(glaze,v)));
-  const gf=A(r.glaze_features);[["透明",424.5,186.5],["半透明",424.5,199.2],["不透明",424.5,211.8],["透明與不透明並用",424.5,224.5],["無法辨識",424.5,237.1]].forEach(([v,x,y])=>addCheck(2,x,y,has(gf,v)));
-  const basis=A(r.material_basis);[["現場目視",154.5,265.5],["材料外露",212.7,265.5],["修復報告",271,265.5],["施工紀錄",329.2,265.5],["匠師訪談",387.5,265.5],["材料檢測",445.7,265.5],["歷史文獻",504,265.5]].forEach(([v,x,y])=>addCheck(2,x,y,has(basis,v)));
-  const subj=A(r.subject_categories);[["人物",208.5,305.2],["神祇",242.7,305.2],["歷史故事",277,305.2],["戲曲故事",335.2,305.2],["吉祥圖案",393.5,305.2],["動物",451.7,305.2],["植物",486,305.2],["水族",181.5,321.1],["器物",215.7,321.1],["文字",250,321.1],["山水",284.2,322]].forEach(([v,x,y])=>addCheck(2,x,y,has(subj,v)));
-  addText(2,155,367,r.subject_description||"",372,8.2,"wrap",316);
+  downloadBtn.disabled = true;
+  downloadBtn.textContent = "正在建立 Word……";
+  errorBox.textContent = "";
 
-  const areaMap={PL:[235.5,87.8],SH:[235.5,102.3],FL:[235.5,116.9],FR:[235.5,131.4],LC:[235.5,145.9],RC:[235.5,160.5],XL:[235.5,175],XR:[235.5,189.6],GL:[235.5,204.1],GR:[235.5,218.7],TL:[235.5,233.2],TR:[235.5,247.8],BT:[235.5,262.3],DT:[235.5,276.9],YH:[235.5,291.4],HH:[235.5,306],RL:[235.5,320.5],RR:[235.5,335.1],TH:[235.5,349.6],GH:[235.5,364.1],WH:[235.5,378.7]};
-  if(areaMap[r.area])addCheck(3,...areaMap[r.area],true);
-  const roofMap={MR:[382.5,87.8],DR:[382.5,102.3],HR:[382.5,116.9],ER:[382.5,131.4],AR:[382.5,145.9],SR:[382.5,160.5],SD:[382.5,175],GD:[382.5,189.6],WD:[382.5,204.1]};
-  if(roofMap[r.roof_position])addCheck(3,...roofMap[r.roof_position],true);
+  try {
+    if (!window.PizZip || !window.docxtemplater) {
+      throw new Error("Word 匯出元件尚未載入，請重新整理頁面後再試。");
+    }
 
-  const overall=A(c.overall_conditions);[["現況良好",235.5,435.7],["損壞嚴重",235.5,448.4],["局部損壞",235.5,461],["結構不穩",235.5,473.7],["作品佚失",235.5,486.3]].forEach(([v,x,y])=>addCheck(3,x,y,has(overall,v)));
-  const fw=A(c.framework_damage);[["裸露",235.5,537.7],["鏽蝕",235.5,550.3],["斷裂",235.5,563],["變形",235.5,575.6],["鬆動",235.5,588.3],["背景或配件佚失",235.5,600.9],["佚失",235.5,613.6]].forEach(([v,x,y])=>addCheck(3,x,y,has(fw,v)));
-  const bd=A(c.body_damage);[["汙損",382.5,537.7],["粉化",382.5,550.3],["剝離",382.5,563],["空鼓",382.5,575.6],["生物劣化",382.5,588.3],["鹽害",382.5,600.9],["破損",382.5,613.6],["裂縫",382.5,626.2],["佚失",382.5,638.9]].forEach(([v,x,y])=>addCheck(3,x,y,has(bd,v)));
+    const templateRes = await fetch("./survey-template.docx", { cache:"no-store" });
+    if (!templateRes.ok) throw new Error("找不到 survey-template.docx，請確認檔案已上傳到同一個 GitHub Pages 目錄。");
 
-  const sd=A(c.surface_damage);[["汙損",235.5,85.9],["粉化",235.5,98.5],["褪色",235.5,111.2],["龜裂",235.5,123.8],["剝落",235.5,136.5],["起甲",235.5,149.1],["泛鹽",235.5,161.8],["佚失",235.5,174.4]].forEach(([v,x,y])=>addCheck(4,x,y,has(sd,v)));
-  const cover=A(c.covering_damage);[["汙損",382.5,85.9],["脫落",382.5,98.5],["碎裂",382.5,111.2],["釉面剝落",382.5,123.8],["褪色",382.5,136.5],["佚失",382.5,149.1]].forEach(([v,x,y])=>addCheck(4,x,y,has(cover,v)));
+    const arrayBuffer = await templateRes.arrayBuffer();
+    const zip = new window.PizZip(arrayBuffer);
 
-  const lm={1:[153,215.4],2:[153,229.2],3:[153,243],4:[153,256.8],5:[153,270.6]};if(lm[c.condition_level])addCheck(4,...lm[c.condition_level],true);
-  const st=A(c.conservation_strategies);[["原狀維護",153,301.1],["現狀保存",153,313.7],["加固處理",153,326.4],["清潔處理",153,339],["表層色層補色",153,351.7],["補缺修復",153,364.3],["局部重塑",153,377],["不當修補材料移除",153,389.6],["原貌復原",153,402.3],["全面重製",153,414.9],["移地保存",153,427.6],["複製替換",153,440.2]].forEach(([v,x,y])=>addCheck(4,x,y,has(st,v)));
-  const mr=A(c.material_recommendations);[["傳統材料",153,465.5],["類傳統材料",153,478.2],["現代可逆材料",153,490.8],["原件碎片回貼",153,503.4]].forEach(([v,x,y])=>addCheck(4,x,y,has(mr,v)));
-  addCheck(4,153,528.7,!!c.professional_assessment_needed);addCheck(4,153,541.4,!!c.urgent_treatment_needed);
+    const doc = new window.docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true,
+      nullGetter: () => ""
+    });
 
-  const src=A(r.source_types);[["現場落款",291,549.5],["修繕碑記",349.2,549.5],["廟方檔案",407.5,549.5],["修復報告",465.7,549.5],["歷史照片",237,565.4],["訪談",295.2,565.4],["文獻",329.5,565.4],["推定",363.7,565.4]].forEach(([v,x,y])=>addCheck(5,x,y,has(src,v)));
-  const cm={"確定":[315,581.2],"高度可能":[349.2,581.2],"推測":[407.5,581.2],"待考":[441.7,581.2]};if(cm[r.dating_confidence])addCheck(5,...cm[r.dating_confidence],true);
+    doc.render(payload);
 
-  const repair=repairs[0]||{};
-  addText(5,300,607,repair.original_year||"",61,8);addText(5,453,607,repair.existing_work_year||"",65,8);addText(5,300,623,repair.repair_year||"",61,8);addText(5,455,623,[repair.artisan,repair.organization].filter(Boolean).join("／"),64,7.6);
-  const rsm={"原件":[291,639.7],"局部更新":[325.2,639.7],"全面重製":[383.5,639.7],"年代不明":[441.7,639.7]};if(rsm[repair.current_status])addCheck(5,...rsm[repair.current_status],true);
-  addText(5,360,654,repair.repair_method||repair.source||"",168,7.7,"wrap",14);addText(5,298,671,repair.note||r.other_notes||"",226,7.7,"wrap",29);
+    const blob = doc.getZip().generate({
+      type:"blob",
+      mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      compression:"DEFLATE"
+    });
+
+    const filename = `作品調查表-${payload.record_code || "作品"}.docx`;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+  } catch (err) {
+    console.error(err);
+    errorBox.textContent = "❌ " + (err?.message || String(err));
+  } finally {
+    downloadBtn.disabled = false;
+    downloadBtn.textContent = "下載 Word 調查表";
+  }
 }
-async function init(){
-  if(!recordId)throw new Error("网址缺少作品 id。");
-  await renderTemplate();
-  const {r,c,repairs}=await loadRecord();
-  overlayData(r,c,repairs);
-  $("backLink").href=`record.html?id=${encodeURIComponent(recordId)}`;
-  $("status").textContent=`✅ 預覽完成：${r.record_code}`;
-  $("printBtn").disabled=false;
-}
-$("printBtn").onclick=()=>window.print();
-try{await init()}catch(err){console.error(err);$("status").textContent="❌ "+(err?.message||String(err))}
+
+downloadBtn.addEventListener("click", downloadDocx);
+
+loadRecord().catch(err => {
+  console.error(err);
+  errorBox.textContent = "❌ " + (err?.message || String(err));
+  document.getElementById("recordCode").textContent = "讀取失敗";
+});
 </script>
 </body>
 </html>
