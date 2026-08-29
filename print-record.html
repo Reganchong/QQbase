@@ -170,6 +170,7 @@ button,a.btn{
 
 <script src="https://cdn.jsdelivr.net/npm/pizzip@3.2.0/dist/pizzip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.65.2/build/docxtemplater.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.6/dist/docx-preview.min.js"></script>
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
@@ -487,6 +488,9 @@ async function previewDocx() {
     const blob = await buildDocxBlob();
     lastGeneratedBlob = blob;
 
+    if (!window.JSZip) {
+      throw new Error("Word 預覽所需的 JSZip 尚未載入，請重新整理頁面後再試。");
+    }
     if (!window.docx || typeof window.docx.renderAsync !== "function") {
       throw new Error("Word 預覽元件尚未載入，請重新整理頁面後再試。");
     }
