@@ -155,10 +155,10 @@ function buildData(r,c,repairs) {
   };
 
   const location_block =
-    `殿區／代碼：${AREA_NAMES[r.area]||r.area||""}${r.area ? " / "+r.area : ""}    ` +
+    `殿區：${AREA_NAMES[r.area]||r.area||""}    ` +
     `屋面朝向：${dir.E?"■":"□"}東  ${dir.W?"■":"□"}西  ${dir.S?"■":"□"}南  ${dir.N?"■":"□"}北\n` +
-    `屋頂部位／代碼：${ROOF_NAMES[r.roof_position]||r.roof_position||""}${r.roof_position ? " / "+r.roof_position : ""}    ` +
-    `構件：${COMPONENT_NAMES[r.component_code]||r.component_code||""}${r.component_code ? " / "+r.component_code : ""}`;
+    `屋頂部位：${ROOF_NAMES[r.roof_position]||r.roof_position||""}    ` +
+    `構件：${COMPONENT_NAMES[r.component_code]||r.component_code||""}`;
 
   const age_block =
     `${radio(r.decoration_age_class,"50年以上","製成年代逾50年以上裝飾工藝")}   ` +
@@ -280,6 +280,7 @@ function buildData(r,c,repairs) {
     inspector: txt(r.inspector),
     inspection_unit: txt(r.inspection_unit),
     inspection_date: formatDateTW(r.inspection_date),
+    cultural_asset_name: "國定古蹟—\n文授資局蹟字第 10730122031 號",
     age_block,
     craft_block,
     author_signature: txt(r.author_signature),
