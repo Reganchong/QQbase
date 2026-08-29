@@ -214,7 +214,9 @@ function buildData(r,c,repairs) {
     `${mark(r.material_basis,"歷史文獻")}  ${selectedOther(r.material_basis,["現場目視","材料外露","修復報告","施工紀錄","匠師訪談","材料檢測","歷史文獻"])}`;
 
   const subjKnown = ["人物","神祇","歷史故事","戲曲故事","吉祥圖案","動物","植物","水族","器物","文字","山水","其他"];
-  const subjectOther = has(r.subject_categories,"其他") ? "■ 其他：___________" : "□ 其他：___________";
+  const subjectOther = has(r.subject_categories,"其他")
+    ? `■ 其他：${txt(r.subject_other_text) || "___________"}`
+    : `□ 其他：${txt(r.subject_other_text) || "___________"}`;
   const subject_block =
     `【題材分類】${mark(r.subject_categories,"人物")}  ${mark(r.subject_categories,"神祇")}  ${mark(r.subject_categories,"歷史故事")}  ` +
     `${mark(r.subject_categories,"戲曲故事")}  ${mark(r.subject_categories,"吉祥圖案")}  ${mark(r.subject_categories,"動物")}  ${mark(r.subject_categories,"植物")}\n` +
@@ -260,7 +262,7 @@ function buildData(r,c,repairs) {
   const source_block =
     `資料來源：${mark(r.source_types,"現場落款")}  ${mark(r.source_types,"修繕碑記")}  ${mark(r.source_types,"廟方檔案")}  ` +
     `${mark(r.source_types,"修復報告")}  ${mark(r.source_types,"歷史照片")}\n` +
-    `${has(r.source_types,"訪談") ? "■" : "□"} 訪談受訪者：___________  ${mark(r.source_types,"文獻")}  ${mark(r.source_types,"推定")}  □ 其他：_____\n` +
+    `${has(r.source_types,"訪談") ? "■" : "□"} 訪談受訪者：${txt(r.interviewee) || "___________"}  ${mark(r.source_types,"文獻")}  ${mark(r.source_types,"推定")}  □ 其他：_____\n` +
     `判定可信程度：${radio(r.dating_confidence,"確定","確定")}  ${radio(r.dating_confidence,"高度可能","高度可能")}  ` +
     `${radio(r.dating_confidence,"推測","推測")}  ${radio(r.dating_confidence,"待考","待考")}`;
 
