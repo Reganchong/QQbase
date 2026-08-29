@@ -865,6 +865,16 @@
             </div>
 
             <div class="filter-group">
+                <label>資料排序</label>
+                <select id="sortFilter">
+                    <option value="record_asc" selected>作品編號／流水號：小 → 大</option>
+                    <option value="record_desc">作品編號／流水號：大 → 小</option>
+                    <option value="updated_desc">最後更新：新 → 舊</option>
+                    <option value="updated_asc">最後更新：舊 → 新</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
                 <label>每頁筆數</label>
                 <select id="pageSize">
                     <option value="25">25</option>
@@ -1192,9 +1202,24 @@
         const from = (currentPage - 1) * pageSize;
         const to = from + pageSize - 1;
 
-        const { data, error, count } = await buildQuery()
-            .order("updated_at", { ascending: false })
-            .range(from, to);
+        let orderedQuery = buildQuery();
+        const sortMode = document.getElementById("sortFilter").value;
+
+        if (sortMode === "record_asc") {
+            orderedQuery = orderedQuery
+                .order("record_code", { ascending: true })
+                .order("serial", { ascending: true });
+        } else if (sortMode === "record_desc") {
+            orderedQuery = orderedQuery
+                .order("record_code", { ascending: false })
+                .order("serial", { ascending: false });
+        } else if (sortMode === "updated_asc") {
+            orderedQuery = orderedQuery.order("updated_at", { ascending: true });
+        } else {
+            orderedQuery = orderedQuery.order("updated_at", { ascending: false });
+        }
+
+        const { data, error, count } = await orderedQuery.range(from, to);
 
         if (error) {
             console.error(error);
@@ -1981,6 +2006,7 @@
     });
 
 
+    document.getElementById("sortFilter").onchange = () => loadRecords(true);
     document.getElementById("searchBtn").onclick = () => loadRecords(true);
     document.getElementById("clearBtn").onclick = clearFilters;
     document.getElementById("exportBtn").onclick = exportCurrentQuery;
