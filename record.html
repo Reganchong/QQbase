@@ -3,916 +3,384 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>龍山寺普查系統 - 完整調查表</title>
+<title>作品調查表 Word 匯出</title>
 <style>
-:root{
-    --orange:#c4785a;
-    --gray:#7a7671;
-    --green:#5c634b;
-    --bg:#f7f5f2;
-    --soft:#f1ede8;
-    --border:#d7d0c8;
-    --text:#2f2d2b;
-    --sub:#6b6762;
+:root {
+  --orange:#c4785a;
+  --gray:#7a7671;
+  --green:#5c634b;
+  --bg:#f7f5f2;
+  --card:#fff;
+  --border:#d7d0c8;
+  --text:#2f2d2b;
+  --sub:#6b6762;
 }
 *{box-sizing:border-box}
 body{
-    margin:0;padding:16px;background:var(--bg);color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  margin:0;
+  padding:24px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC",sans-serif;
 }
-.container{
-    max-width:1100px;margin:auto;background:white;border:1px solid var(--border);
-    border-radius:16px;box-shadow:0 4px 18px rgba(0,0,0,.07);overflow:hidden;
+.wrap{max-width:760px;margin:0 auto}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:28px;
+  box-shadow:0 6px 20px rgba(92,99,75,.08);
 }
-header{
-    padding:20px 22px;border-bottom:1px solid var(--border);
-    display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+h1{margin:0;color:var(--green);font-size:24px}
+.sub{margin-top:8px;color:var(--sub);font-size:14px;line-height:1.7}
+.info{
+  margin-top:22px;
+  padding:16px;
+  border:1px solid var(--border);
+  background:#faf8f5;
+  border-radius:10px;
+  line-height:1.8;
 }
-h1{margin:0;color:var(--green);font-size:22px}
-.record-code{font-family:ui-monospace,monospace;color:var(--orange);font-weight:800;word-break:break-all}
-.status{font-size:12px;color:var(--sub)}
-.status.ok{color:var(--green);font-weight:700}.status.bad{color:#b13e3e;font-weight:700}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap}
-button,.btn{
-    border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;
-    text-decoration:none;font-size:14px;
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:700;color:var(--orange)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+button,a.btn{
+  border:0;
+  border-radius:9px;
+  padding:11px 16px;
+  font-size:14px;
+  font-weight:800;
+  cursor:pointer;
+  text-decoration:none;
 }
-.primary{background:var(--orange);color:#fff}
-.secondary{background:var(--gray);color:#fff}
-.green{background:var(--green);color:#fff}
-.tabs{
-    display:flex;gap:0;overflow:auto;border-bottom:1px solid var(--border);background:var(--soft)
+#downloadBtn{background:var(--orange);color:#fff}
+#downloadBtn:disabled{opacity:.45;cursor:not-allowed}
+.btn{background:var(--green);color:#fff}
+.note{
+  margin-top:18px;
+  padding:12px 14px;
+  border-left:4px solid var(--green);
+  background:#f0f2ed;
+  color:var(--sub);
+  font-size:13px;
+  line-height:1.7;
 }
-.tab{
-    min-width:max-content;padding:13px 16px;cursor:pointer;color:var(--sub);
-    border-bottom:3px solid transparent;font-weight:700;font-size:13px;
-}
-.tab.active{color:var(--green);border-bottom-color:var(--orange);background:#fff}
-.panel{display:none;padding:22px}.panel.active{display:block}
-.section{
-    border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;
-}
-.section h2{font-size:17px;color:var(--green);margin:0 0 14px}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.full{grid-column:1/-1}
-label.field{display:block;font-size:13px;font-weight:700;color:var(--sub)}
-input[type=text],input[type=number],input[type=date],select,textarea{
-    width:100%;margin-top:6px;padding:10px 11px;border:1px solid var(--border);
-    border-radius:8px;background:#fff;font-size:14px;color:var(--text);
-}
-textarea{min-height:95px;resize:vertical}
-.checks{display:flex;flex-wrap:wrap;gap:8px}
-.check{
-    display:flex;gap:6px;align-items:center;border:1px solid var(--border);
-    background:#fbfaf8;border-radius:8px;padding:8px 10px;font-size:13px
-}
-.readonly{background:#f1ede8!important}
-.photo-grid,.repair-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
-.photo-card,.repair-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fbfaf8}
-.photo-card img{width:100%;height:150px;object-fit:cover;border-radius:8px;background:#eee}
-.photo-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.photo-actions button{padding:7px 9px;font-size:12px}
-.danger{background:#b84e4e;color:#fff}
-.photo-form{border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;background:#fbfaf8}
-.photo-form h2{font-size:17px;color:var(--green);margin:0 0 14px}
-.photo-preview{display:none;margin-top:10px}
-.photo-preview img{max-width:100%;max-height:260px;border-radius:8px}
-.small{font-size:12px;color:var(--sub)}
-.notice{padding:12px;border-radius:9px;background:#fbf4ef;color:#8d503b;margin-bottom:15px}
-.bottom-save{display:flex;justify-content:flex-end;gap:10px;padding:16px 22px;border-top:1px solid var(--border);background:#fbfaf8;position:sticky;bottom:0}
-@media(max-width:700px){.grid,.grid3{grid-template-columns:1fr}.panel{padding:15px}}
+#error{margin-top:15px;color:#a5453d;white-space:pre-wrap;font-size:13px}
 </style>
 </head>
 <body>
-<div class="container">
-<header>
-    <div>
-        <h1>艋舺龍山寺屋頂建築裝飾工藝作品調查表</h1>
-        <div id="recordCode" class="record-code">讀取中……</div>
-        <div id="status" class="status">正在確認登入與資料……</div>
+<div class="wrap">
+  <div class="card">
+    <h1>作品調查表 Word 匯出</h1>
+    <div class="sub">從資料庫帶入文字記錄與勾選項目，下載後可直接使用 Microsoft Word 修改。</div>
+
+    <div class="info">
+      <div>作品編號：<span id="recordCode" class="code">讀取中……</span></div>
+      <div>題材名稱：<span id="titleText">—</span></div>
+      <div>輸出格式：<strong>.docx</strong></div>
+      <div>影像處理：<strong>所有照片與影像說明欄位保持空白</strong></div>
     </div>
-    <div class="toolbar">
-        <a href="query.html" class="btn secondary">← 回資料查詢</a>
-        <button id="saveTop" class="primary">💾 儲存全部</button>
+
+    <div class="actions">
+      <button id="downloadBtn" type="button" disabled>下載 Word 調查表</button>
+      <a class="btn" href="query.html">返回調查結果資料庫</a>
     </div>
-</header>
 
-<div class="tabs" id="tabs">
-    <div class="tab active" data-panel="basic">1 基本資料</div>
-    <div class="tab" data-panel="material">2 年代與材料</div>
-    <div class="tab" data-panel="subject">3 題材典故</div>
-    <div class="tab" data-panel="condition">4 保存狀況</div>
-    <div class="tab" data-panel="conservation">5 修護建議</div>
-    <div class="tab" data-panel="photos">6 影像紀錄</div>
-    <div class="tab" data-panel="repairs">7 修繕紀錄</div>
+    <div class="note">
+      這份 Word 只帶入調查記錄，不會從雲端下載或插入任何照片。部件影像、細部影像、照片檔名與影像說明區域會保留空白，方便後續在 Word 中自行補充。
+    </div>
+    <div id="error"></div>
+  </div>
 </div>
 
-<!-- 1 -->
-<section class="panel active" id="basic">
-<div class="section">
-<h2>基本資料</h2>
-<div class="grid">
-<label class="field">題材名稱<input id="title" type="text"></label>
-<label class="field">登錄編號<input id="record_code" class="readonly" type="text" readonly></label>
-<label class="field">殿區
-<select id="area">
-<option value="SH">三川殿 (SH)</option><option value="FL">前殿龍門 (FL)</option><option value="FR">前殿虎門 (FR)</option>
-<option value="LC">左下山前廊 (LC)</option><option value="RC">右下山前廊 (RC)</option><option value="XL">左下山護室 (XL)</option>
-<option value="XR">右下山護室 (XR)</option><option value="GL">左過水廊 (GL)</option><option value="GR">右過水廊 (GR)</option>
-<option value="TL">左頂山護室 (TL)</option><option value="TR">右頂山護室 (TR)</option><option value="BT">鐘樓 (BT)</option>
-<option value="DT">鼓樓 (DT)</option><option value="YH">後殿月老廳 (YH)</option><option value="HH">後殿華佗廳 (HH)</option>
-<option value="RL">後殿龍門 (RL)</option><option value="RR">後殿虎門 (RR)</option><option value="TH">天上聖母殿 (TH)</option>
-<option value="GH">關聖帝君殿 (GH)</option><option value="WH">文昌帝君殿 (WH)</option><option value="PL">牌樓 (PL)</option>
-</select></label>
-<label class="field">屋面朝向
-<select id="direction"><option value="E">東</option><option value="W">西</option><option value="S">南</option><option value="N">北</option></select>
-</label>
-<label class="field">屋面部位
-<select id="roof_position"><option value="MR">正脊</option><option value="DR">垂脊</option><option value="HR">戧脊</option><option value="ER">圍脊</option><option value="AR">角脊</option><option value="SR">燕尾</option><option value="SD">水車堵</option><option value="GD">山花</option><option value="WD">牆堵</option></select>
-</label>
-<label class="field">構件代碼<input id="component_code" type="text"></label>
-<label class="field">檢視人員<input id="inspector" type="text"></label>
-<label class="field">檢視單位<input id="inspection_unit" type="text"></label>
-<label class="field">檢視日期<input id="inspection_date" type="date"></label>
-<label class="field">作者／落款<input id="author_signature" type="text"></label>
-<div class="full">
-<label class="field">裝飾屬性</label>
-<div class="checks">
-<label class="check"><input type="radio" name="ageClass" value="50年以上">製成年代逾 50 年以上</label>
-<label class="check"><input type="radio" name="ageClass" value="未達50年">製成年代未達 50 年</label>
-</div>
-</div>
-<div class="full">
-<label class="field">工藝類型（可複選）</label>
-<div class="checks">
-<label class="check"><input type="checkbox" name="crafts" value="CP">剪黏</label>
-<label class="check"><input type="checkbox" name="crafts" value="CS">泥塑</label>
-<label class="check"><input type="checkbox" name="crafts" value="JP">交趾陶</label>
-</div>
-</div>
-<div class="full">
-<label class="field">組成形式</label>
-<div class="checks">
-<label class="check"><input type="checkbox" name="composition" value="單件">單件</label>
-<label class="check"><input type="checkbox" name="composition" value="成對">成對</label>
-<label class="check"><input type="checkbox" name="composition" value="連續排列">連續排列</label>
-<label class="check"><input type="checkbox" name="composition" value="左右對稱">左右對稱</label>
-<label class="check"><input type="checkbox" name="composition" value="組群">組群</label>
-</div>
-</div>
-<label class="field full">對應作品編號（多筆以逗號分隔）<input id="related_record_codes" type="text"></label>
-</div>
-
-
-<h3 style="margin:0 0 14px; color:var(--green); font-size:15px;"></h3>
-
-<div class="grid3">
-<label class="field">長（cm）<input id="length_cm" type="number" step="0.01"></label>
-<label class="field">寬（cm）<input id="width_cm" type="number" step="0.01"></label>
-<label class="field">厚／高（cm）<input id="height_cm" type="number" step="0.01"></label>
-</div>
-
-<div class="checks" style="margin-top:12px">
-<label class="check"><input id="unable_to_measure" type="checkbox">無法測量</label>
-</div>
-
-<label class="field" style="margin-top:12px">
-所屬文化資產
-<input id="cultural_asset_name" class="readonly" type="text" value="艋舺龍山寺（國定古蹟）">
-</label>
-</div>
-
-</div>
-</section>
-
-<!-- 2 -->
-<section class="panel" id="material">
-<div class="section">
-<h2>年代</h2>
-<div class="grid">
-<label class="field">年代區間<input id="period_range" type="text" placeholder="例如：日治時期（1895–1945）"></label>
-<label class="field">文物紀年（西元）<input id="artifact_year" type="number"></label>
-</div>
-<div class="checks" style="margin-top:12px"><label class="check"><input id="year_pending_analysis" type="checkbox">待分析</label></div>
-</div>
-
-<div class="section">
-<h2>剪黏／泥塑材料</h2>
-<label class="field">表面材料</label>
-<div class="checks" data-check-group="surface_materials">
-<label class="check"><input type="checkbox" value="仿古瓷碗片">仿古瓷碗片</label><label class="check"><input type="checkbox" value="彩色玻璃片">彩色玻璃片</label><label class="check"><input type="checkbox" value="陶片">陶片</label><label class="check"><input type="checkbox" value="瓷片">瓷片</label><label class="check"><input type="checkbox" value="瓦片">瓦片</label><label class="check"><input type="checkbox" value="金屬">金屬</label><label class="check"><input type="checkbox" value="壓克力">壓克力</label><label class="check"><input type="checkbox" value="彩繪">彩繪</label><label class="check"><input type="checkbox" value="貼金">貼金</label><label class="check"><input type="checkbox" value="未施彩">未施彩</label><label class="check"><input type="checkbox" value="無法辨識">無法辨識</label>
-</div>
-<label class="field" style="margin-top:14px">坯體</label>
-<div class="checks" data-check-group="body_materials">
-<label class="check"><input type="checkbox" value="水泥砂漿">水泥砂漿</label><label class="check"><input type="checkbox" value="灰泥">灰泥</label><label class="check"><input type="checkbox" value="金屬骨架">金屬骨架</label><label class="check"><input type="checkbox" value="無法辨識">無法辨識</label>
-</div>
-<label class="field" style="margin-top:14px">基底材料</label>
-<div class="checks" data-check-group="base_materials">
-<label class="check"><input type="checkbox" value="麻絨">麻絨</label><label class="check"><input type="checkbox" value="海菜粉">海菜粉</label><label class="check"><input type="checkbox" value="糯米糖水">糯米糖水</label><label class="check"><input type="checkbox" value="化學樹脂">化學樹脂</label><label class="check"><input type="checkbox" value="未發現相關資料">未發現相關資料</label><label class="check"><input type="checkbox" value="無法確認">無法確認</label>
-</div>
-</div>
-
-<div class="section">
-<h2>交趾陶材料</h2>
-<label class="field">坯體類型</label>
-<div class="checks" data-check-group="ceramic_body_types">
-<label class="check"><input type="checkbox" value="陶坯">陶坯</label><label class="check"><input type="checkbox" value="瓷坯">瓷坯</label><label class="check"><input type="checkbox" value="無法辨識">無法辨識</label>
-</div>
-<label class="field" style="margin-top:14px">釉彩類型</label>
-<div class="checks" data-check-group="glaze_types">
-<label class="check"><input type="checkbox" value="寶石釉">寶石釉</label><label class="check"><input type="checkbox" value="水彩釉">水彩釉</label><label class="check"><input type="checkbox" value="西洋釉上彩">西洋釉上彩</label><label class="check"><input type="checkbox" value="無法辨識">無法辨識</label>
-</div>
-<label class="field" style="margin-top:14px">釉面特徵</label>
-<div class="checks" data-check-group="glaze_features">
-<label class="check"><input type="checkbox" value="透明">透明</label><label class="check"><input type="checkbox" value="半透明">半透明</label><label class="check"><input type="checkbox" value="不透明">不透明</label><label class="check"><input type="checkbox" value="透明與不透明並用">透明與不透明並用</label><label class="check"><input type="checkbox" value="無法辨識">無法辨識</label>
-</div>
-</div>
-
-<div class="section">
-<h2>材料判定依據</h2>
-<div class="checks" data-check-group="material_basis">
-<label class="check"><input type="checkbox" value="現場目視">現場目視</label><label class="check"><input type="checkbox" value="材料外露">材料外露</label><label class="check"><input type="checkbox" value="修復報告">修復報告</label><label class="check"><input type="checkbox" value="施工紀錄">施工紀錄</label><label class="check"><input type="checkbox" value="匠師訪談">匠師訪談</label><label class="check"><input type="checkbox" value="材料檢測">材料檢測</label><label class="check"><input type="checkbox" value="歷史文獻">歷史文獻</label>
-</div>
-</div>
-</section>
-
-<!-- 3 -->
-<section class="panel" id="subject">
-<div class="section">
-<h2>工藝題材典故</h2>
-<label class="field">題材分類</label>
-<div class="checks" data-check-group="subject_categories">
-<label class="check"><input type="checkbox" value="人物">人物</label><label class="check"><input type="checkbox" value="神祇">神祇</label><label class="check"><input type="checkbox" value="歷史故事">歷史故事</label><label class="check"><input type="checkbox" value="戲曲故事">戲曲故事</label><label class="check"><input type="checkbox" value="吉祥圖案">吉祥圖案</label><label class="check"><input type="checkbox" value="動物">動物</label><label class="check"><input type="checkbox" value="植物">植物</label><label class="check"><input type="checkbox" value="水族">水族</label><label class="check"><input type="checkbox" value="器物">器物</label><label class="check"><input type="checkbox" value="文字">文字</label><label class="check"><input type="checkbox" value="山水">山水</label><label class="check"><input type="checkbox" value="其他">其他</label>
-</div>
-<label class="field" style="margin-top:14px">題材內容與典故簡述<textarea id="subject_description"></textarea></label>
-<label class="field" style="margin-top:14px">一般備註<textarea id="note"></textarea></label>
-</div>
-</section>
-
-<!-- 4 -->
-<section class="panel" id="condition">
-<div class="section">
-<h2>損壞情形</h2>
-<label class="field">整體情形</label>
-<div class="checks" data-check-group="overall_conditions">
-<label class="check"><input type="checkbox" value="現況良好">現況良好</label><label class="check"><input type="checkbox" value="損壞嚴重">損壞嚴重</label><label class="check"><input type="checkbox" value="局部損壞">局部損壞</label><label class="check"><input type="checkbox" value="結構不穩">結構不穩</label><label class="check"><input type="checkbox" value="作品佚失">作品佚失</label>
-</div>
-<label class="field" style="margin-top:14px">骨架</label>
-<div class="checks" data-check-group="framework_damage">
-<label class="check"><input type="checkbox" value="裸露">裸露</label><label class="check"><input type="checkbox" value="鏽蝕">鏽蝕</label><label class="check"><input type="checkbox" value="斷裂">斷裂</label><label class="check"><input type="checkbox" value="變形">變形</label><label class="check"><input type="checkbox" value="鬆動">鬆動</label><label class="check"><input type="checkbox" value="背景或配件佚失">背景或配件佚失</label><label class="check"><input type="checkbox" value="佚失">佚失</label>
-</div>
-<label class="field" style="margin-top:14px">胚體</label>
-<div class="checks" data-check-group="body_damage">
-<label class="check"><input type="checkbox" value="汙損">汙損</label><label class="check"><input type="checkbox" value="粉化">粉化</label><label class="check"><input type="checkbox" value="剝離">剝離</label><label class="check"><input type="checkbox" value="空鼓">空鼓</label><label class="check"><input type="checkbox" value="生物劣化">生物劣化</label><label class="check"><input type="checkbox" value="鹽害">鹽害</label><label class="check"><input type="checkbox" value="破損">破損</label><label class="check"><input type="checkbox" value="裂縫">裂縫</label><label class="check"><input type="checkbox" value="佚失">佚失</label>
-</div>
-<label class="field" style="margin-top:14px">表層繪色</label>
-<div class="checks" data-check-group="surface_damage">
-<label class="check"><input type="checkbox" value="汙損">汙損</label><label class="check"><input type="checkbox" value="粉化">粉化</label><label class="check"><input type="checkbox" value="褪色">褪色</label><label class="check"><input type="checkbox" value="龜裂">龜裂</label><label class="check"><input type="checkbox" value="剝落">剝落</label><label class="check"><input type="checkbox" value="起甲">起甲</label><label class="check"><input type="checkbox" value="泛鹽">泛鹽</label><label class="check"><input type="checkbox" value="佚失">佚失</label>
-</div>
-<label class="field" style="margin-top:14px">外覆材料</label>
-<div class="checks" data-check-group="covering_damage">
-<label class="check"><input type="checkbox" value="汙損">汙損</label><label class="check"><input type="checkbox" value="脫落">脫落</label><label class="check"><input type="checkbox" value="碎裂">碎裂</label><label class="check"><input type="checkbox" value="釉面剝落">釉面剝落</label><label class="check"><input type="checkbox" value="褪色">褪色</label><label class="check"><input type="checkbox" value="佚失">佚失</label>
-</div>
-</div>
-
-<div class="section">
-<h2>保存狀況分級</h2>
-<div class="checks">
-<label class="check"><input type="radio" name="condition_level" value="1">第一級：整體狀況良好</label>
-<label class="check"><input type="radio" name="condition_level" value="2">第二級：輕微劣化、狀況穩定</label>
-<label class="check"><input type="radio" name="condition_level" value="3">第三級：明顯劣化，可延緩處理</label>
-<label class="check"><input type="radio" name="condition_level" value="4">第四級：劣化持續發展，需優先處理</label>
-<label class="check"><input type="radio" name="condition_level" value="5">第五級：危急狀態，需立即處理</label>
-</div>
-<label class="field" style="margin-top:14px">保存狀況簡述<textarea id="condition_description"></textarea></label>
-</div>
-</section>
-
-<!-- 5 -->
-<section class="panel" id="conservation">
-<div class="section">
-<h2>未來修護建議</h2>
-<label class="field">修護策略</label>
-<div class="checks" data-check-group="conservation_strategies">
-<label class="check"><input type="checkbox" value="原狀維護">原狀維護</label><label class="check"><input type="checkbox" value="現狀保存">現狀保存</label><label class="check"><input type="checkbox" value="加固處理">加固處理</label><label class="check"><input type="checkbox" value="清潔處理">清潔處理</label><label class="check"><input type="checkbox" value="表層色層補色">表層色層補色</label><label class="check"><input type="checkbox" value="補缺修復">補缺修復</label><label class="check"><input type="checkbox" value="局部重塑">局部重塑</label><label class="check"><input type="checkbox" value="不當修補材料移除">不當修補材料移除</label><label class="check"><input type="checkbox" value="原貌復原">原貌復原</label><label class="check"><input type="checkbox" value="全面重製">全面重製</label><label class="check"><input type="checkbox" value="移地保存">移地保存</label><label class="check"><input type="checkbox" value="複製替換">複製替換</label>
-</div>
-<label class="field" style="margin-top:14px">材料選用</label>
-<div class="checks" data-check-group="material_recommendations">
-<label class="check"><input type="checkbox" value="傳統材料">傳統材料</label><label class="check"><input type="checkbox" value="類傳統材料">類傳統材料</label><label class="check"><input type="checkbox" value="現代可逆材料">現代可逆材料</label><label class="check"><input type="checkbox" value="原件碎片回貼">原件碎片回貼</label>
-</div>
-<div class="checks" style="margin-top:14px">
-<label class="check"><input id="professional_assessment_needed" type="checkbox">需委託專業修復單位評估</label>
-<label class="check"><input id="urgent_treatment_needed" type="checkbox">需緊急處理（短期內）</label>
-</div>
-</div>
-
-<div class="section">
-<h2>資料來源與年代判定</h2>
-<div class="checks" data-check-group="source_types">
-<label class="check"><input type="checkbox" value="現場落款">現場落款</label><label class="check"><input type="checkbox" value="修繕碑記">修繕碑記</label><label class="check"><input type="checkbox" value="廟方檔案">廟方檔案</label><label class="check"><input type="checkbox" value="修復報告">修復報告</label><label class="check"><input type="checkbox" value="歷史照片">歷史照片</label><label class="check"><input type="checkbox" value="訪談">訪談</label><label class="check"><input type="checkbox" value="文獻">文獻</label><label class="check"><input type="checkbox" value="推定">推定</label>
-</div>
-<label class="field" style="margin-top:14px">判定可信程度
-<select id="dating_confidence"><option value=""></option><option>確定</option><option>高度可能</option><option>推測</option><option>待考</option></select>
-</label>
-</div>
-</section>
-
-<!-- 6 -->
-<section class="panel" id="photos">
-
-<div class="photo-form">
-<h2>新增／編輯影像紀錄</h2>
-
-<input id="editing_photo_id" type="hidden">
-<input id="editing_storage_path" type="hidden">
-
-<div class="grid">
-<label class="field">
-照片型別＋序號
-<input id="photo_token" type="text" placeholder="例如 O01、D01">
-</label>
-
-<label class="field">
-照片編號
-<input id="photo_code_preview" class="readonly" type="text" readonly>
-</label>
-
-<label class="field">
-照片類型
-<select id="photo_view_type">
-<option value=""></option>
-<option value="全景">全景</option>
-<option value="中景">中景</option>
-<option value="近景">近景</option>
-<option value="細節">細節</option>
-</select>
-</label>
-
-<label class="field">
-攝影者
-<input id="photo_photographer" type="text">
-</label>
-
-<label class="field">
-攝影時間
-<input id="photo_taken_at" type="datetime-local">
-</label>
-
-<label class="field">
-授權說明
-<input id="photo_copyright_note" type="text">
-</label>
-
-<label class="field full">
-影像內容
-<select id="photo_image_content">
-<option value=""></option>
-<option value="損壞全貌">損壞全貌</option>
-<option value="構造材料">構造材料</option>
-<option value="落款題記">落款題記</option>
-<option value="局部劣化">局部劣化</option>
-<option value="其他">其他</option>
-</select>
-</label>
-
-<label class="field full">
-損壞標示或位置說明
-<textarea id="photo_damage_location_note"></textarea>
-</label>
-
-<label class="field full">
-選擇影像檔
-<input id="photo_file" type="file" accept="image/*">
-</label>
-</div>
-
-<div class="checks" style="margin-top:12px">
-<label class="check">
-<input id="photo_is_representative" type="checkbox">
-設為代表照片
-</label>
-</div>
-
-<div class="photo-preview" id="photoPreviewBox">
-<img id="photoPreviewImg" alt="影像預覽">
-</div>
-
-<div class="toolbar" style="margin-top:14px">
-<button id="savePhotoBtn" class="primary" type="button">📷 儲存影像紀錄</button>
-<button id="cancelPhotoEditBtn" class="secondary" type="button">取消編輯</button>
-</div>
-
-<div class="small" style="margin-top:10px">
-新增照片時必須選擇影像檔；編輯既有照片時，可只修改欄位而不重新選檔。
-</div>
-</div>
-
-<div id="photoGrid" class="photo-grid"></div>
-</section>
-
-<!-- 7 -->
-<section class="panel" id="repairs">
-<div class="section">
-<h2>新增一筆歷次修繕／替換紀錄</h2>
-<div class="grid">
-<label class="field">原作年代<input id="repair_original_year" type="text"></label>
-<label class="field">現存作品年代<input id="repair_existing_work_year" type="text"></label>
-<label class="field">修繕年代<input id="repair_year" type="text"></label>
-<label class="field">修繕匠師<input id="repair_artisan" type="text"></label>
-<label class="field">修繕單位<input id="repair_organization" type="text"></label>
-<label class="field">現存狀態
-<select id="repair_current_status"><option value=""></option><option>原件</option><option>局部更新</option><option>全面重製</option><option>年代不明</option></select>
-</label>
-<label class="field full">修繕方式／紀錄來源<input id="repair_method" type="text"></label>
-<label class="field full">資料來源<input id="repair_source" type="text"></label>
-<label class="field full">其他備註<textarea id="repair_note"></textarea></label>
-</div>
-<button id="addRepairBtn" class="green" style="margin-top:12px">＋ 新增修繕紀錄</button>
-</div>
-<div id="repairList" class="repair-list"></div>
-</section>
-
-<div class="bottom-save">
-    <span id="saveStatus" class="small" style="margin-right:auto;align-self:center"></span>
-    <button id="saveBottom" class="primary">💾 儲存全部修改</button>
-</div>
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/pizzip@3.2.0/dist/pizzip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.65.2/build/docxtemplater.js"></script>
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
 const SUPABASE_URL = "https://kappwvkerqdsvpgzamnc.supabase.co";
-const SUPABASE_KEY = "sb_publishable_WIVgXV-WgBcveNX2yvLs8g_Y2tYDomD"; // 換成目前 login 已成功使用的 Publishable key
-
+const SUPABASE_KEY = "sb_publishable_WIVgXV-WgBcveNX2yvLs8g_Y2tYDomD";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+  auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
 });
 
-const qs = new URLSearchParams(location.search);
-const recordId = qs.get("id");
-let currentRecord = null;
-
-const $ = id => document.getElementById(id);
-const checked = name => [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(x=>x.value);
-const groupValues = key => [...document.querySelectorAll(`[data-check-group="${key}"] input:checked`)].map(x=>x.value);
-
-function setChecked(name, values){
-    const set = new Set(values || []);
-    document.querySelectorAll(`input[name="${name}"]`).forEach(x=>x.checked=set.has(x.value));
-}
-function setGroup(key, values){
-    const set = new Set(values || []);
-    document.querySelectorAll(`[data-check-group="${key}"] input`).forEach(x=>x.checked=set.has(x.value));
-}
-function setRadio(name, value){
-    document.querySelectorAll(`input[name="${name}"]`).forEach(x=>x.checked=String(x.value)===String(value ?? ""));
-}
-function numOrNull(id){
-    const v=$(id).value.trim(); return v==="" ? null : Number(v);
-}
-function val(id){ return $(id).value.trim() || null; }
-function esc(s){return String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")}
-
-document.querySelectorAll(".tab").forEach(tab=>{
-    tab.onclick=()=>{
-        document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-        document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
-        tab.classList.add("active");
-        $(tab.dataset.panel).classList.add("active");
-    };
-});
-
-async function requireSession(){
-    const {data:{session}} = await supabase.auth.getSession();
-    if(!session){
-        $("status").className="status bad";
-        $("status").innerHTML='❌ 尚未登入。<a href="login.html">回登入頁</a>';
-        return false;
-    }
-    $("status").className="status ok";
-    $("status").textContent=`✅ 已登入：${session.user.email}`;
-    return true;
-}
-
-async function loadRecord(){
-    if(!recordId){
-        $("status").className="status bad";
-        $("status").textContent="❌ 網址缺少作品 id。請從 query.html 進入。";
-        return;
-    }
-    if(!await requireSession()) return;
-
-    const {data,error}=await supabase.from("survey_records").select("*").eq("id",recordId).single();
-    if(error){ $("status").className="status bad"; $("status").textContent="❌ 讀取失敗："+error.message; return; }
-
-    currentRecord=data;
-    $("recordCode").textContent=data.record_code;
-    $("record_code").value=data.record_code||"";
-    $("title").value=data.title||"";
-    $("area").value=data.area||"SH";
-    $("direction").value=data.direction||"W";
-    $("roof_position").value=data.roof_position||"MR";
-    $("component_code").value=data.component_code||"";
-    $("inspector").value=data.inspector||"";
-    $("inspection_unit").value=data.inspection_unit||"";
-    $("inspection_date").value=data.inspection_date||"";
-    $("author_signature").value=data.author_signature||"";
-    setRadio("ageClass",data.decoration_age_class);
-    setChecked("crafts",data.crafts);
-    setChecked("composition",data.composition_types);
-    $("related_record_codes").value=(data.related_record_codes||[]).join(", ");
-    $("length_cm").value=data.length_cm??"";
-    $("width_cm").value=data.width_cm??"";
-    $("height_cm").value=data.height_cm??"";
-    $("unable_to_measure").checked=!!data.unable_to_measure;
-    $("cultural_asset_name").value=data.cultural_asset_name||"艋舺龍山寺（國定古蹟）";
-    $("period_range").value=data.period_range||"";
-    $("artifact_year").value=data.artifact_year??"";
-    $("year_pending_analysis").checked=!!data.year_pending_analysis;
-
-    setGroup("surface_materials",data.surface_materials);
-    setGroup("body_materials",data.body_materials);
-    setGroup("base_materials",data.base_materials);
-    setGroup("ceramic_body_types",data.ceramic_body_types);
-    setGroup("glaze_types",data.glaze_types);
-    setGroup("glaze_features",data.glaze_features);
-    setGroup("material_basis",data.material_basis);
-    setGroup("subject_categories",data.subject_categories);
-    $("subject_description").value=data.subject_description||"";
-    $("note").value=data.note||"";
-    setGroup("source_types",data.source_types);
-    $("dating_confidence").value=data.dating_confidence||"";
-
-    await Promise.all([loadCondition(),loadPhotos(),loadRepairs()]);
-}
-
-async function loadCondition(){
-    const {data,error}=await supabase.from("condition_records").select("*").eq("record_id",recordId).maybeSingle();
-    if(error){console.error(error);return}
-    if(!data)return;
-    setGroup("overall_conditions",data.overall_conditions);
-    setGroup("framework_damage",data.framework_damage);
-    setGroup("body_damage",data.body_damage);
-    setGroup("surface_damage",data.surface_damage);
-    setGroup("covering_damage",data.covering_damage);
-    setRadio("condition_level",data.condition_level);
-    $("condition_description").value=data.condition_description||"";
-    setGroup("conservation_strategies",data.conservation_strategies);
-    setGroup("material_recommendations",data.material_recommendations);
-    $("professional_assessment_needed").checked=!!data.professional_assessment_needed;
-    $("urgent_treatment_needed").checked=!!data.urgent_treatment_needed;
-}
-
-async function loadPhotos(){
-    const box=$("photoGrid");
-    box.innerHTML="";
-
-    const {data,error}=await supabase
-        .from("photos")
-        .select("*")
-        .eq("record_id",recordId)
-        .order("sequence_no",{ascending:true});
-
-    if(error){
-        box.innerHTML=`<div class="small">照片讀取失敗：${esc(error.message)}</div>`;
-        return;
-    }
-
-    if(!data?.length){
-        box.innerHTML='<div class="small">目前尚無照片紀錄。</div>';
-        return;
-    }
-
-    for(const p of data){
-        const {data:signed,error:signedError}=await supabase.storage
-            .from("longshan-photos")
-            .createSignedUrl(p.storage_path,3600);
-
-        const card=document.createElement("div");
-        card.className="photo-card";
-
-        card.innerHTML=`
-            ${signed?.signedUrl
-                ? `<img src="${esc(signed.signedUrl)}" alt="${esc(p.photo_code)}">`
-                : `<div class="small">${signedError ? "影像連結失敗：" + esc(signedError.message) : "無法顯示影像"}</div>`
-            }
-            <div class="record-code" style="font-size:12px;margin-top:8px">${esc(p.photo_code)}</div>
-            <div class="small">
-                ${p.is_representative ? "⭐ 代表照片<br>" : ""}
-                類型：${esc(p.photo_type||"—")}
-                ${p.sequence_no != null ? " " + esc(p.sequence_no) : ""}<br>
-                攝影者：${esc(p.photographer||"—")}<br>
-                攝影時間：${esc(p.taken_at ? new Date(p.taken_at).toLocaleString("zh-TW") : "—")}<br>
-                影像內容：${esc(p.image_content||"—")}<br>
-                檔名：${esc(p.file_name||"—")}
-            </div>
-            <div class="photo-actions">
-                <button class="secondary edit-photo-btn" type="button">✏️ 編輯</button>
-                <button class="danger delete-photo-btn" type="button">🗑️ 刪除</button>
-            </div>`;
-
-        card.querySelector(".edit-photo-btn").onclick=()=>beginPhotoEdit(p);
-        card.querySelector(".delete-photo-btn").onclick=()=>deletePhotoRecord(p);
-
-        box.appendChild(card);
-    }
-}
-
-
-function normalizePhotoToken(value){
-    return String(value||"").trim().toUpperCase().replace(/\s+/g,"");
-}
-
-function photoCodeFromToken(){
-    const token=normalizePhotoToken($("photo_token").value);
-    return token && currentRecord ? `${currentRecord.record_code}-${token}` : "";
-}
-
-function updatePhotoCodePreview(){
-    $("photo_token").value=normalizePhotoToken($("photo_token").value);
-    $("photo_code_preview").value=photoCodeFromToken();
-}
-
-function parsePhotoToken(token){
-    const m=normalizePhotoToken(token).match(/^([A-Z]+)(\d+)$/);
-    return m ? {type:m[1],sequence:Number(m[2])} : {type:normalizePhotoToken(token)||null,sequence:null};
-}
-
-function resetPhotoForm(){
-    $("editing_photo_id").value="";
-    $("editing_storage_path").value="";
-    $("photo_token").value="";
-    $("photo_code_preview").value="";
-    $("photo_view_type").value="";
-    $("photo_photographer").value="";
-    $("photo_taken_at").value="";
-    $("photo_copyright_note").value="";
-    $("photo_image_content").value="";
-    $("photo_damage_location_note").value="";
-    $("photo_file").value="";
-    $("photo_is_representative").checked=false;
-    $("photoPreviewBox").style.display="none";
-    $("photoPreviewImg").removeAttribute("src");
-    $("savePhotoBtn").textContent="📷 儲存影像紀錄";
-}
-
-function datetimeLocalValue(value){
-    if(!value) return "";
-    const d=new Date(value);
-    if(Number.isNaN(d.getTime())) return "";
-    const local=new Date(d.getTime()-d.getTimezoneOffset()*60000);
-    return local.toISOString().slice(0,16);
-}
-
-function beginPhotoEdit(p){
-    const suffix=String(p.photo_code||"").startsWith(currentRecord.record_code+"-")
-        ? p.photo_code.slice(currentRecord.record_code.length+1)
-        : "";
-
-    $("editing_photo_id").value=p.id;
-    $("editing_storage_path").value=p.storage_path||"";
-    $("photo_token").value=suffix;
-    $("photo_code_preview").value=p.photo_code||"";
-    $("photo_view_type").value=p.photo_type_display||"";
-    $("photo_photographer").value=p.photographer||"";
-    $("photo_taken_at").value=datetimeLocalValue(p.taken_at);
-    $("photo_copyright_note").value=p.copyright_note||"";
-    $("photo_image_content").value=p.image_content||"";
-    $("photo_damage_location_note").value=p.damage_location_note||"";
-    $("photo_is_representative").checked=!!p.is_representative;
-    $("photo_file").value="";
-    $("savePhotoBtn").textContent="💾 更新影像紀錄";
-
-    document.querySelector('.tab[data-panel="photos"]').click();
-    window.scrollTo({top:0,behavior:"smooth"});
-}
-
-async function savePhotoRecord(){
-    if(!currentRecord) return;
-
-    const editingId=$("editing_photo_id").value||null;
-    const oldStoragePath=$("editing_storage_path").value||null;
-    const token=normalizePhotoToken($("photo_token").value);
-    const photoCode=photoCodeFromToken();
-    const file=$("photo_file").files?.[0]||null;
-
-    if(!token){
-        alert("❌ 請填寫照片型別＋序號，例如 O01 或 D01。");
-        return;
-    }
-
-    if(!editingId && !file){
-        alert("❌ 新增照片時必須選擇影像檔。");
-        return;
-    }
-
-    $("savePhotoBtn").disabled=true;
-    $("savePhotoBtn").textContent="⏳ 正在儲存……";
-
-    try{
-        const parsed=parsePhotoToken(token);
-        let storagePath=oldStoragePath;
-        let fileName=null;
-
-        if(file){
-            if(!storagePath){
-                const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
-                storagePath=`${currentRecord.area}/${currentRecord.record_code}/${photoCode}.${ext}`;
-            }
-
-            const {error:uploadError}=await supabase.storage
-                .from("longshan-photos")
-                .upload(storagePath,file,{
-                    upsert:true,
-                    contentType:file.type||undefined,
-                    cacheControl:"3600"
-                });
-
-            if(uploadError) throw new Error("影像上傳失敗："+uploadError.message);
-            fileName=file.name;
-        }
-
-        const representative=$("photo_is_representative").checked;
-
-        if(representative){
-            const {error:clearRepError}=await supabase
-                .from("photos")
-                .update({is_representative:false})
-                .eq("record_id",recordId);
-
-            if(clearRepError) throw new Error("代表照片更新失敗："+clearRepError.message);
-        }
-
-        const row={
-            record_id:recordId,
-            photo_code:photoCode,
-            photo_type:parsed.type,
-            sequence_no:parsed.sequence,
-            storage_path:storagePath,
-            photographer:val("photo_photographer"),
-            taken_at:$("photo_taken_at").value ? new Date($("photo_taken_at").value).toISOString() : null,
-            copyright_note:val("photo_copyright_note"),
-            image_content:val("photo_image_content"),
-            damage_location_note:val("photo_damage_location_note"),
-            is_representative:representative
-        };
-
-        if(fileName) row.file_name=fileName;
-
-        let result;
-        if(editingId){
-            result=await supabase.from("photos").update(row).eq("id",editingId);
-        }else{
-            result=await supabase.from("photos").insert(row);
-        }
-
-        if(result.error) throw new Error("照片資料寫入失敗："+result.error.message);
-
-        resetPhotoForm();
-        await loadPhotos();
-        alert(editingId ? "✅ 影像紀錄已更新。" : "✅ 影像紀錄已新增。");
-
-    }catch(err){
-        console.error(err);
-        alert("❌ "+err.message);
-    }finally{
-        $("savePhotoBtn").disabled=false;
-        if(!$("editing_photo_id").value) $("savePhotoBtn").textContent="📷 儲存影像紀錄";
-    }
-}
-
-async function deletePhotoRecord(p){
-    if(!confirm(`確定要刪除照片 ${p.photo_code} 嗎？\n\n此操作會同時刪除 Storage 原檔與 photos 資料表紀錄。`)){
-        return;
-    }
-
-    try{
-        const {error:storageError}=await supabase.storage
-            .from("longshan-photos")
-            .remove([p.storage_path]);
-
-        if(storageError) throw new Error("Storage 刪除失敗："+storageError.message);
-
-        const {error:dbError}=await supabase
-            .from("photos")
-            .delete()
-            .eq("id",p.id);
-
-        if(dbError) throw new Error("photos 資料列刪除失敗："+dbError.message);
-
-        await loadPhotos();
-        alert("✅ 照片已刪除。");
-
-    }catch(err){
-        console.error(err);
-        alert("❌ "+err.message);
-    }
-}
-
-$("photo_token").addEventListener("input",updatePhotoCodePreview);
-
-$("photo_file").addEventListener("change",()=>{
-    const file=$("photo_file").files?.[0];
-    if(!file){
-        $("photoPreviewBox").style.display="none";
-        return;
-    }
-    const url=URL.createObjectURL(file);
-    $("photoPreviewImg").src=url;
-    $("photoPreviewBox").style.display="block";
-    $("photoPreviewImg").onload=()=>URL.revokeObjectURL(url);
-});
-
-$("savePhotoBtn").onclick=savePhotoRecord;
-$("cancelPhotoEditBtn").onclick=resetPhotoForm;
-
-async function loadRepairs(){
-    const box=$("repairList"); box.innerHTML="";
-    const {data,error}=await supabase.from("repair_records").select("*").eq("record_id",recordId).order("created_at",{ascending:false});
-    if(error){box.innerHTML=`<div class="small">${esc(error.message)}</div>`;return}
-    if(!data?.length){box.innerHTML='<div class="small">目前尚無修繕紀錄。</div>';return}
-    data.forEach(r=>{
-        const card=document.createElement("div"); card.className="repair-card";
-        card.innerHTML=`<strong>${esc(r.repair_year||"年代未填")}</strong>
-        <div class="small">匠師：${esc(r.artisan||"—")}｜單位：${esc(r.organization||"—")}<br>
-        狀態：${esc(r.current_status||"—")}<br>${esc(r.repair_method||"")}</div>`;
-        box.appendChild(card);
-    });
-}
-
-async function saveAll(){
-    if(!currentRecord)return;
-    $("saveStatus").textContent="正在儲存……";
-
-    const age=document.querySelector('input[name="ageClass"]:checked')?.value||null;
-    const related=$("related_record_codes").value.split(",").map(x=>x.trim()).filter(Boolean);
-
-    const survey={
-        title:val("title"), area:$("area").value, direction:$("direction").value,
-        roof_position:$("roof_position").value, component_code:val("component_code"),
-        inspector:val("inspector"), inspection_unit:val("inspection_unit"),
-        inspection_date:$("inspection_date").value||null, author_signature:val("author_signature"),
-        decoration_age_class:age, crafts:checked("crafts"), composition_types:checked("composition"),
-        related_record_codes:related, length_cm:numOrNull("length_cm"), width_cm:numOrNull("width_cm"),
-        height_cm:numOrNull("height_cm"), unable_to_measure:$("unable_to_measure").checked,
-        cultural_asset_name:val("cultural_asset_name"), period_range:val("period_range"),
-        artifact_year:numOrNull("artifact_year"), year_pending_analysis:$("year_pending_analysis").checked,
-        surface_materials:groupValues("surface_materials"), body_materials:groupValues("body_materials"),
-        base_materials:groupValues("base_materials"), ceramic_body_types:groupValues("ceramic_body_types"),
-        glaze_types:groupValues("glaze_types"), glaze_features:groupValues("glaze_features"),
-        material_basis:groupValues("material_basis"), subject_categories:groupValues("subject_categories"),
-        subject_description:val("subject_description"), note:val("note"),
-        source_types:groupValues("source_types"), dating_confidence:$("dating_confidence").value||null
-    };
-
-    const {error:e1}=await supabase.from("survey_records").update(survey).eq("id",recordId);
-    if(e1){$("saveStatus").textContent="❌ 主檔儲存失敗："+e1.message;return}
-
-    const level=document.querySelector('input[name="condition_level"]:checked')?.value;
-    const condition={
-        record_id:recordId,
-        overall_conditions:groupValues("overall_conditions"),
-        framework_damage:groupValues("framework_damage"),
-        body_damage:groupValues("body_damage"),
-        surface_damage:groupValues("surface_damage"),
-        covering_damage:groupValues("covering_damage"),
-        condition_level:level?Number(level):null,
-        condition_description:val("condition_description"),
-        conservation_strategies:groupValues("conservation_strategies"),
-        material_recommendations:groupValues("material_recommendations"),
-        professional_assessment_needed:$("professional_assessment_needed").checked,
-        urgent_treatment_needed:$("urgent_treatment_needed").checked
-    };
-    const {error:e2}=await supabase.from("condition_records").upsert(condition,{onConflict:"record_id"});
-    if(e2){$("saveStatus").textContent="❌ 保存狀況儲存失敗："+e2.message;return}
-
-    $("saveStatus").textContent="✅ 已儲存："+new Date().toLocaleTimeString();
-}
-
-$("addRepairBtn").onclick=async()=>{
-    const row={
-        record_id:recordId,
-        original_year:val("repair_original_year"),
-        existing_work_year:val("repair_existing_work_year"),
-        repair_year:val("repair_year"),
-        artisan:val("repair_artisan"),
-        organization:val("repair_organization"),
-        current_status:$("repair_current_status").value||null,
-        repair_method:val("repair_method"),
-        source:val("repair_source"),
-        note:val("repair_note")
-    };
-    const {error}=await supabase.from("repair_records").insert(row);
-    if(error){alert("❌ 新增修繕紀錄失敗："+error.message);return}
-    ["repair_original_year","repair_existing_work_year","repair_year","repair_artisan","repair_organization","repair_method","repair_source","repair_note"].forEach(id=>$(id).value="");
-    $("repair_current_status").value="";
-    await loadRepairs();
+const AREA_NAMES = {
+  SH:"三川殿", FL:"前殿龍門", FR:"前殿虎門", LC:"左下山前廊", RC:"右下山前廊",
+  XL:"左下山護室", XR:"右下山護室", BT:"鐘樓", DT:"鼓樓", GL:"左過水廊",
+  GR:"右過水廊", MH:"中殿", TL:"左頂山護室", TR:"右頂山護室", HH:"後殿華佗廳",
+  YH:"後殿月老廳", RL:"後殿龍門", RR:"後殿虎門", TH:"天上聖母殿",
+  GH:"關聖帝君殿", WH:"文昌帝君殿", PL:"牌樓"
+};
+const ROOF_NAMES = {MR:"正脊",DR:"垂脊",HR:"戧脊",ER:"圍脊",AR:"角脊",SR:"燕尾",SD:"水車堵",GD:"山花",WD:"牆堵"};
+const COMPONENT_NAMES = {
+  "00":"無法辨識","01":"上馬路","02":"下馬路","03":"三角堵","04":"水車堵",
+  "05":"四寸蓋","06":"印斗","07":"吐水","08":"西施脊","09":"身堵","10":"垂脊",
+  "11":"通風脊堵","12":"脊堵","13":"脊塞","14":"脊鎖","15":"脊獸","16":"規帶",
+  "17":"排頭","18":"頂堵","19":"墀頭","20":"翹脊"
 };
 
-$("saveTop").onclick=saveAll;
-$("saveBottom").onclick=saveAll;
-await loadRecord();
+const params = new URLSearchParams(location.search);
+const recordId = params.get("id");
+const downloadBtn = document.getElementById("downloadBtn");
+const errorBox = document.getElementById("error");
+let payload = null;
+
+const A = v => Array.isArray(v) ? v : [];
+const has = (arr,v) => A(arr).includes(v);
+const mark = (arr,v,label=v) => `${has(arr,v) ? "■" : "□"} ${label}`;
+const radio = (value, expected, label) => `${String(value??"")===String(expected) ? "■" : "□"} ${label}`;
+const txt = v => v===null || v===undefined ? "" : String(v).trim();
+
+function formatDateTW(value) {
+  if (!value) return "";
+  const m = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return txt(value);
+  return `${Number(m[1])} 年 ${Number(m[2])} 月 ${Number(m[3])} 日`;
+}
+
+function unknownValues(arr, known) {
+  return A(arr).filter(v => !known.includes(v));
+}
+
+function selectedOther(arr, known) {
+  const u = unknownValues(arr,known);
+  return u.length ? `■ 其他：${u.join("、")}` : "□ 其他：_____";
+}
+
+function buildData(r,c,repairs) {
+  const repair = A(repairs).length ? repairs[repairs.length-1] : {};
+
+  const dir = {
+    E: r.direction==="E", W:r.direction==="W",
+    S:r.direction==="S", N:r.direction==="N"
+  };
+
+  const location_block =
+    `殿區：${AREA_NAMES[r.area]||r.area||""}    ` +
+    `屋面朝向：${dir.E?"■":"□"}東  ${dir.W?"■":"□"}西  ${dir.S?"■":"□"}南  ${dir.N?"■":"□"}北\n` +
+    `屋頂部位：${ROOF_NAMES[r.roof_position]||r.roof_position||""}    ` +
+    `構件：${COMPONENT_NAMES[r.component_code]||r.component_code||""}`;
+
+  const age_block =
+    `${radio(r.decoration_age_class,"50年以上","製成年代逾50年以上裝飾工藝")}   ` +
+    `${radio(r.decoration_age_class,"未達50年","製成年代未達50年裝飾工藝")}`;
+
+  const craft_block =
+    `${mark(r.crafts,"CP","剪黏")}    ${mark(r.crafts,"CS","泥塑")}    ${mark(r.crafts,"JP","交趾陶")}`;
+
+  const period_block =
+    `年代區間：${txt(r.period_range) || "___________________"}\n` +
+    `文物紀年：${txt(r.artifact_year) || "________"} 年（西元）\n` +
+    `${r.year_pending_analysis ? "■" : "□"} 待分析`;
+
+  const composition_block =
+    `組成形式：${mark(r.composition_types,"單件")}   ${mark(r.composition_types,"成對")}   ` +
+    `${mark(r.composition_types,"連續排列")}   ${mark(r.composition_types,"左右對稱")}   ${mark(r.composition_types,"組群")}\n` +
+    `對應作品編號：${A(r.related_record_codes).join("、") || "____________________________________"}`;
+
+  const size_block = r.unable_to_measure
+    ? `長：________ ， 寬：________ ， 厚/高：________   ■ 無法測量`
+    : `長：${txt(r.length_cm)||"________"} ， 寬：${txt(r.width_cm)||"________"} ， 厚/高：${txt(r.height_cm)||"________"}   □ 無法測量`;
+
+  const surfKnown = ["仿古瓷碗片","彩色玻璃片","陶片","瓷片","瓦片","金屬","壓克力","彩繪","貼金","未施彩","無法辨識"];
+  const bodyKnown = ["水泥砂漿","灰泥","金屬骨架","無法辨識"];
+  const baseKnown = ["麻絨","海菜粉","糯米糖水","化學樹脂","未發現相關資料","無法確認","無法辨識"];
+
+  const material_cp_cs =
+    `【表面材料】${mark(r.surface_materials,"仿古瓷碗片")}  ${mark(r.surface_materials,"彩色玻璃片")}  ` +
+    `${mark(r.surface_materials,"陶片")}  ${mark(r.surface_materials,"瓷片")}  ${mark(r.surface_materials,"瓦片")}  ` +
+    `${mark(r.surface_materials,"金屬")}  ${mark(r.surface_materials,"壓克力")}  ${mark(r.surface_materials,"彩繪")}  ` +
+    `${mark(r.surface_materials,"貼金")}  ${mark(r.surface_materials,"未施彩")}  ${selectedOther(r.surface_materials,surfKnown)}  ` +
+    `${mark(r.surface_materials,"無法辨識")}\n` +
+    `【坯體】${mark(r.body_materials,"水泥砂漿")}  ${mark(r.body_materials,"灰泥")}  ${mark(r.body_materials,"金屬骨架")}  ` +
+    `${selectedOther(r.body_materials,bodyKnown)}  ${mark(r.body_materials,"無法辨識")}\n` +
+    `【基底材料】${mark(r.base_materials,"麻絨")}  ${mark(r.base_materials,"海菜粉")}  ${mark(r.base_materials,"糯米糖水")}  ` +
+    `${mark(r.base_materials,"化學樹脂")}  ${selectedOther(r.base_materials,baseKnown)}\n` +
+    `${mark(r.base_materials,"未發現相關資料")}  ${has(r.base_materials,"無法確認")||has(r.base_materials,"無法辨識") ? "■" : "□"} 無法辨識`;
+
+  const ceramicKnown = ["陶坯","瓷坯","無法辨識"];
+  const glazeKnown = ["寶石釉","水彩釉","西洋釉上彩","無法辨識"];
+  const featureKnown = ["透明","半透明","不透明","透明與不透明並用","無法辨識"];
+  const material_jp =
+    `【坯體類型】${mark(r.ceramic_body_types,"陶坯")}  ${mark(r.ceramic_body_types,"瓷坯")}  ` +
+    `${selectedOther(r.ceramic_body_types,ceramicKnown)}  ${mark(r.ceramic_body_types,"無法辨識")}\n` +
+    `【釉彩類型】${mark(r.glaze_types,"寶石釉")}  ${mark(r.glaze_types,"水彩釉")}  ${mark(r.glaze_types,"西洋釉上彩")}  ` +
+    `${selectedOther(r.glaze_types,glazeKnown)}  ${mark(r.glaze_types,"無法辨識")}\n` +
+    `【釉面特徵】${mark(r.glaze_features,"透明")}  ${mark(r.glaze_features,"半透明")}  ${mark(r.glaze_features,"不透明")}  ` +
+    `${mark(r.glaze_features,"透明與不透明並用")}  ${mark(r.glaze_features,"無法辨識")}`;
+
+  const material_basis_block =
+    `${mark(r.material_basis,"現場目視")}  ${mark(r.material_basis,"材料外露")}  ${mark(r.material_basis,"修復報告")}  ` +
+    `${mark(r.material_basis,"施工紀錄")}  ${mark(r.material_basis,"匠師訪談")}  ${mark(r.material_basis,"材料檢測")}\n` +
+    `${mark(r.material_basis,"歷史文獻")}  ${selectedOther(r.material_basis,["現場目視","材料外露","修復報告","施工紀錄","匠師訪談","材料檢測","歷史文獻"])}`;
+
+  const subjKnown = ["人物","神祇","歷史故事","戲曲故事","吉祥圖案","動物","植物","水族","器物","文字","山水","其他"];
+  const subjectOther = has(r.subject_categories,"其他") ? "■ 其他：___________" : "□ 其他：___________";
+  const subject_block =
+    `【題材分類】${mark(r.subject_categories,"人物")}  ${mark(r.subject_categories,"神祇")}  ${mark(r.subject_categories,"歷史故事")}  ` +
+    `${mark(r.subject_categories,"戲曲故事")}  ${mark(r.subject_categories,"吉祥圖案")}  ${mark(r.subject_categories,"動物")}  ${mark(r.subject_categories,"植物")}\n` +
+    `${mark(r.subject_categories,"水族")}  ${mark(r.subject_categories,"器物")}  ${mark(r.subject_categories,"文字")}  ${mark(r.subject_categories,"山水")}  ${subjectOther}\n` +
+    `【題材內容與典故簡述】\n${txt(r.subject_description)}`;
+
+  const overallKnown=["現況良好","損壞嚴重","局部損壞","結構不穩","作品佚失"];
+  const frameworkKnown=["裸露","鏽蝕","斷裂","變形","鬆動","背景或配件佚失","佚失"];
+  const bodyDamageKnown=["汙損","粉化","剝離","空鼓","生物劣化","鹽害","破損","裂縫","佚失"];
+  const surfaceKnown=["汙損","粉化","褪色","龜裂","剝落","起甲","泛鹽","佚失"];
+  const coverKnown=["汙損","脫落","碎裂","釉面剝落","褪色","佚失"];
+
+  const damage_block =
+    `【整體情形】${mark(c?.overall_conditions,"現況良好")}  ${mark(c?.overall_conditions,"損壞嚴重")}  ${mark(c?.overall_conditions,"局部損壞")}  ` +
+    `${mark(c?.overall_conditions,"結構不穩")}  ${mark(c?.overall_conditions,"作品佚失")}\n${selectedOther(c?.overall_conditions,overallKnown)}\n` +
+    `【骨架】${mark(c?.framework_damage,"裸露")}  ${mark(c?.framework_damage,"鏽蝕")}  ${mark(c?.framework_damage,"斷裂")}  ` +
+    `${mark(c?.framework_damage,"變形")}  ${mark(c?.framework_damage,"鬆動")}  ${mark(c?.framework_damage,"背景或配件佚失")}  ${mark(c?.framework_damage,"佚失")}\n` +
+    `${selectedOther(c?.framework_damage,frameworkKnown)}\n` +
+    `【胚體】${mark(c?.body_damage,"汙損")}  ${mark(c?.body_damage,"粉化","粉化（灰泥基底劣化）")}  ${mark(c?.body_damage,"剝離","剝離（層間分離）")}  ` +
+    `${mark(c?.body_damage,"空鼓","空鼓（內部中空）")}  ${mark(c?.body_damage,"生物劣化","生物劣化（苔蘚、藻類附生）")}  ${mark(c?.body_damage,"鹽害")}  ${mark(c?.body_damage,"破損")}  ${mark(c?.body_damage,"裂縫")}  ${mark(c?.body_damage,"佚失")}\n` +
+    `【表層繪色】${mark(c?.surface_damage,"汙損")}  ${mark(c?.surface_damage,"粉化")}  ${mark(c?.surface_damage,"褪色")}  ${mark(c?.surface_damage,"龜裂")}  ` +
+    `${mark(c?.surface_damage,"剝落")}  ${mark(c?.surface_damage,"起甲","起甲（彩繪層翹起）")}  ${mark(c?.surface_damage,"泛鹽","泛鹽（白華現象）")}  ${mark(c?.surface_damage,"佚失")}\n` +
+    `【外覆材料】${mark(c?.covering_damage,"汙損")}  ${mark(c?.covering_damage,"脫落")}  ${mark(c?.covering_damage,"碎裂")}  ` +
+    `${mark(c?.covering_damage,"釉面剝落","釉面剝落（交趾陶適用）")}  ${mark(c?.covering_damage,"褪色")}  ${mark(c?.covering_damage,"佚失")}`;
+
+  const condition_level_block =
+    `${radio(c?.condition_level,1,"第一級：整體狀況良好。")}\n` +
+    `${radio(c?.condition_level,2,"第二級：有輕微劣化，但狀況穩定，暫不需處理。")}\n` +
+    `${radio(c?.condition_level,3,"第三級：有明顯劣化，可延緩處理。")}\n` +
+    `${radio(c?.condition_level,4,"第四級：劣化持續發展，需優先處理。")}\n` +
+    `${radio(c?.condition_level,5,"第五級：結構或構件處於危急狀態，需立即處理。")}`;
+
+  const repair_advice_block =
+    `【修護策略】${mark(c?.conservation_strategies,"原狀維護","原狀維護（定期清潔、監測）")}  ` +
+    `${mark(c?.conservation_strategies,"現狀保存","現狀保存（維持現況，不介入）")}\n` +
+    `${mark(c?.conservation_strategies,"加固處理","加固處理（含泥胎補強、剪黏片重新固定）")}  ${mark(c?.conservation_strategies,"清潔處理")}  ` +
+    `${mark(c?.conservation_strategies,"表層色層補色","表層色層補色（比對原構件色相）")}  ${mark(c?.conservation_strategies,"補缺修復","補缺修復（脫落片回補／重新鑲嵌）")}  ${mark(c?.conservation_strategies,"局部重塑")}\n` +
+    `${mark(c?.conservation_strategies,"不當修補材料移除")}  ${mark(c?.conservation_strategies,"原貌復原")}  ${mark(c?.conservation_strategies,"全面重製")}  ` +
+    `${mark(c?.conservation_strategies,"移地保存")}  ${mark(c?.conservation_strategies,"複製替換","複製替換（原件典藏）")}\n` +
+    `【材料選用】${mark(c?.material_recommendations,"傳統材料","傳統材料（石灰、糯米漿等）")}  ` +
+    `${mark(c?.material_recommendations,"類傳統材料")}  ${mark(c?.material_recommendations,"現代可逆材料")}  ${mark(c?.material_recommendations,"原件碎片回貼")}`;
+
+  const source_block =
+    `資料來源：${mark(r.source_types,"現場落款")}  ${mark(r.source_types,"修繕碑記")}  ${mark(r.source_types,"廟方檔案")}  ` +
+    `${mark(r.source_types,"修復報告")}  ${mark(r.source_types,"歷史照片")}\n` +
+    `${has(r.source_types,"訪談") ? "■" : "□"} 訪談受訪者：___________  ${mark(r.source_types,"文獻")}  ${mark(r.source_types,"推定")}  □ 其他：_____\n` +
+    `判定可信程度：${radio(r.dating_confidence,"確定","確定")}  ${radio(r.dating_confidence,"高度可能","高度可能")}  ` +
+    `${radio(r.dating_confidence,"推測","推測")}  ${radio(r.dating_confidence,"待考","待考")}`;
+
+  const currentStatus = txt(repair.current_status);
+  const repair_history_block =
+    `原作年代：${txt(repair.original_year)||"____________________"}    現存作品年代：${txt(repair.existing_work_year)||"____________________"}\n` +
+    `修繕年代：${txt(repair.repair_year)||"____________________"}    修繕匠師：${txt(repair.artisan)||"__________________"}\n` +
+    `現存狀態：${currentStatus.includes("原件")?"■":"□"} 原件  ${currentStatus.includes("局部更新")?"■":"□"} 局部更新  ` +
+    `${currentStatus.includes("全面重製")?"■":"□"} 全面重製  ${currentStatus.includes("年代不明")?"■":"□"} 年代不明\n` +
+    `修繕方式／紀錄來源：${txt(repair.repair_method)||txt(repair.source)||"________________________________________________"}\n` +
+    `其他備註：${txt(repair.note)||txt(r.other_notes)||"________________________________________________"}`;
+
+  return {
+    title: txt(r.title),
+    record_code: txt(r.record_code),
+    location_block,
+    inspector: txt(r.inspector),
+    inspection_unit: txt(r.inspection_unit),
+    inspection_date: formatDateTW(r.inspection_date),
+    cultural_asset_name: "國定古蹟—\n文授資局蹟字第 10730122031 號",
+    age_block,
+    craft_block,
+    author_signature: txt(r.author_signature),
+    period_block,
+    composition_block,
+    size_block,
+    material_cp_cs,
+    material_jp,
+    material_basis_block,
+    subject_block,
+    damage_block,
+    condition_level_block,
+    repair_advice_block,
+    source_block,
+    repair_history_block
+  };
+}
+
+async function loadRecord() {
+  if (!recordId) throw new Error("網址缺少作品 id。");
+
+  const { data:{session} } = await supabase.auth.getSession();
+  if (!session) throw new Error("請先登入研究人員帳號。");
+
+  const [recordRes, conditionRes, repairRes] = await Promise.all([
+    supabase.from("survey_records").select("*").eq("id",recordId).single(),
+    supabase.from("condition_records").select("*").eq("record_id",recordId).maybeSingle(),
+    supabase.from("repair_records").select("*").eq("record_id",recordId).order("created_at",{ascending:true})
+  ]);
+
+  if (recordRes.error) throw recordRes.error;
+  if (conditionRes.error) throw conditionRes.error;
+  if (repairRes.error) throw repairRes.error;
+
+  const r = recordRes.data;
+  document.getElementById("recordCode").textContent = r.record_code || "—";
+  document.getElementById("titleText").textContent = r.title || "—";
+
+  payload = buildData(r, conditionRes.data || {}, repairRes.data || []);
+  downloadBtn.disabled = false;
+}
+
+async function downloadDocx() {
+  if (!payload) return;
+
+  downloadBtn.disabled = true;
+  downloadBtn.textContent = "正在建立 Word……";
+  errorBox.textContent = "";
+
+  try {
+    if (!window.PizZip || !window.docxtemplater) {
+      throw new Error("Word 匯出元件尚未載入，請重新整理頁面後再試。");
+    }
+
+    const templateRes = await fetch("./survey-template.docx", { cache:"no-store" });
+    if (!templateRes.ok) throw new Error("找不到 survey-template.docx，請確認檔案已上傳到同一個 GitHub Pages 目錄。");
+
+    const arrayBuffer = await templateRes.arrayBuffer();
+    const zip = new window.PizZip(arrayBuffer);
+
+    const doc = new window.docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true,
+      nullGetter: () => ""
+    });
+
+    doc.render(payload);
+
+    const blob = doc.getZip().generate({
+      type:"blob",
+      mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      compression:"DEFLATE"
+    });
+
+    const filename = `作品調查表-${payload.record_code || "作品"}.docx`;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+  } catch (err) {
+    console.error(err);
+    errorBox.textContent = "❌ " + (err?.message || String(err));
+  } finally {
+    downloadBtn.disabled = false;
+    downloadBtn.textContent = "下載 Word 調查表";
+  }
+}
+
+downloadBtn.addEventListener("click", downloadDocx);
+
+loadRecord().catch(err => {
+  console.error(err);
+  errorBox.textContent = "❌ " + (err?.message || String(err));
+  document.getElementById("recordCode").textContent = "讀取失敗";
+});
 </script>
 </body>
 </html>
