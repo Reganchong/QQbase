@@ -237,6 +237,11 @@
                 text-align: center;
             }
         }
+        .home-icon {
+            width: 1.2em;
+            height: 1.2em;
+            vertical-align: -0.22em;
+        }
     </style>
 </head>
 
@@ -244,7 +249,7 @@
 <div class="container">
 
     <div class="hero">
-        <h1>🏛️ Lungshan Temple Roof Decorations</h1>
+        <h1><img class="home-icon" src="assets/icons/hall-sanchuan.svg" alt=""> Lungshan Temple Roof Decorations</h1>
         <div class="subtitle">
             屋面裝飾調查・影像保存・
             <span id="managementText">資料管理</span>
@@ -265,7 +270,7 @@
             </div>
 
             <div class="auth-actions">
-                <a id="loginBtn" href="login.html" class="small-btn login-btn">🔐 研究人員登入</a>
+                <a id="loginBtn" href="login.html" class="small-btn login-btn"><img class="home-icon" src="assets/icons/researcher.svg" alt=""> 研究人員登入</a>
                 <button id="logoutBtn" type="button" class="small-btn logout-btn" style="display:none;">登出</button>
             </div>
         </div>
@@ -275,7 +280,7 @@
 
         <a href="log.html" class="menu-item orange">
             <div>
-                <h2>➕ 現場調查</h2>
+                <h2><img class="home-icon" src="assets/icons/field-survey.svg" alt=""> 現場調查</h2>
                 <p>
                     建立作品編號、選擇殿區與屋面位置、記錄工藝形式與調查影像。
                     有網路時直接寫入 Supabase；斷網時可先暫存，待恢復連線後同步。
@@ -286,7 +291,7 @@
 
         <a href="query.html" class="menu-item">
             <div>
-                <h2>🔍 資料庫查詢與編輯</h2>
+                <h2><img class="home-icon" src="assets/icons/database-search.svg" alt=""> 資料庫查詢與編輯</h2>
                 <p>
                     直接查詢雲端普查資料，依作品編號、殿區、方位、屋面部位、
                     構件與工藝形式進行篩選，並進入完整作品調查表補充或修改資料。
@@ -297,7 +302,7 @@
 
         <a href="display.html" class="menu-item gray">
             <div>
-                <h2>🖥️ 普查成果展示</h2>
+                <h2><img class="home-icon" src="assets/icons/showcase.svg" alt=""> 普查成果展示</h2>
                 <p>
                     以圖像與分類方式呈現普查成果，供成果發表、觸控展示與一般瀏覽使用。
                     後續將改為直接讀取雲端資料庫。
